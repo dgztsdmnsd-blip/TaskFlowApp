@@ -7,11 +7,13 @@
 
 import Foundation
 
+// Structure pour la requete de Login
 struct LoginRequest: Codable {
     let email: String
     let password: String
 }
 
+// Structure de réponse de Login
 struct LoginResponse: Codable {
     let token: String
     let refreshToken: String

@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct TitreView: View {
+    let couleur: Color
+    let texte: String
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text(texte)
+            .font(.largeTitle.bold())
+            .foregroundStyle(couleur)
     }
 }
 
 #Preview {
-    TitreView()
+    TitreView(couleur: .blue, texte: "Bienvenue")
 }

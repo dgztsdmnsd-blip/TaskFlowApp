@@ -8,11 +8,18 @@
 import SwiftUI
 
 struct SousTitreView: View {
+    let couleur: Color
+    let texte: String
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text(texte)
+            .font(.title3)
+            .fontWeight(.medium)
+            .foregroundStyle(couleur.opacity(0.9))
+            .multilineTextAlignment(.center)
     }
 }
 
 #Preview {
-    SousTitreView()
+    SousTitreView(couleur: .blue, texte: "Bienvenue")
 }
