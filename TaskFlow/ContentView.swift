@@ -23,6 +23,8 @@ struct ContentView: View {
             Image("Accueil")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+            
+            Text("aa")
         }
     }
 }
