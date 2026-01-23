@@ -6,18 +6,32 @@
 //
 
 import Foundation
+import Combine
 
-enum Environment {
+@MainActor
+final class AppState: ObservableObject {
+
+    enum Flow {
+        case welcome
+        case login
+        case main
+    }
+
+    @Published var flow: Flow = .welcome
+}
+
+
+enum Version {
     case dev
     case prod
 }
 
 enum AppConfig {
 
-    static let environment: Environment = .dev
+    static let version: Version = .dev
 
     static var baseURL: URL {
-        switch environment {
+        switch version {
         case .dev:
             return URL(string: "http://127.0.0.1:8000")!
         case .prod:

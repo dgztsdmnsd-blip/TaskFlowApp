@@ -14,6 +14,7 @@ final class LoginViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var isLoading = false
+    @Published var isAuthenticated: Bool = false
     @Published var errorMessage: String?
 
     @Published var token: String?
@@ -29,17 +30,24 @@ final class LoginViewModel: ObservableObject {
                 password: password
             )
 
-            // Récupération des token depuis la réponse
+            // Sauvegarde des tokens
+            SessionManager.shared.saveTokens(
+                access: response.token,
+                refresh: response.refreshToken
+            )
+
             self.token = response.token
             self.refreshToken = response.refreshToken
-            
+
+            self.isAuthenticated = true
             errorMessage = nil
+
         } catch {
-            // Gestion d'erreur
             errorMessage = error.localizedDescription
         }
 
         isLoading = false
     }
+
 }
 
