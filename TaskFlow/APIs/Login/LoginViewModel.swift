@@ -107,8 +107,6 @@ final class LoginViewModel: ObservableObject {
     /// - restaure l’access token
     /// - reconstruit la session sans login manuel
     func loginWithBiometrics() async {
-
-        // Empêche toute tentative concurrente
         guard !isAuthenticatingWithBiometrics else { return }
         isAuthenticatingWithBiometrics = true
         defer { isAuthenticatingWithBiometrics = false }
@@ -117,16 +115,26 @@ final class LoginViewModel: ObservableObject {
         isAuthenticated = false
 
         do {
-            // Déverrouillage du refresh token
-            // déclenche Face ID
-            let refreshToken = try SessionManager.shared.getRefreshToken()
+            print("Tentative Face ID")
 
-            // Succès → l’UI peut naviguer vers MainView
+            let refreshToken = try SessionManager.shared.getRefreshToken()
+            print("Refresh token récupéré")
+
+            let newAccessToken = try await RefreshService.shared
+                .refreshToken(using: refreshToken)
+
+            print("Access token reçu:", newAccessToken)
+
+            SessionManager.shared.saveAccessToken(newAccessToken)
+            print("Access token sauvegardé")
+
             isAuthenticated = true
+            print("Authentification OK")
 
         } catch {
-            // Refresh impossible (token invalide, supprimé, etc.)
+            print("Erreur biométrique:", error)
             errorMessage = "Session invalide, reconnectez-vous"
         }
     }
+
 }

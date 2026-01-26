@@ -19,6 +19,8 @@ struct ProfileView: View {
 
     // ViewModel du profil.
     @StateObject private var vm: ProfileViewModel
+    
+    @EnvironmentObject var appState: AppState
 
     // Initialiseur custom pour accepter un ViewModel externe
     init(viewModel: ProfileViewModel) {
@@ -82,6 +84,19 @@ struct ProfileView: View {
                                 profileRow(label: "Sortie", value: "-")
                             }
                         }
+                        
+                        Section {
+                            Button(role: .destructive) {
+                                handleLogout()
+                            } label: {
+                                HStack {
+                                    Spacer()
+                                    Text("Se déconnecter")
+                                    Spacer()
+                                }
+                            }
+                        }
+
                     }
                     .scrollContentBackground(.hidden)
                 }
@@ -125,6 +140,19 @@ struct ProfileView: View {
         }
         .padding(.vertical, 4)
     }
+    
+    
+    private func handleLogout() {
+        // 1. Purge totale de la session
+        SessionManager.shared.logout()
+
+        // 2. Ferme la sheet Profil
+        dismiss()
+
+        // 3. Retour à l’écran de login
+        appState.flow = .loginHome
+    }
+
 }
 
 extension ProfileViewModel {

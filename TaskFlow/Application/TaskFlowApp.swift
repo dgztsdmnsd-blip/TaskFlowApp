@@ -27,9 +27,14 @@ struct TaskFlowApp: App {
                     WelcomeView()
                         .transition(.opacity)
 
-                case .login:
+                case .loginHome:
                     // Écran de connexion (email + Face ID)
                     ConnexionView()
+                        .transition(.move(edge: .trailing))
+                    
+                case .loginForm:
+                    // Écran de connexion (email + Face ID)
+                    LoginView()
                         .transition(.move(edge: .trailing))
 
                 case .main:

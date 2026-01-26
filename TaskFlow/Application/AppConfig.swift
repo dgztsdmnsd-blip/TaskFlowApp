@@ -17,7 +17,8 @@ final class AppState: ObservableObject {
 
     enum Flow {
         case welcome
-        case login
+        case loginHome   // ConnexionView
+        case loginForm   // LoginView
         case main
     }
 

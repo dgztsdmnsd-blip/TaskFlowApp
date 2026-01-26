@@ -36,7 +36,9 @@ enum APIError: Error {
 /// Réponse d’erreur backend
 struct APIErrorResponse: Decodable {
     let message: String?
+    let errors: [String: [String]]?
 }
+
 
 /// APIClient
 final class APIClient {
@@ -93,11 +95,24 @@ final class APIClient {
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
-
+        
         // Tentative de décodage d’un message d’erreur backend
-        let apiMessage = try? JSONDecoder()
-            .decode(APIErrorResponse.self, from: data)
-            .message
+        let apiError = try? JSONDecoder().decode(APIErrorResponse.self, from: data)
+
+        let apiMessage: String? = {
+            if let message = apiError?.message {
+                return message
+            }
+
+            if let errors = apiError?.errors {
+                // Fusionne toutes les erreurs en un seul texte lisible
+                return errors
+                    .flatMap { $0.value }
+                    .joined(separator: "\n")
+            }
+
+            return nil
+        }()
 
         // Gestion des statuts HTTP
         switch http.statusCode {

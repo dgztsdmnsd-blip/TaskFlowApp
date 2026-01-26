@@ -66,4 +66,19 @@ final class SessionManager {
     func clear() {
         accessToken = nil
     }
+    
+    // Déconnexion complète
+    func logout() {
+        // Supprime l’access token en mémoire
+        accessToken = nil
+
+        // Supprime le refresh token du Keychain si un compte existe
+        if let account = currentAccount {
+            KeychainService.shared.clear(account: account)
+        }
+
+        // Supprime l’utilisateur courant
+        currentAccount = nil
+    }
+
 }

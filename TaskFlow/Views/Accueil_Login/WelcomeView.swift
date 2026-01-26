@@ -50,7 +50,7 @@ struct WelcomeView: View {
             // Après 2,5 secondes, on quitte l’écran d’accueil
             // pour afficher l’écran de connexion.
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                appState.flow = .login
+                appState.flow = .loginHome
             }
         }
     }
