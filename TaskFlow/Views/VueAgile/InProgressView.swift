@@ -4,6 +4,8 @@
 //
 //  Created by luc banchetti on 23/01/2026.
 //
+//  Vue représentant la section "En cours".
+//
 
 import SwiftUI
 

@@ -4,6 +4,10 @@
 //
 //  Created by luc banchetti on 22/01/2026.
 //
+//  Ce fichier centralise :
+//  - l’état global de navigation de l’application (AppState)
+//  - la configuration d’environnement (dev / prod)
+//
 
 import Foundation
 import Combine
@@ -17,9 +21,12 @@ final class AppState: ObservableObject {
         case main
     }
 
-    @Published var flow: Flow = .welcome
-}
+    @Published var flow: Flow
 
+    init(flow: Flow = .welcome) {
+        self.flow = flow
+    }
+}
 
 enum Version {
     case dev
@@ -27,7 +34,6 @@ enum Version {
 }
 
 enum AppConfig {
-
     static let version: Version = .dev
 
     static var baseURL: URL {
@@ -35,7 +41,7 @@ enum AppConfig {
         case .dev:
             return URL(string: "http://127.0.0.1:8000")!
         case .prod:
-            return URL(string: "//https://lucban.alwaysdata.net")!
+            return URL(string: "https://lucban.alwaysdata.net")!
         }
     }
 }

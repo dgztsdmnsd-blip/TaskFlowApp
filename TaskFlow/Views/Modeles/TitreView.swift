@@ -4,6 +4,9 @@
 //
 //  Created by luc banchetti on 22/01/2026.
 //
+//  Composant UI réutilisable pour afficher
+//  les titres principaux de l’application.
+//
 
 import SwiftUI
 

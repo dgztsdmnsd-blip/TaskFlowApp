@@ -4,6 +4,9 @@
 //
 //  Created by luc banchetti on 22/01/2026.
 //
+//  Vue responsable de l’affichage du fond dégradé
+//  en fonction de l’écran courant.
+//
 
 import SwiftUI
 

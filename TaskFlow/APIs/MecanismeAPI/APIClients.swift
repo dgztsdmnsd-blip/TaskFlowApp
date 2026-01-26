@@ -1,122 +1,148 @@
 //
-//  APIClients.swift
+//  APIClient.swift
 //  TaskFlow
 //
 //  Created by luc banchetti on 22/01/2026.
 //
+//  Client réseau générique de l’application.
+//  Il centralise :
+//  - la construction des requêtes HTTP
+//  - l’injection du token JWT
+//  - la gestion des erreurs HTTP
+//  - le décodage des réponses JSON
+//
 
 import Foundation
 
-// APIError
-// Enum centralisant toutes les erreurs possibles liées aux appels API.
-// Permet d'avoir une gestion d'erreurs cohérente dans toute l'app.
+/// Erreurs API
 enum APIError: Error {
-    /// L'URL construite est invalide
+
+    // URL invalide
     case invalidURL
 
-    /// La réponse n'est pas une HTTPURLResponse
+    // Réponse non HTTP
     case invalidResponse
 
-    /// Erreur d'authentification (401)
-    case unauthorized
+    // Accès non autorisé (token manquant, expiré ou invalide)
+    case unauthorized(message: String?)
 
-    /// Erreur HTTP générique (status code ≠ 2xx)
-    case httpError(Int)
+    // Erreur HTTP générique (4xx / 5xx)
+    case httpError(Int, message: String?)
 
-    /// Erreur lors du décodage du JSON
+    // Erreur lors du décodage JSON
     case decodingError(Error)
 }
 
-// APIClient
-// Client HTTP générique responsable de :
- // - construire les requêtes
- // - gérer les headers
- // - exécuter les appels réseau
- // - logger les échanges
- // - gérer les erreurs HTTP
- // - décoder les réponses JSON
+/// Réponse d’erreur backend
+struct APIErrorResponse: Decodable {
+    let message: String?
+}
+
+/// APIClient
 final class APIClient {
 
-    /// Singleton partagé dans toute l'application
+    // Un seul client réseau partagé
     static let shared = APIClient()
-
-    /// Initialiseur privé pour empêcher plusieurs instances
     private init() {}
 
-    /// Méthode générique permettant d'appeler n'importe quelle API
+    // Requête générique
+    // Exécute une requête HTTP générique et retourne un objet décodé.
     func request<T: Decodable>(
         url: URL,
         method: String = "GET",
         body: Encodable? = nil,
         headers: [String: String] = [:],
+        requiresAuth: Bool = true,
         retry: Bool = true
     ) async throws -> T {
 
+        // Construction de la requête
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = method
 
+        // Headers
         var allHeaders = headers
 
-        if headers["Authorization"] == nil,
+        if requiresAuth,
+           headers["Authorization"] == nil,
            let token = SessionManager.shared.getAccessToken() {
             allHeaders["Authorization"] = "Bearer \(token)"
         }
 
+        // Application des headers à la requête
         allHeaders.forEach {
             urlRequest.setValue($0.value, forHTTPHeaderField: $0.key)
         }
 
+        // Body
         if let body {
-            urlRequest.httpBody = try JSONEncoder().encode(AnyEncodable(body))
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            // Encodage JSON générique
+            urlRequest.httpBody = try JSONEncoder()
+                .encode(AnyEncodable(body))
+
+            urlRequest.setValue(
+                "application/json",
+                forHTTPHeaderField: "Content-Type"
+            )
         }
 
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        // Appel réseau
+        let (data, response) = try await
+            URLSession.shared.data(for: urlRequest)
 
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
 
+        // Tentative de décodage d’un message d’erreur backend
+        let apiMessage = try? JSONDecoder()
+            .decode(APIErrorResponse.self, from: data)
+            .message
+
+        // Gestion des statuts HTTP
         switch http.statusCode {
+
         case 200..<300:
+            // Succès → on continue
             break
 
-        case 401 where retry && !url.path.contains("/api/token/refresh"):
-            _ = try await RefreshService.shared.refreshToken()
-            return try await self.request(
-                url: url,
-                method: method,
-                body: body,
-                headers: headers,
-                retry: false
-            )
+        case 401 where retry && requiresAuth:
+            // Token invalide ou expiré
+            throw APIError.unauthorized(message: apiMessage)
 
         case 401:
+            // Échec définitif → on nettoie la session en mémoire
             SessionManager.shared.clear()
-            throw APIError.unauthorized
+            throw APIError.unauthorized(message: apiMessage)
 
         default:
-            throw APIError.httpError(http.statusCode)
+            // Autres erreurs HTTP
+            throw APIError.httpError(
+                http.statusCode,
+                message: apiMessage
+            )
         }
 
-        return try JSONDecoder().decode(T.self, from: data)
+        // Décodage de la réponse
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            throw APIError.decodingError(error)
+        }
     }
-
 }
 
 // AnyEncodable
-// Wrapper permettant de passer un Encodable "inconnu" à JSONEncoder.
+/// Wrapper permettant d’encoder dynamiquement
+/// un type Encodable sans connaître son type concret.
 struct AnyEncodable: Encodable {
 
-    /// Fonction d'encodage stockée dynamiquement
     private let encodeFunc: (Encoder) throws -> Void
 
-    /// Initialise le wrapper avec n'importe quel type Encodable
     init<T: Encodable>(_ value: T) {
         self.encodeFunc = value.encode
     }
 
-    /// Appelé par JSONEncoder pour encoder le body
     func encode(to encoder: Encoder) throws {
         try encodeFunc(encoder)
     }

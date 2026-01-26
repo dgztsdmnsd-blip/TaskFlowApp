@@ -4,6 +4,9 @@
 //
 //  Created by luc banchetti on 22/01/2026.
 //
+//  Composant UI réutilisable pour les boutons principaux
+//  de l’application (CTA).
+//
 
 import SwiftUI
 

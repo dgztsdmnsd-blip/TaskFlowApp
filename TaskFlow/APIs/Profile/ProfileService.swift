@@ -4,6 +4,10 @@
 //
 //  Created by luc banchetti on 23/01/2026.
 //
+//  Service réseau responsable de la récupération
+//  des informations du profil utilisateur connecté.
+//
+
 import Foundation
 
 final class ProfileService {

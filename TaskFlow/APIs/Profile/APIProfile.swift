@@ -4,6 +4,12 @@
 //
 //  Created by luc banchetti on 23/01/2026.
 //
+//  Modèle représentant la réponse API du profil utilisateur.
+//  Ce fichier contient :
+//  - la structure décodable du profil
+//  - des helpers de conversion de dates
+//  - des propriétés calculées pour l’affichage UI
+//
 
 import Foundation
 
