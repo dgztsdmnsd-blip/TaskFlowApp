@@ -15,6 +15,9 @@ struct MainView: View {
 
     // Affichage ou non la feuille de profil
     @State private var showProfile = false
+    
+    // Affichage ou non la feuille de la liste des utilisateurs
+    @State private var showUsersList = false
 
     // ViewModel du profil partagé avec la feuille ProfileView.
     @StateObject private var profileVM = ProfileViewModel()
@@ -28,6 +31,7 @@ struct MainView: View {
                     .navigationTitle("Complétées")
                     .toolbar {
                         profileButton
+                        usersListButton
                     }
             }
             .tabItem {
@@ -40,6 +44,7 @@ struct MainView: View {
                     .navigationTitle("En cours")
                     .toolbar {
                         profileButton
+                        usersListButton
                     }
             }
             .tabItem {
@@ -52,6 +57,7 @@ struct MainView: View {
                     .navigationTitle("À venir")
                     .toolbar {
                         profileButton
+                        usersListButton
                     }
             }
             .tabItem {
@@ -59,10 +65,13 @@ struct MainView: View {
             }
         }
         .tint(.indigo)
-
         // Présentation du profil utilisateur
         .sheet(isPresented: $showProfile) {
             ProfileView(viewModel: profileVM)
+        }
+        // Présentation de la liste des utilisateurs
+        .sheet(isPresented: $showUsersList) {
+            UsersListView()
         }
     }
 
@@ -73,6 +82,18 @@ struct MainView: View {
                 showProfile = true
             } label: {
                 Image(systemName: "person.fill")
+                    .foregroundStyle(.blue)
+            }
+        }
+    }
+    
+    /// Bouton Profil (Toolbar)
+    private var usersListButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                showUsersList = true
+            } label: {
+                Image(systemName: "person.3.sequence.fill")
                     .foregroundStyle(.blue)
             }
         }
