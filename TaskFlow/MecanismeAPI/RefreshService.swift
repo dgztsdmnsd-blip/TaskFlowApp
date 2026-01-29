@@ -21,26 +21,13 @@ final class RefreshService {
     /// Renouvelle l’access token JWT à partir d’un refresh token valide.
     func refreshToken(using refreshToken: String) async throws -> String {
 
-        // URL de l’endpoint de refresh
         let url = AppConfig.baseURL.appendingPathComponent("/api/token/refresh")
 
-        // Log
-        print("REFRESH url:", url)
-
-        // Corps de la requête attendu par l’API
         struct Body: Encodable {
             let refresh_token: String
         }
 
-        // Structure de réponse attendue
-        struct Response: Decodable {
-            let token: String
-        }
-
-        // Appel réseau générique
-        // - requiresAuth: false → pas de Bearer token nécessaire
-        // - retry: false → pas de refresh récursif
-        let response: Response = try await APIClient.shared.request(
+        let response: RefreshResponse = try await APIClient.shared.request(
             url: url,
             method: "POST",
             body: Body(refresh_token: refreshToken),
@@ -48,9 +35,24 @@ final class RefreshService {
             retry: false
         )
 
-        // Sauvegarde du nouvel access token en mémoire
+        // 🔐 Sauvegarde du NOUVEAU refresh token
+        try SessionManager.shared.updateRefreshToken(response.refreshToken)
+
+        // 🔑 Sauvegarde du nouvel access token
         SessionManager.shared.saveAccessToken(response.token)
 
         return response.token
     }
+
+    
+    struct RefreshResponse: Decodable {
+        let token: String
+        let refreshToken: String
+
+        enum CodingKeys: String, CodingKey {
+            case token
+            case refreshToken = "refresh_token"
+        }
+    }
+
 }

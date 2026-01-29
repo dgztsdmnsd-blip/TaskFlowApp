@@ -51,7 +51,7 @@ struct ConnexionView: View {
 
                         // Bouton Inscription
                         NavigationLink {
-                            RegisterView()
+                            RegisterView(mode: .create)
                         } label: {
                             BoutonView(title: "Inscription")
                         }

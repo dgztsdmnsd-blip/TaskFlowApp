@@ -11,7 +11,6 @@
 import Foundation
 import Combine
 
-
 @MainActor
 final class ProfileViewModel: ObservableObject {
 
@@ -19,7 +18,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var profile: ProfileResponse?
 
-    /// Récupère le profil de l’utilisateur connecté depuis l’API.
+    /// Chargement initial du profil
     func fetchProfile() async {
         guard SessionManager.shared.getAccessToken() != nil else {
             errorMessage = "Session non prête"
@@ -38,5 +37,15 @@ final class ProfileViewModel: ObservableObject {
         }
 
         isLoading = false
+    }
+
+    /// Rechargement explicite après modification
+    func reloadProfile() async {
+        await fetchProfile()
+    }
+
+    /// Droits admin
+    var isAdmin: Bool {
+        profile?.profil == "MGR"
     }
 }

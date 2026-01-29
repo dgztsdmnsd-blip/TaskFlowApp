@@ -58,5 +58,55 @@ final class RegisterService {
             throw error
         }
     }
+    
+    func updateIdentity(
+        id: Int,
+        firstName: String,
+        lastName: String,
+        email: String
+    ) async throws -> RegisterResponse {
+
+        let url = AppConfig.baseURL.appendingPathComponent("/api/users/update/\(id)")
+
+        struct Body: Encodable {
+            let firstName: String
+            let lastName: String
+            let email: String
+        }
+
+        print("Update identity → URL:", url)
+
+        return try await APIClient.shared.request(
+            url: url,
+            method: "PATCH",
+            body: Body(
+                firstName: firstName,
+                lastName: lastName,
+                email: email
+            ),
+            requiresAuth: true
+        )
+    }
+
+    func updatePassword(
+        id: Int,
+        password: String
+    ) async throws -> RegisterResponse {
+
+        let url = AppConfig.baseURL.appendingPathComponent("/api/users/update/\(id)")
+
+        struct Body: Encodable {
+            let password: String
+        }
+
+        print("Update password → URL:", url)
+
+         return try await APIClient.shared.request(
+            url: url,
+            method: "PATCH",
+            body: Body(password: password),
+            requiresAuth: true
+        )
+    }   
 }
 

@@ -40,19 +40,20 @@ struct LoginView: View {
                 VStack(spacing: 16) {
 
                     // Champ email
-                    TextField("Email", text: $vm.email)
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.emailAddress)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
+                    LabeledTextField(
+                        label: "Email",
+                        text: $vm.email,
+                        keyboard: .emailAddress
+                    )
 
                     // Champ mot de passe
-                    SecureField("Password", text: $vm.password)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
+                    LabeledTextField(
+                        label: "Mot de passe",
+                        text: $vm.password,
+                        isSecure: true
+                    )
 
+                    
                     // Message d’erreur éventuel
                     if let error = vm.errorMessage {
                         Text(error)

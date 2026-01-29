@@ -13,88 +13,87 @@ import SwiftUI
 
 struct MainView: View {
 
-    // Affichage ou non la feuille de profil
     @State private var showProfile = false
-    
-    // Affichage ou non la feuille de la liste des utilisateurs
-    @State private var showUsersList = false
-
-    // ViewModel du profil partagé avec la feuille ProfileView.
     @StateObject private var profileVM = ProfileViewModel()
 
     var body: some View {
-        TabView {
+        Group {
+            if profileVM.isLoading {
+                ProgressView("Chargement du profil…")
 
-            /// Onglet "Complétées"
-            NavigationStack {
-                CompletedView()
-                    .navigationTitle("Complétées")
-                    .toolbar {
-                        profileButton
-                        usersListButton
-                    }
-            }
-            .tabItem {
-                Label("Terminées", systemImage: "checkmark.circle.fill")
-            }
+            } else if let error = profileVM.errorMessage {
+                VStack {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .padding()
 
-            /// Onglet "En cours"
-            NavigationStack {
-                InProgressView()
-                    .navigationTitle("En cours")
-                    .toolbar {
-                        profileButton
-                        usersListButton
+                    Button("Réessayer") {
+                        Task { await profileVM.fetchProfile() }
                     }
-            }
-            .tabItem {
-                Label("En cours", systemImage: "clock")
-            }
+                }
 
-            /// Onglet "À venir"
-            NavigationStack {
-                TodoView()
-                    .navigationTitle("À venir")
-                    .toolbar {
-                        profileButton
-                        usersListButton
+            } else if let profile = profileVM.profile {
+
+                TabView {
+                    NavigationStack {
+                        CompletedView()
+                            .navigationTitle("Complétées")
+                            .toolbar { profileButton }
                     }
-            }
-            .tabItem {
-                Label("À venir", systemImage: "calendar")
+                    .tabItem {
+                        Label("Terminées", systemImage: "checkmark.circle.fill")
+                    }
+
+                    NavigationStack {
+                        InProgressView()
+                            .navigationTitle("En cours")
+                            .toolbar { profileButton }
+                    }
+                    .tabItem {
+                        Label("En cours", systemImage: "clock")
+                    }
+
+                    NavigationStack {
+                        TodoView()
+                            .navigationTitle("À venir")
+                            .toolbar { profileButton }
+                    }
+                    .tabItem {
+                        Label("À venir", systemImage: "calendar")
+                    }
+
+                    NavigationStack {
+                        UsersListView(currentUser: profile)
+                            .navigationTitle("Utilisateurs")
+                            .toolbar { profileButton }
+                    }
+                    .tabItem {
+                        Label("Utilisateurs", systemImage: "person.3.fill")
+                    }
+                }
+                .sheet(isPresented: $showProfile) {
+                    ProfileView(viewModel: profileVM)
+                }
+
+            } else {
+                ProgressView("Initialisation…")
             }
         }
-        .tint(.indigo)
-        // Présentation du profil utilisateur
-        .sheet(isPresented: $showProfile) {
-            ProfileView(viewModel: profileVM)
-        }
-        // Présentation de la liste des utilisateurs
-        .sheet(isPresented: $showUsersList) {
-            UsersListView()
+        .onAppear {
+            if profileVM.profile == nil {
+                Task {
+                    await profileVM.fetchProfile()
+                }
+            }
         }
     }
 
-    /// Bouton Profil (Toolbar)
     private var profileButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 showProfile = true
             } label: {
                 Image(systemName: "person.fill")
-                    .foregroundStyle(.blue)
-            }
-        }
-    }
-    
-    /// Bouton Profil (Toolbar)
-    private var usersListButton: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                showUsersList = true
-            } label: {
-                Image(systemName: "person.3.sequence.fill")
-                    .foregroundStyle(.blue)
             }
         }
     }

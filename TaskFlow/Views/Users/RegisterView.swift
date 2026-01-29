@@ -11,108 +11,134 @@
 //  - vider la mémoire
 //
 
+//
+//  RegisterView.swift
+//  TaskFlow
+//
+//  Created by luc banchetti on 26/01/2026.
+//
+
 import SwiftUI
+
 @MainActor
 struct RegisterView: View {
-    // ViewModel responsable de la logique de Register
-    @StateObject private var rm = RegisterViewModel()
-    
-    @EnvironmentObject var appState: AppState
-    
-    @State private var showSuccessAlert = false
 
-    
+    // MARK: - Environment
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var appState: AppState
+
+    // MARK: - State
+    @State private var showAlert = false
+    @StateObject private var vm: RegisterViewModel
+
+    // VM partagé pour reload du profil
+    let profileViewModel: ProfileViewModel?
+
+    // MARK: - Init
+    init(
+        mode: RegisterMode,
+        profileViewModel: ProfileViewModel? = nil
+    ) {
+        _vm = StateObject(wrappedValue: RegisterViewModel(mode: mode))
+        self.profileViewModel = profileViewModel
+    }
+
+    // MARK: - Body
     var body: some View {
         NavigationStack {
-                
             Form {
-                
-                Section ("Identité"){
-                    registerField("Nom", text: $rm.lastName)
-                    
-                    registerField("Prénom", text: $rm.firstName)
-                    
-                    // Champ email
-                    registerField("Email", text: $rm.email)
+
+                // MARK: - Identité
+                Section("Identité") {
+                    LabeledTextField(label: "Nom", text: $vm.lastName)
+                    LabeledTextField(label: "Prénom", text: $vm.firstName)
+                    LabeledTextField(
+                        label: "Email",
+                        text: $vm.email,
+                        keyboard: .emailAddress
+                    )
                 }
 
-                Section ("Mot de passe"){
-                    // Champ mot de passe
-                    registerSecureField("Password", text: $rm.password)
-                    
-                    // Champ de confirmation du mot de passe
-                    registerSecureField("Confirmer le Password", text: $rm.password2)
+                // MARK: - Mot de passe (création uniquement)
+                if vm.isCreateMode {
+                    Section("Mot de passe") {
+                        LabeledTextField(
+                            label: "Mot de passe",
+                            text: $vm.password,
+                            isSecure: true
+                        )
+
+                        LabeledTextField(
+                            label: "Confirmation",
+                            text: $vm.password2,
+                            isSecure: true
+                        )
+                    }
                 }
-                
-                // Message d’erreur éventuel
-                if let error = rm.errorMessage {
+
+                // MARK: - Erreur
+                if let error = vm.errorMessage {
                     Text(error)
                         .foregroundColor(.red)
                         .font(.caption)
+                        .padding(.vertical, 4)
                 }
-                
-                
-                // Bouton d'enregistrement
+
+                // Enregistrement
                 Button {
                     Task {
-                        await rm.fetchRegister()
-
-                        if rm.isRegistered {
-                            // PopUp de succés de l'enregistrement
-                            showSuccessAlert = true
+                        await vm.submit()
+                        if vm.isSuccess {
+                            showAlert = true
                         }
                     }
                 } label: {
                     BoutonView(
-                        title: rm.isLoading
-                            ? "Enregistrement en cours..."
-                            : "Enregistrer"
+                        title: vm.isLoading
+                        ? "Traitement..."
+                        : (vm.isCreateMode ? "Créer le compte" : "Enregistrer")
                     )
                 }
-                .disabled(rm.isLoading)
-
+                .disabled(vm.isLoading)
             }
-            .navigationTitle("Inscription")
-            .alert("Compte créé", isPresented: $showSuccessAlert) {
-                Button("Se connecter") {
-                    // Redirection à l'écran de Login
-                    appState.flow = .loginForm
+            .navigationTitle(
+                vm.isCreateMode ? "Inscription" : "Modifier le profil"
+            )
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if !vm.isCreateMode {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark.app.fill")
+                        }
+                        .accessibilityLabel("Fermer")
+                    }
+                }
+            }
+            .alert(
+                vm.isCreateMode ? "Compte créé" : "Profil mis à jour",
+                isPresented: $showAlert
+            ) {
+                Button("OK") {
+                    Task {
+                        if vm.isCreateMode {
+                            appState.flow = .loginForm
+                        } else {
+                            // reload profil
+                            await profileViewModel?.reloadProfile()
+                            dismiss()
+                        }
+                    }
                 }
             } message: {
-                Text("Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.")
+                Text(
+                    vm.isCreateMode
+                    ? "Votre compte a été créé avec succès."
+                    : "Votre profil a été mis à jour."
+                )
             }
-
         }
     }
-    
-    /// Affichage d'une ligne
-    private func registerField(
-        _ label: String,
-        text: Binding<String>
-    ) -> some View {
-        TextField(label, text: text)
-            .textInputAutocapitalization(.never)
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
-            .padding(.vertical, 4)
-    }
-    
-    
-    /// Affichage d'une ligne
-    private func registerSecureField(
-        _ label: String,
-        text: Binding<String>
-    ) -> some View {
-        SecureField(label, text: text)
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
-    }
-
-    
-}
-
-#Preview {
-    RegisterView()
 }

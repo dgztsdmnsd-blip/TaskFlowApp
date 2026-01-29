@@ -14,167 +14,121 @@ import SwiftUI
 @MainActor
 struct ProfileView: View {
 
-    // Permet de fermer la sheet (dismiss)
     @Environment(\.dismiss) private var dismiss
-
-    // ViewModel du profil.
-    @StateObject private var vm: ProfileViewModel
-    
     @EnvironmentObject var appState: AppState
 
-    // Initialiseur custom pour accepter un ViewModel externe
+    @StateObject private var vm: ProfileViewModel
+    @State private var showEditProfile = false
+
     init(viewModel: ProfileViewModel) {
         _vm = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            Form {
 
-                /// Etats de la vue
-                if vm.isLoading {
-                    // Chargement en cours
-                    ProgressView()
+                if let profile = vm.profile {
 
-                } else if let error = vm.errorMessage {
-                    // Erreur métier ou réseau
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
-
-                } else if let profile = vm.profile {
-                    /// Contenu du profil
-                    Form {
-
-                        // Section identité utilisateur
-                        Section("Identité") {
-                            profileRow(label: "Prénom", value: profile.firstName)
-                            profileRow(label: "Nom", value: profile.lastName)
-                            profileRow(label: "Email", value: profile.email)
-                        }
-
-                        // Section informations de compte
-                        Section("Compte") {
-                            profileRow(
-                                label: "Profil",
-                                value: profile.profil == "MGR"
-                                    ? "Manager"
-                                    : "Utilisateur"
-                            )
-
-                            profileRow(
-                                label: "Statut",
-                                value: profile.status == "ACTIVE"
-                                    ? "Actif"
-                                    : "Inactif"
-                            )
-                        }
-
-                        // Section dates importantes
-                        Section("Dates") {
-                            profileRow(
-                                label: "Création",
-                                value: profile.creationDateFormatted
-                            )
-
-                            // Date de sortie optionnelle
-                            if let exit = profile.exitDate {
-                                profileRow(label: "Sortie", value: exit)
-                            } else {
-                                profileRow(label: "Sortie", value: "-")
-                            }
-                        }
-                        
-                        Section {
-                            Button(role: .destructive) {
-                                handleLogout()
-                            } label: {
-                                HStack {
-                                    Spacer()
-                                    Text("Se déconnecter")
-                                    Spacer()
-                                }
-                            }
-                        }
-
+                    // Identité
+                    Section("Identité") {
+                        profileRow("Prénom", profile.firstName)
+                        profileRow("Nom", profile.lastName)
+                        profileRow("Email", profile.email)
                     }
-                    .scrollContentBackground(.hidden)
+
+                    // Compte
+                    Section("Compte") {
+                        profileRow(
+                            "Profil",
+                            profile.profil == "MGR" ? "Manager" : "Utilisateur"
+                        )
+
+                        profileRow(
+                            "Statut",
+                            profile.status == "ACTIVE" ? "Actif" : "Inactif"
+                        )
+                    }
+
+                    // Dates
+                    Section("Dates") {
+                        profileRow("Création", profile.creationDateFormatted)
+                        profileRow(
+                            "Sortie",
+                            profile.exitDate ?? "-"
+                        )
+                    }
+
+                    // Actions
+                    Section("Actions") {
+
+                        Button {
+                            showEditProfile = true
+                        } label: {
+                            Label("Modifier mon profil", systemImage: "pencil")
+                        }
+
+                        Button(role: .destructive) {
+                            handleLogout()
+                        } label: {
+                            Label(
+                                "Se déconnecter",
+                                systemImage: "arrow.backward.square"
+                            )
+                        }
+                    }
                 }
             }
+            .listSectionSpacing(.compact)
             .navigationTitle("Mon profil")
             .navigationBarTitleDisplayMode(.inline)
-
-            // Bouton de fermeture de la sheet
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.app.fill")
-                            .foregroundStyle(.blue)
                     }
                 }
             }
         }
-        .onAppear {
-            // On charge le profil uniquement s’il n’est pas déjà présent.
-            if vm.profile == nil {
-                Task {
-                    await vm.fetchProfile()
-                }
+        .sheet(isPresented: $showEditProfile) {
+            if let profile = vm.profile {
+                RegisterView(
+                            mode: .edit(profile: profile),
+                            profileViewModel: vm   
+                        )
+                    .environmentObject(appState)
             }
         }
     }
 
-    /// Affichage d'une ligne
-    private func profileRow(label: String, value: String) -> some View {
-        HStack {
-            Text(label)
-                .font(.caption)
+    // MARK: - UI Helpers
+
+    private func profileRow(_ label: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label.uppercased())
+                .font(.caption2)
                 .foregroundColor(.secondary)
 
-            Spacer()
-
             Text(value)
-                .font(.body)
+                .font(.subheadline)
         }
-        .padding(.vertical, 4)
+        .profileRowStyle()
     }
     
-    
+    // Logout
     private func handleLogout() {
-        // 1. Purge totale de la session
         SessionManager.shared.logout()
-
-        // 2. Ferme la sheet Profil
         dismiss()
-
-        // 3. Retour à l’écran de login
         appState.flow = .loginHome
     }
-
 }
 
-extension ProfileViewModel {
 
-    /// ViewModel mocké pour les previews SwiftUI
-    static func preview() -> ProfileViewModel {
-        let vm = ProfileViewModel()
-        vm.profile = ProfileResponse(
-            id: 1,
-            email: "john.doe@example.com",
-            firstName: "John",
-            lastName: "Doe",
-            status: "ACTIVE",
-            profil: "UTIL",
-            creationDate: String("01/01/2026"),
-            exitDate: nil
-        )
-        return vm
+extension View {
+    func profileRowStyle() -> some View {
+        self
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
     }
-}
-
-
-#Preview {
-    ProfileView(viewModel: ProfileViewModel.preview())
 }

@@ -5,8 +5,6 @@
 //  Created by luc banchetti on 27/01/2026.
 //
 
-// UsersListService.swift
-
 import Foundation
 
 final class UsersListService {

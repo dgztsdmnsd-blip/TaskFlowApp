@@ -4,120 +4,142 @@
 //
 //  Created by luc banchetti on 26/01/2026.
 //
-//  ViewModel responsable de la logique d'inscription :
-//  - login classique (email / mot de passe)
-//  - reconnexion via Face ID (refresh token)
+//  ViewModel responsable de la logique d'inscription et de modification du profil
 //
 
 import Foundation
 import Combine
 
+enum RegisterMode {
+    case create
+    case edit(profile: ProfileResponse)
+}
 
 @MainActor
 final class RegisterViewModel: ObservableObject {
-    
-    // Prénom saisi par l’utilisateur
-    @Published var firstName = ""
-    
-    // Nom saisi par l’utilisateur
-    @Published var lastName = ""
-    
-    // Email saisi par l’utilisateur
-    @Published var email = ""
 
-    // Mot de passe saisi par l’utilisateur
+    // Mode
+    let mode: RegisterMode
+
+    var isCreateMode: Bool {
+        if case .create = mode { return true }
+        return false
+    }
+
+    // Inputs
+    private let userId: Int?
+
+    @Published var firstName = ""
+    @Published var lastName = ""
+    @Published var email = ""
     @Published var password = ""
-    
-    // Confirmation du Mot de passe saisi par l’utilisateur
     @Published var password2 = ""
 
+    // State
     @Published var isLoading = false
-    @Published var isRegistered = false
+    @Published var isSuccess = false
     @Published var errorMessage: String?
-    @Published var register: RegisterResponse?
-    
-    private let registerAction: (
-            String, String, String, String
-        ) async throws -> RegisterResponse
 
-    init(
-        registerAction: @escaping (
-            String, String, String, String
-        ) async throws -> RegisterResponse
-    ) {
-        self.registerAction = registerAction
+    // Init
+    init(mode: RegisterMode) {
+        self.mode = mode
+
+        switch mode {
+        case .create:
+            self.userId = nil
+
+        case .edit(let profile):
+            self.userId = profile.id
+            self.firstName = profile.firstName
+            self.lastName = profile.lastName
+            self.email = profile.email
+        }
     }
-    
-    convenience init() {
-        self.init(registerAction: RegisterService.shared.register)
-    }
-    
-    /// Récupère le profil de l’utilisateur connecté depuis l’API.
-    func fetchRegister() async {        
-        // Validation locale : email requis
+
+    // Submit
+    func submit() async {
+
+        errorMessage = nil
+
+        // Validation commune
         guard !lastName.isEmpty else {
             errorMessage = "Veuillez renseigner votre nom."
             return
         }
-        
-        // Validation locale : email requis
+
         guard !firstName.isEmpty else {
             errorMessage = "Veuillez renseigner votre prénom."
             return
         }
-        
-        // Validation locale : email requis
+
         guard !email.isEmpty else {
             errorMessage = "Veuillez renseigner votre email."
             return
         }
 
-        // Validation locale : mot de passe requis
-        guard !password.isEmpty else {
-            errorMessage = "Veuillez renseigner votre mot de passe."
-            return
-        }
-        
-        // Validation locale : confirmation mot de passe requis
-        guard !password2.isEmpty else {
-            errorMessage = "Veuillez confirmer votre mot de passe."
-            return
-        }
-        
-        // Confirmation du password
-        guard password == password2 else {
-            errorMessage = "Le mot de passe n'est pas égal à la confirmation."
-            return
+        // Validation création uniquement
+        if isCreateMode {
+            guard !password.isEmpty else {
+                errorMessage = "Veuillez renseigner votre mot de passe."
+                return
+            }
+
+            guard !password2.isEmpty else {
+                errorMessage = "Veuillez confirmer votre mot de passe."
+                return
+            }
+
+            guard password == password2 else {
+                errorMessage = "Les mots de passe ne correspondent pas."
+                return
+            }
         }
 
         isLoading = true
-        errorMessage = nil
 
         do {
-            register = try await registerAction(
-                firstName,
-                lastName,
-                email,
-                password
-            )
-            
-            // Nettoyage complet après inscription
-            SessionManager.shared.logout()
-            
-            isRegistered = true
+            switch mode {
+
+            case .create:
+                _ = try await RegisterService.shared.register(
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    password: password
+                )
+
+                // Sécurité : purge session après inscription
+                SessionManager.shared.logout()
+
+            case .edit:
+                guard let userId else { return }
+
+                // Mise à jour identité
+                _ = try await RegisterService.shared.updateIdentity(
+                    id: userId,
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email
+                )
+
+                // Mise à jour mot de passe (si renseigné)
+                if !password.isEmpty {
+                    _ = try await RegisterService.shared.updatePassword(
+                        id: userId,
+                        password: password
+                    )
+                }
+            }
+
+            isSuccess = true
 
         } catch APIError.httpError(_, let message) {
-            // Message renvoyé par le backend (validation, email déjà utilisé, etc.)
-            print("Erreur: \(message ?? "")")
             errorMessage = message ?? "Erreur de validation."
 
         } catch {
-            // Erreur réseau, timeout, etc.
             errorMessage = "Erreur réseau. Veuillez réessayer."
         }
-
 
         isLoading = false
     }
 }
-

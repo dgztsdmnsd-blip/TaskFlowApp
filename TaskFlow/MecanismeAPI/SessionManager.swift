@@ -80,5 +80,17 @@ final class SessionManager {
         // Supprime l’utilisateur courant
         currentAccount = nil
     }
+    
+    func updateRefreshToken(_ token: String) throws {
+        guard let account = currentAccount else {
+            throw APIError.unauthorized(message: "Utilisateur inconnu")
+        }
+
+        try KeychainService.shared.saveRefreshToken(
+            token: token,
+            account: account
+        )
+    }
+
 
 }

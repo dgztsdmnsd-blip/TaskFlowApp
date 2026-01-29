@@ -36,9 +36,8 @@ enum APIError: Error {
 /// Réponse d’erreur backend
 struct APIErrorResponse: Decodable {
     let message: String?
-    let errors: [String: [String]]?
+    let errors: String?
 }
-
 
 /// APIClient
 final class APIClient {
@@ -105,9 +104,18 @@ final class APIClient {
             }
 
             if let errors = apiError?.errors {
-                // Fusionne toutes les erreurs en un seul texte lisible
                 return errors
-                    .flatMap { $0.value }
+                    .components(separatedBy: "\n")
+                    .map { line in
+                        // Supprime "ERROR:" et "champ:"
+                        line
+                            .replacingOccurrences(of: "ERROR:", with: "")
+                            .replacingOccurrences(of: #"^\w+:"#,
+                                                  with: "",
+                                                  options: .regularExpression)
+                            .trimmingCharacters(in: .whitespaces)
+                    }
+                    .filter { !$0.isEmpty }
                     .joined(separator: "\n")
             }
 

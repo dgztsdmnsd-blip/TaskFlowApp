@@ -34,6 +34,16 @@ enum Version {
     case prod
 }
 
+enum AdminUserStatus: String {
+    case active = "ACTIVE"
+    case inactive = "INACTIVE"
+}
+
+enum AdminUserProfil: String {
+    case util = "UTIL"
+    case mgr = "MGR"
+}
+
 enum AppConfig {
     static let version: Version = .dev
 

@@ -7,20 +7,17 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct UsersListView: View {
-
-    // Fermeture de la sheet
-    @Environment(\.dismiss) private var dismiss
 
     // ViewModel
     @StateObject private var ulm = UsersListViewModel()
+    let currentUser: ProfileResponse
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-
+        ZStack {
+            BackgroundView(ecran: .enCours)
+            VStack {
+                
                 if ulm.isLoading {
                     ProgressView()
 
@@ -36,22 +33,15 @@ struct UsersListView: View {
 
                 } else {
                     List(ulm.users) { user in
-                        userRow(user: user)
+                        NavigationLink {
+                            UserDetailView(currentUser: currentUser, user: user)
+                        } label: {
+                            userRow(user: user)
+                        }
                     }
                     .scrollContentBackground(.hidden)
                 }
-            }
-            .navigationTitle("Utilisateurs")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.app.fill")
-                            .foregroundStyle(.blue)
-                    }
-                }
+                
             }
         }
         .onAppear {
@@ -66,10 +56,10 @@ struct UsersListView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(user.firstName.capitalized) \(user.lastName.capitalized)")
-                    .font(.headline)
+                    .font(.caption)
 
                 Text(user.email)
-                    .font(.subheadline)
+                    .font(.footnote)
                     .foregroundColor(.secondary)
             }
 
@@ -89,12 +79,7 @@ struct UsersListView: View {
                 )
                 .cornerRadius(8)
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 4)
     }
 
-}
-
-
-#Preview {
-    UsersListView()
 }

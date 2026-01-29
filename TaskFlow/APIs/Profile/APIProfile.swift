@@ -16,13 +16,13 @@ import Foundation
 // Structure de réponse de Login
 struct ProfileResponse: Codable, Identifiable {
     let id: Int
-    let email: String
-    let firstName: String
-    let lastName: String
+    var email: String
+    var firstName: String
+    var lastName: String
     let status: String
     let profil: String
     let creationDate: String
-    let exitDate: String?
+    let exitDate: String?    
 }
 
 extension String {
