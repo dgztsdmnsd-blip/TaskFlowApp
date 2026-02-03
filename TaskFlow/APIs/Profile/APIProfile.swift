@@ -49,3 +49,28 @@ extension ProfileResponse {
         return formatter.string(from: date)
     }
 }
+
+extension ProfileResponse {
+
+    static let preview = ProfileResponse(
+        id: 1,
+        email: "luc@test.com",
+        firstName: "Luc",
+        lastName: "Banchetti",
+        status: "ACTIVE",
+        profil: "MGR",
+        creationDate: "2025-01-10T14:32:00+00:00",
+        exitDate: nil
+    )
+    
+    static let preview2 = ProfileResponse(
+        id: 2,
+        email: "user@test.com",
+        firstName: "Na",
+        lastName: "Ban",
+        status: "ACTIVE",
+        profil: "UTIL",
+        creationDate: "2025-01-10T14:32:00+00:00",
+        exitDate: nil
+    )
+}

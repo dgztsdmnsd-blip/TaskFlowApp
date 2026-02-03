@@ -82,6 +82,8 @@ struct LoginView: View {
                     }
                     // Désactive le bouton pendant le chargement
                     .disabled(vm.isLoading)
+                    
+                    // TODO: Mot de passe oublié
                 }
             }
             .padding()

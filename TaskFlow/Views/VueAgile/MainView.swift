@@ -11,10 +11,20 @@
 
 import SwiftUI
 
-struct MainView: View {
+struct MainView_PreviewWrapper: View {
 
+    @StateObject private var profileVM = ProfileViewModel.preview
+    var body: some View {
+        MainViewWithInjectedVM(profileVM: profileVM)
+    }
+}
+
+
+struct MainViewWithInjectedVM: View {
+
+    @ObservedObject var profileVM: ProfileViewModel
     @State private var showProfile = false
-    @StateObject private var profileVM = ProfileViewModel()
+    @State private var showProject = false
 
     var body: some View {
         Group {
@@ -36,13 +46,14 @@ struct MainView: View {
 
                 TabView {
                     NavigationStack {
-                        CompletedView()
-                            .navigationTitle("Complétées")
+                        TodoView()
+                            .navigationTitle("À venir")
                             .toolbar { profileButton }
                     }
                     .tabItem {
-                        Label("Terminées", systemImage: "checkmark.circle.fill")
+                        Label("À venir", systemImage: "calendar")
                     }
+                    
 
                     NavigationStack {
                         InProgressView()
@@ -54,27 +65,49 @@ struct MainView: View {
                     }
 
                     NavigationStack {
-                        TodoView()
-                            .navigationTitle("À venir")
+                        CompletedView()
+                            .navigationTitle("Complétées")
                             .toolbar { profileButton }
                     }
                     .tabItem {
-                        Label("À venir", systemImage: "calendar")
+                        Label("Terminées", systemImage: "checkmark.circle.fill")
                     }
 
-                    NavigationStack {
-                        UsersListView(currentUser: profile)
-                            .navigationTitle("Utilisateurs")
-                            .toolbar { profileButton }
-                    }
-                    .tabItem {
-                        Label("Utilisateurs", systemImage: "person.3.fill")
+                    if profileVM.isAdmin {
+                        NavigationStack {
+                            UsersListView(currentUser: profile)
+                                .navigationTitle("Utilisateurs")
+                                .toolbar { profileButton }
+                        }
+                        .tabItem {
+                            Label("Utilisateurs", systemImage: "person.3.fill")
+                        }
+                        
+                        NavigationStack {
+                            ProjectsView()
+                                .navigationTitle("Projets")
+                                .toolbar { projectButton }
+                        }
+                        .tabItem {
+                            Label("Projets", systemImage: "folder.fill")
+                        }
                     }
                 }
                 .sheet(isPresented: $showProfile) {
                     ProfileView(viewModel: profileVM)
                 }
-
+                .sheet(isPresented: $showProject) {
+                    ProjectCreationView(
+                        viewModel: ProjectFormViewModel(mode: .create),
+                        onCreated: {
+                            NotificationCenter.default.post(
+                                name: .projectListShouldRefresh,
+                                object: nil
+                            )
+                        }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
             } else {
                 ProgressView("Initialisation…")
             }
@@ -97,4 +130,28 @@ struct MainView: View {
             }
         }
     }
+    
+    private var projectButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                showProject = true
+            } label: {
+                Image(systemName: "folder.badge.plus")
+            }
+        }
+    }
+}
+
+struct MainView: View {
+
+    @StateObject private var profileVM = ProfileViewModel()
+
+    var body: some View {
+        MainViewWithInjectedVM(profileVM: profileVM)
+    }
+}
+
+
+#Preview {
+    MainView_PreviewWrapper()
 }

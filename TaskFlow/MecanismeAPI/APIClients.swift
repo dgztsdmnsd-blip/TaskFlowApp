@@ -14,40 +14,32 @@
 
 import Foundation
 
-/// Erreurs API
+// API Errors
 enum APIError: Error {
 
-    // URL invalide
     case invalidURL
-
-    // Réponse non HTTP
     case invalidResponse
-
-    // Accès non autorisé (token manquant, expiré ou invalide)
     case unauthorized(message: String?)
-
-    // Erreur HTTP générique (4xx / 5xx)
     case httpError(Int, message: String?)
-
-    // Erreur lors du décodage JSON
     case decodingError(Error)
 }
 
-/// Réponse d’erreur backend
+// Backend Error Response
 struct APIErrorResponse: Decodable {
     let message: String?
     let errors: String?
 }
 
-/// APIClient
+// Empty Response (204)
+struct EmptyResponse: Decodable {}
+
+// API Client
 final class APIClient {
 
-    // Un seul client réseau partagé
     static let shared = APIClient()
     private init() {}
 
-    // Requête générique
-    // Exécute une requête HTTP générique et retourne un objet décodé.
+    // Generic Request
     func request<T: Decodable>(
         url: URL,
         method: String = "GET",
@@ -70,31 +62,23 @@ final class APIClient {
             allHeaders["Authorization"] = "Bearer \(token)"
         }
 
-        // Application des headers à la requête
         allHeaders.forEach {
             urlRequest.setValue($0.value, forHTTPHeaderField: $0.key)
         }
 
         // Body
         if let body {
-            // Encodage JSON générique
-            urlRequest.httpBody = try JSONEncoder()
-                .encode(AnyEncodable(body))
-
-            urlRequest.setValue(
-                "application/json",
-                forHTTPHeaderField: "Content-Type"
-            )
+            urlRequest.httpBody = try JSONEncoder().encode(AnyEncodable(body))
+            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
 
         // Appel réseau
-        let (data, response) = try await
-            URLSession.shared.data(for: urlRequest)
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
 
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
-        
+
         // Tentative de décodage d’un message d’erreur backend
         let apiError = try? JSONDecoder().decode(APIErrorResponse.self, from: data)
 
@@ -107,12 +91,13 @@ final class APIClient {
                 return errors
                     .components(separatedBy: "\n")
                     .map { line in
-                        // Supprime "ERROR:" et "champ:"
                         line
                             .replacingOccurrences(of: "ERROR:", with: "")
-                            .replacingOccurrences(of: #"^\w+:"#,
-                                                  with: "",
-                                                  options: .regularExpression)
+                            .replacingOccurrences(
+                                of: #"^\w+:"#,
+                                with: "",
+                                options: .regularExpression
+                            )
                             .trimmingCharacters(in: .whitespaces)
                     }
                     .filter { !$0.isEmpty }
@@ -126,27 +111,25 @@ final class APIClient {
         switch http.statusCode {
 
         case 200..<300:
-            // Succès → on continue
             break
 
         case 401 where retry && requiresAuth:
-            // Token invalide ou expiré
             throw APIError.unauthorized(message: apiMessage)
 
         case 401:
-            // Échec définitif → on nettoie la session en mémoire
             SessionManager.shared.clear()
             throw APIError.unauthorized(message: apiMessage)
 
         default:
-            // Autres erreurs HTTP
-            throw APIError.httpError(
-                http.statusCode,
-                message: apiMessage
-            )
+            throw APIError.httpError(http.statusCode, message: apiMessage)
         }
 
-        // Décodage de la réponse
+        // Cas spécial : réponse vide (204 No Content)
+        if data.isEmpty, T.self == EmptyResponse.self {
+            return EmptyResponse() as! T
+        }
+
+        // Décodage JSON
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {

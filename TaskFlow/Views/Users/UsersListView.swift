@@ -9,30 +9,44 @@ import SwiftUI
 
 struct UsersListView: View {
 
-    // ViewModel
-    @StateObject private var ulm = UsersListViewModel()
+    @StateObject private var vm: UsersListViewModel
     let currentUser: ProfileResponse
+
+    // PROD
+    init(currentUser: ProfileResponse) {
+        self.currentUser = currentUser
+        _vm = StateObject(wrappedValue: UsersListViewModel())
+    }
+
+    // PREVIEW / TEST
+    init(
+        currentUser: ProfileResponse,
+        vm: UsersListViewModel
+    ) {
+        self.currentUser = currentUser
+        _vm = StateObject(wrappedValue: vm)
+    }
 
     var body: some View {
         ZStack {
-            BackgroundView(ecran: .enCours)
+            BackgroundView(ecran: .users)
             VStack {
                 
-                if ulm.isLoading {
+                if vm.isLoading {
                     ProgressView()
 
-                } else if let error = ulm.errorMessage {
+                } else if let error = vm.errorMessage {
                     Text(error)
                         .foregroundColor(.red)
                         .font(.caption)
 
-                } else if ulm.users.isEmpty {
+                } else if vm.users.isEmpty {
                     Text("Aucun utilisateur trouvé")
                         .foregroundColor(.secondary)
                         .font(.caption)
 
                 } else {
-                    List(ulm.users) { user in
+                    List(vm.users) { user in
                         NavigationLink {
                             UserDetailView(currentUser: currentUser, user: user)
                         } label: {
@@ -45,9 +59,8 @@ struct UsersListView: View {
             }
         }
         .onAppear {
-            Task {
-                await ulm.fetchUsersList()
-            }
+            guard !ProcessInfo.isRunningPreviews else { return }
+            Task { await vm.fetchUsersList() }
         }
     }
 
@@ -82,4 +95,13 @@ struct UsersListView: View {
         .padding(.vertical, 4)
     }
 
+}
+
+#Preview {
+    NavigationStack {
+        UsersListView(
+            currentUser: .preview,
+            vm: UsersListViewModel.preview()
+        )
+    }
 }

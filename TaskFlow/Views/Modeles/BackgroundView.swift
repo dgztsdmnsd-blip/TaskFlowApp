@@ -17,6 +17,8 @@ struct BackgroundView: View {
         case terminees
         case enCours
         case aVenir
+        case projets
+        case users
     }
 
     let ecran: Ecran
@@ -28,6 +30,10 @@ struct BackgroundView: View {
     // Terminées: Vert
     private let colcompdeb = Color(red: 0.60, green: 0.85, blue: 0.70)
     private let colcompfin = Color(red: 0.45, green: 0.75, blue: 0.60)
+    
+    // Terminées: Vert clair
+    private let colprojdeb = Color(red: 0.88, green: 0.96, blue: 0.91)
+    private let colprojfin = Color(red: 0.78, green: 0.92, blue: 0.84)
 
     // En cours: Bleu
     private let colencdeb = Color(red: 0.55, green: 0.75, blue: 0.95)
@@ -36,6 +42,11 @@ struct BackgroundView: View {
     // À venir: Lavande
     private let coltododeb = Color(red: 0.75, green: 0.70, blue: 0.95)
     private let coltodofin = Color(red: 0.60, green: 0.55, blue: 0.90)
+    
+    // User: Bleu clair
+    private let coluserdeb = Color(red: 0.85, green: 0.92, blue: 0.98)
+    private let coluserfin = Color(red: 0.72, green: 0.85, blue: 0.95)
+
 
     private var coldeb: Color {
         switch ecran {
@@ -43,6 +54,8 @@ struct BackgroundView: View {
         case .enCours:   return colencdeb
         case .aVenir:    return coltododeb
         case .general:   return colgendeb
+        case .projets:   return colprojdeb
+        case .users:     return coluserdeb
         }
     }
 
@@ -52,6 +65,8 @@ struct BackgroundView: View {
         case .enCours:   return colencfin
         case .aVenir:    return coltodofin
         case .general:   return colgenfin
+        case .projets:   return colprojfin
+        case .users:     return coluserfin
         }
     }
 

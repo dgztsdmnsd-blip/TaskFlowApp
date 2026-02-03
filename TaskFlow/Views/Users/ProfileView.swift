@@ -26,85 +26,88 @@ struct ProfileView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-
-                if let profile = vm.profile {
-
-                    // Identité
-                    Section("Identité") {
-                        profileRow("Prénom", profile.firstName)
-                        profileRow("Nom", profile.lastName)
-                        profileRow("Email", profile.email)
-                    }
-
-                    // Compte
-                    Section("Compte") {
-                        profileRow(
-                            "Profil",
-                            profile.profil == "MGR" ? "Manager" : "Utilisateur"
-                        )
-
-                        profileRow(
-                            "Statut",
-                            profile.status == "ACTIVE" ? "Actif" : "Inactif"
-                        )
-                    }
-
-                    // Dates
-                    Section("Dates") {
-                        profileRow("Création", profile.creationDateFormatted)
-                        profileRow(
-                            "Sortie",
-                            profile.exitDate ?? "-"
-                        )
-                    }
-
-                    // Actions
-                    Section("Actions") {
-
-                        Button {
-                            showEditProfile = true
-                        } label: {
-                            Label("Modifier mon profil", systemImage: "pencil")
+            ZStack {
+                BackgroundView(ecran: .users)
+                Form {
+                    if let profile = vm.profile {
+                        
+                        // Identité
+                        Section("Identité") {
+                            profileRow("Prénom", profile.firstName)
+                            profileRow("Nom", profile.lastName)
+                            profileRow("Email", profile.email)
                         }
-
-                        Button(role: .destructive) {
-                            handleLogout()
-                        } label: {
-                            Label(
-                                "Se déconnecter",
-                                systemImage: "arrow.backward.square"
+                        
+                        // Compte
+                        Section("Compte") {
+                            profileRow(
+                                "Profil",
+                                profile.profil == "MGR" ? "Manager" : "Utilisateur"
+                            )
+                            
+                            profileRow(
+                                "Statut",
+                                profile.status == "ACTIVE" ? "Actif" : "Inactif"
                             )
                         }
+                        
+                        // Dates
+                        Section("Dates") {
+                            profileRow("Création", profile.creationDateFormatted)
+                            /* TODO: création d'un profil Admin
+                             profileRow(
+                             "Sortie",
+                             profile.exitDate ?? "-"
+                             )*/
+                        }
+                        
+                        // Actions
+                        Section("Actions") {
+                            
+                            BoutonImageView(
+                                title: "Modifier mon profil",
+                                systemImage: "pencil",
+                                style: .primary
+                            ) {
+                                showEditProfile = true
+                            }
+                            
+                            BoutonImageView(
+                                title: "Se déconnecter",
+                                systemImage: "arrow.backward.square",
+                                style: .danger
+                            ) {
+                                handleLogout()
+                            }
+                        }
+                    }
+                }
+                .listSectionSpacing(.compact)
+                .navigationTitle("Mon profil")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark.app.fill")
+                        }
                     }
                 }
             }
-            .listSectionSpacing(.compact)
-            .navigationTitle("Mon profil")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.app.fill")
-                    }
-                }
-            }
-        }
-        .sheet(isPresented: $showEditProfile) {
-            if let profile = vm.profile {
-                RegisterView(
-                            mode: .edit(profile: profile),
-                            profileViewModel: vm   
-                        )
+            .sheet(isPresented: $showEditProfile) {
+                if let profile = vm.profile {
+                    RegisterView(
+                        mode: .edit(profile: profile),
+                        profileViewModel: vm
+                    )
                     .environmentObject(appState)
+                }
             }
         }
     }
 
-    // MARK: - UI Helpers
-
+    // UI Helpers
     private func profileRow(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label.uppercased())
@@ -131,4 +134,8 @@ extension View {
         self
             .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
     }
+}
+
+#Preview {
+    ProfileView(viewModel: ProfileViewModel.preview)
 }

@@ -1,5 +1,5 @@
 //
-//  ProjectViewModel.swift
+//  ProjectFormViewModel.swift
 //  TaskFlow
 //
 //  Created by luc banchetti on 02/02/2026.
@@ -8,58 +8,53 @@
 import Foundation
 import Combine
 
-enum ProjectMode {
-    case create
-    case edit(projet: ProjectResponse)
-    case liste
-}
-
 @MainActor
-final class ProjectViewModel: ObservableObject {
+final class ProjectFormViewModel: ObservableObject {
 
-    // Mode
     let mode: ProjectMode
 
-    var isCreateMode: Bool {
-        if case .create = mode { return true }
-        return false
-    }
-
-    // Inputs
     @Published var titre = ""
     @Published var description = ""
 
-    // State
     @Published var isLoading = false
     @Published var isSuccess = false
     @Published var errorMessage: String?
 
     init(mode: ProjectMode) {
         self.mode = mode
+
+        if case .edit(let projet) = mode {
+            titre = projet.title
+            description = projet.description
+        }
     }
 
-    // Submit
     func submit() async {
-
+        isLoading = true
         errorMessage = nil
 
-        if mode != .liste {
-            guard !titre.isEmpty else {
-                errorMessage = "Veuillez renseigner le titre du projet."
-                return
-            }
-            
-            guard !description.isEmpty else {
-                errorMessage = "Veuillez renseigner une description pour le projet."
+        guard !titre.isEmpty else {
+            errorMessage = "Veuillez renseigner le titre."
+            isLoading = false
+            return
+        }
+
+        guard !description.isEmpty else {
+            errorMessage = "Veuillez renseigner la description."
+            isLoading = false
+            return
+        }
+
+        if case .edit(let projet) = mode {
+            guard titre != projet.title || description != projet.description else {
+                errorMessage = "Aucune modification détectée."
+                isLoading = false
                 return
             }
         }
 
-        isLoading = true
-
         do {
             switch mode {
-
             case .create:
                 _ = try await ProjectService.shared.createProject(
                     title: titre,
@@ -67,13 +62,14 @@ final class ProjectViewModel: ObservableObject {
                 )
 
             case .edit(let projet):
-                // TODO: update project
-                print("Edition projet \(projet.id)")
-            
-            case .liste:
-                print("Liste des projet")
-            
-                _ = try await ProjectService.shared.fetchProjects()
+                _ = try await ProjectService.shared.updateProject(
+                    id: projet.id,
+                    title: titre,
+                    description: description
+                )
+
+            default:
+                break
             }
 
             isSuccess = true

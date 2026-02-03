@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-// MARK: - Labeled Text / Secure Field
-
+// Labeled Text / Secure Field
 struct LabeledTextField: View {
 
     let label: String
@@ -38,8 +37,7 @@ struct LabeledTextField: View {
     }
 }
 
-// MARK: - Shared Field Style
-
+// Shared Field Style
 extension View {
     func formFieldStyle() -> some View {
         self
@@ -49,8 +47,7 @@ extension View {
     }
 }
 
-// MARK: - Preview
-
+// Preview
 #Preview {
     VStack(spacing: 16) {
         LabeledTextField(

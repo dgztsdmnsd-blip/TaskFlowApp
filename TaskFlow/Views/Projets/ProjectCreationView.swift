@@ -9,43 +9,54 @@ import SwiftUI
 
 struct ProjectCreationView: View {
 
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var vm: ProjectViewModel
+    // Dependencies
+    @StateObject private var vm: ProjectFormViewModel
+    let onCreated: () -> Void
 
-    init(viewModel: ProjectViewModel) {
+    // UI
+    @Environment(\.dismiss) private var dismiss
+
+    // Init
+    init(
+        viewModel: ProjectFormViewModel,
+        onCreated: @escaping () -> Void = {}
+    ) {
         _vm = StateObject(wrappedValue: viewModel)
+        self.onCreated = onCreated
     }
 
+    // Body
     var body: some View {
         NavigationStack {
             Form {
 
+                // -----------------
                 // Titre
+                // -----------------
                 Section("Titre") {
                     TextField("Titre du projet", text: $vm.titre)
                         .textInputAutocapitalization(.sentences)
                 }
 
+                // -----------------
                 // Description
+                // -----------------
                 Section("Description") {
                     TextEditor(text: $vm.description)
                         .frame(minHeight: 120)
                 }
 
-                // Actions
+                // -----------------
+                // Action
+                // -----------------
                 Section {
-                    Button {
+                    BoutonImageView(
+                        title: "Créer le projet",
+                        systemImage: "folder.badge.plus",
+                        style: .primary
+                    ) {
                         Task {
                             await vm.submit()
-                            if vm.isSuccess {
-                                dismiss()
-                            }
-                        }
-                    } label: {
-                        if vm.isLoading {
-                            ProgressView()
-                        } else {
-                            Label("Créer le projet", systemImage: "pencil")
                         }
                     }
                     .disabled(vm.isLoading)
@@ -62,6 +73,12 @@ struct ProjectCreationView: View {
                     }
                 }
             }
+            .onChange(of: vm.isSuccess) {
+                if vm.isSuccess {
+                    onCreated()
+                    dismiss()
+                }
+            }
             .alert("Erreur", isPresented: .constant(vm.errorMessage != nil)) {
                 Button("OK", role: .cancel) {
                     vm.errorMessage = nil
@@ -75,6 +92,6 @@ struct ProjectCreationView: View {
 
 #Preview {
     ProjectCreationView(
-        viewModel: ProjectViewModel(mode: .create)
+        viewModel: ProjectFormViewModel(mode: .create)
     )
 }

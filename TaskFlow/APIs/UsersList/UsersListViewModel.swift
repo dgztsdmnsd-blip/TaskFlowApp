@@ -31,3 +31,21 @@ final class UsersListViewModel: ObservableObject {
         isLoading = false
     }
 }
+
+
+@MainActor
+extension UsersListViewModel {
+
+    static func preview() -> UsersListViewModel {
+        let vm = UsersListViewModel()
+
+        vm.isLoading = false
+        vm.errorMessage = nil
+        vm.users = [
+            .preview,
+            .preview2
+        ]
+
+        return vm
+    }
+}
