@@ -2,49 +2,28 @@
 //  MainView.swift
 //  TaskFlow
 //
-//  Created by luc banchetti on 23/01/2026.
-//
-//  Vue principale affichée après authentification.
-//  Elle repose sur une TabView avec trois sections,
-//  chacune embarquée dans sa propre NavigationStack.
+//  Vue principale après authentification.
+//  Elle s’appuie uniquement sur SessionViewModel
 //
 
 import SwiftUI
 
-struct MainView_PreviewWrapper: View {
+struct MainView: View {
 
-    @StateObject private var profileVM = ProfileViewModel.preview
-    var body: some View {
-        MainViewWithInjectedVM(profileVM: profileVM)
-    }
-}
+    @EnvironmentObject private var session: SessionViewModel
 
-
-struct MainViewWithInjectedVM: View {
-
-    @ObservedObject var profileVM: ProfileViewModel
     @State private var showProfile = false
     @State private var showProject = false
 
     var body: some View {
         Group {
-            if profileVM.isLoading {
-                ProgressView("Chargement du profil…")
-
-            } else if let error = profileVM.errorMessage {
-                VStack {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .padding()
-
-                    Button("Réessayer") {
-                        Task { await profileVM.fetchProfile() }
-                    }
-                }
-
-            } else if let profile = profileVM.profile {
+            if let user = session.currentUser {
 
                 TabView {
+
+                    // --------------------
+                    // À venir
+                    // --------------------
                     NavigationStack {
                         TodoView()
                             .navigationTitle("À venir")
@@ -53,8 +32,10 @@ struct MainViewWithInjectedVM: View {
                     .tabItem {
                         Label("À venir", systemImage: "calendar")
                     }
-                    
 
+                    // --------------------
+                    // En cours
+                    // --------------------
                     NavigationStack {
                         InProgressView()
                             .navigationTitle("En cours")
@@ -64,25 +45,32 @@ struct MainViewWithInjectedVM: View {
                         Label("En cours", systemImage: "clock")
                     }
 
+                    // --------------------
+                    // Terminées
+                    // --------------------
                     NavigationStack {
                         CompletedView()
-                            .navigationTitle("Complétées")
+                            .navigationTitle("Terminées")
                             .toolbar { profileButton }
                     }
                     .tabItem {
                         Label("Terminées", systemImage: "checkmark.circle.fill")
                     }
 
-                    if profileVM.isAdmin {
+                    // --------------------
+                    // Admin
+                    // --------------------
+                    if user.profil == "MGR" {
+
                         NavigationStack {
-                            UsersListView(currentUser: profile)
+                            UsersListView(currentUser: user)
                                 .navigationTitle("Utilisateurs")
                                 .toolbar { profileButton }
                         }
                         .tabItem {
                             Label("Utilisateurs", systemImage: "person.3.fill")
                         }
-                        
+
                         NavigationStack {
                             ProjectsView()
                                 .navigationTitle("Projets")
@@ -94,7 +82,7 @@ struct MainViewWithInjectedVM: View {
                     }
                 }
                 .sheet(isPresented: $showProfile) {
-                    ProfileView(viewModel: profileVM)
+                    ProfileView()
                 }
                 .sheet(isPresented: $showProject) {
                     ProjectCreationView(
@@ -108,19 +96,16 @@ struct MainViewWithInjectedVM: View {
                     )
                     .presentationDetents([.medium, .large])
                 }
+
             } else {
                 ProgressView("Initialisation…")
             }
         }
-        .onAppear {
-            if profileVM.profile == nil {
-                Task {
-                    await profileVM.fetchProfile()
-                }
-            }
-        }
     }
 
+    // --------------------
+    // Toolbar buttons
+    // --------------------
     private var profileButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
@@ -130,7 +115,7 @@ struct MainViewWithInjectedVM: View {
             }
         }
     }
-    
+
     private var projectButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
@@ -142,16 +127,11 @@ struct MainViewWithInjectedVM: View {
     }
 }
 
-struct MainView: View {
-
-    @StateObject private var profileVM = ProfileViewModel()
-
-    var body: some View {
-        MainViewWithInjectedVM(profileVM: profileVM)
-    }
-}
-
-
 #Preview {
-    MainView_PreviewWrapper()
+    let session = SessionViewModel()
+    session.currentUser = .preview
+    session.isAuthenticated = true
+
+    return MainView()
+        .environmentObject(session)
 }

@@ -40,6 +40,7 @@ struct ProjectResponse: Codable, Identifiable {
     let title: String
     let description: String
     let status: ProjectStatus
+    let owner: ProfileLiteResponse
     let membersCount: Int
 }
 
@@ -50,6 +51,7 @@ extension ProjectResponse {
         title: "Refonte du site Web",
         description: "Projet UX/UI complet du site institutionnel.",
         status: .notStarted,
+        owner: .preview,
         membersCount: 1
     )
 
@@ -58,6 +60,7 @@ extension ProjectResponse {
         title: "Migration CRM",
         description: "Migration des données vers le nouveau CRM.",
         status: .inProgress,
+        owner: .preview,
         membersCount: 4
     )
 
@@ -66,7 +69,13 @@ extension ProjectResponse {
         title: "Audit sécurité",
         description: "Analyse complète des failles de sécurité.",
         status: .finished,
+        owner: .preview,
         membersCount: 2
     )
 }
 
+
+struct ProjectMembersResponse: Decodable {
+    let ownerId: Int
+    let members: [ProfileResponse]
+}

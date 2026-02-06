@@ -50,12 +50,11 @@ struct UsersListView: View {
                         NavigationLink {
                             UserDetailView(currentUser: currentUser, user: user)
                         } label: {
-                            userRow(user: user)
+                            ProfileRowView(user: user, isOwner: false)
                         }
                     }
                     .scrollContentBackground(.hidden)
                 }
-                
             }
         }
         .onAppear {
@@ -63,38 +62,6 @@ struct UsersListView: View {
             Task { await vm.fetchUsersList() }
         }
     }
-
-    /// Ligne utilisateur
-    private func userRow(user: ProfileResponse) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(user.firstName.capitalized) \(user.lastName.capitalized)")
-                    .font(.caption)
-
-                Text(user.email)
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-            }
-
-            Spacer()
-
-            Text(user.profil == "MGR" ? "Manager" : "Utilisateur")
-                .font(.caption.bold())
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(
-                    user.profil == "MGR"
-                        ? Color.blue.opacity(0.2)
-                        : Color.gray.opacity(0.2)
-                )
-                .foregroundColor(
-                    user.profil == "MGR" ? .blue : .gray
-                )
-                .cornerRadius(8)
-        }
-        .padding(.vertical, 4)
-    }
-
 }
 
 #Preview {

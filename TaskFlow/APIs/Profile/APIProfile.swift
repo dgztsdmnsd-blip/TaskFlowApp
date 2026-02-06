@@ -22,7 +22,15 @@ struct ProfileResponse: Codable, Identifiable {
     let status: String
     let profil: String
     let creationDate: String
-    let exitDate: String?    
+    let exitDate: String?
+    let projectsCount: Int
+}
+
+struct ProfileLiteResponse: Codable, Identifiable {
+    let id: Int
+    let email: String
+    let firstName: String
+    let lastName: String
 }
 
 extension String {
@@ -60,7 +68,8 @@ extension ProfileResponse {
         status: "ACTIVE",
         profil: "MGR",
         creationDate: "2025-01-10T14:32:00+00:00",
-        exitDate: nil
+        exitDate: nil,
+        projectsCount: 2
     )
     
     static let preview2 = ProfileResponse(
@@ -71,6 +80,23 @@ extension ProfileResponse {
         status: "ACTIVE",
         profil: "UTIL",
         creationDate: "2025-01-10T14:32:00+00:00",
-        exitDate: nil
+        exitDate: nil,
+        projectsCount: 2
+    )
+}
+
+extension ProfileLiteResponse {
+    static let preview = ProfileLiteResponse(
+        id: 1,
+        email: "luc@test.com",
+        firstName: "Luc",
+        lastName: "Banchetti"
+    )
+
+    static let preview2 = ProfileLiteResponse(
+        id: 2,
+        email: "user@test.com",
+        firstName: "Na",
+        lastName: "Ban"
     )
 }

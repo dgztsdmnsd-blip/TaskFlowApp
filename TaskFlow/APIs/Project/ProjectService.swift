@@ -68,8 +68,33 @@ final class ProjectService {
         return response
     }
     
+    // Modification statut
+    func updateProjectStatus(
+        id: Int,
+        status: ProjectStatus
+    ) async throws -> ProjectResponse {
 
-    // Liste des projets
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/status/\(id)")
+
+        struct Body: Encodable {
+            let status: String
+        }
+
+        let response: ProjectResponse = try await APIClient.shared.request(
+            url: url,
+            method: "PATCH",
+            body: Body(status: status.rawValue),
+            requiresAuth: true
+        )
+
+        print("Update Project succès → id:", response.id)
+        return response
+    }
+    
+
+    // Liste des projets accessibles par l'utilisateur connecté (membre ou owner)
+    // ProjectsView et UserProjectsView
     func listProjects() async throws -> [ProjectResponse] {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/projects/liste")
@@ -85,6 +110,43 @@ final class ProjectService {
         print("Projects List succès → count:", projects.count)
         return projects
     }
+  
+    
+    // Liste des projets en cours accessibles par l'utilisateur connecté (membre ou owner)
+    // BacklogView
+    func listActiveProjects() async throws -> [ProjectResponse] {
+
+        let url = AppConfig.baseURL.appendingPathComponent("/api/projects/activeprojects")
+
+        print("Projects active List → URL:", url)
+
+        let projects: [ProjectResponse] = try await APIClient.shared.request(
+            url: url,
+            method: "GET",
+            requiresAuth: true
+        )
+
+        print("Projects active List succès → count:", projects.count)
+        return projects
+    }
+    
+    
+    // Liste des membres    
+    func listMembers(
+        projectId: Int
+    ) async throws -> ProjectMembersResponse {
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/\(projectId)/members")
+        
+        print("Members List → URL:", url)
+
+        return try await APIClient.shared.request(
+            url: url,
+            method: "GET",
+            requiresAuth: true
+        )
+    }
+
 
     // Detail d'un projet
     func fetchProject(id: Int) async throws -> ProjectResponse {
@@ -116,6 +178,78 @@ final class ProjectService {
         ) as EmptyResponse
 
         print("Delete Project succès → id:", id)
+    }
+    
+    
+    // Ajout d'un membre
+    func addMember(
+        projectId: Int,
+        userId: Int
+    ) async throws {
+
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/projet/\(projectId)/member/\(userId)")
+
+        print("Add Member → URL:", url)
+
+        _ = try await APIClient.shared.request(
+            url: url,
+            method: "POST",
+            requiresAuth: true
+        ) as EmptyResponse
+    }
+
+    
+    // Suppression d'un membre
+    func removeMember(
+        projectId: Int,
+        userId: Int
+    ) async throws {
+
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/projet/\(projectId)/member/\(userId)")
+
+        print("Remove Member → URL:", url)
+
+        _ = try await APIClient.shared.request(
+            url: url,
+            method: "DELETE",
+            requiresAuth: true
+        ) as EmptyResponse
+    }
+
+    
+    // Projets pour un utilisateur donné
+    func listProjectsForUser(
+        for userId: Int
+    ) async throws -> [ProjectResponse] {
+
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/user/\(userId)")
+
+        print("User Projects → URL:", url)
+
+        return try await APIClient.shared.request(
+            url: url,
+            method: "GET",
+            requiresAuth: true
+        )
+    }
+    
+    
+    // Projets pour un owner donné
+    func listProjectsForOwner() async throws -> [ProjectResponse] {
+
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/owner")
+
+        print("User Projects → URL:", url)
+
+        return try await APIClient.shared.request(
+            url: url,
+            method: "GET",
+            requiresAuth: true
+        )
     }
 
 }

@@ -14,7 +14,7 @@ struct CompletedView: View {
         ZStack {
             BackgroundView(ecran: .terminees)
             VStack {
-                
+                BacklogView(etatUS: .termine)
                 Spacer()
             }
         }

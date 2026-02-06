@@ -16,6 +16,8 @@ struct UserDetailView: View {
     @StateObject private var vm: UserAdminViewModel
     @State private var showConfirmStatus = false
     @State private var showConfirmRole = false
+    @State private var showUserProjects = false
+
 
     // Init
     init(currentUser: ProfileResponse, user: ProfileResponse) {
@@ -55,6 +57,21 @@ struct UserDetailView: View {
                 Section("Dates") {
                     infoRow(label: "Création", value: vm.user.creationDateFormatted)
                     //infoRow(label: "Sortie", value: vm.user.exitDateFormatted)
+                }
+                
+                Section("Projets") {
+                    projectsBadge
+                    
+                    if currentUser.profil == "MGR" {
+                        // Attribuer un projet
+                        BoutonImageView(
+                            title: "Attribuer un projet",
+                            systemImage: "folder.badge.plus",
+                            style: .primary
+                        ) {
+                            showUserProjects = true
+                        }
+                    }
                 }
                 
                 // Actions (Manager uniquement)
@@ -104,21 +121,18 @@ struct UserDetailView: View {
                             
                             Button("Annuler", role: .cancel) {}
                         }
-                        
-                        // Attribuer un projet
-                        BoutonImageView(
-                            title: "Attribuer un projet",
-                            systemImage: "folder.badge.plus",
-                            style: .primary
-                        ) {
-                            // TODO: navigation vers sélection de projet
-                        }
+
                     }
                 }
             }
         }
         .navigationTitle("Utilisateur")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showUserProjects) {
+            NavigationStack {
+                UserProjectsView(userId: vm.user.id)
+            }
+        }
     }
 
     // Badges
@@ -153,6 +167,17 @@ struct UserDetailView: View {
                 .foregroundColor(.secondary)
             Spacer()
             Text(value)
+        }
+    }
+    
+    private var projectsBadge: some View {
+        HStack {
+            Label(
+                "\(vm.user.projectsCount) projets",
+                systemImage: "folder.fill"
+            )
+            .font(.caption)
+            .foregroundColor(.secondary)
         }
     }
 }

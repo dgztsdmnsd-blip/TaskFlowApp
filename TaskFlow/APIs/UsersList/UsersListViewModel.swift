@@ -35,17 +35,25 @@ final class UsersListViewModel: ObservableObject {
 
 @MainActor
 extension UsersListViewModel {
-
     static func preview() -> UsersListViewModel {
         let vm = UsersListViewModel()
-
         vm.isLoading = false
         vm.errorMessage = nil
         vm.users = [
-            .preview,
-            .preview2
+            .preview,   // id 1
+            .preview2,  // id 2
+            ProfileResponse(
+                id: 15,
+                email: "owner@test.com",
+                firstName: "Owner",
+                lastName: "Project",
+                status: "ACTIVE",
+                profil: "MGR",
+                creationDate: "2026-02-03",
+                exitDate: nil,
+                projectsCount: 2
+            )
         ]
-
         return vm
     }
 }

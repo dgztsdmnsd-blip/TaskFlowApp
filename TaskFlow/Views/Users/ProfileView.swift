@@ -14,56 +14,45 @@ import SwiftUI
 @MainActor
 struct ProfileView: View {
 
+    @EnvironmentObject private var sessionVM: SessionViewModel
+    @EnvironmentObject private var appState: AppState
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var appState: AppState
 
-    @StateObject private var vm: ProfileViewModel
     @State private var showEditProfile = false
-
-    init(viewModel: ProfileViewModel) {
-        _vm = StateObject(wrappedValue: viewModel)
-    }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 BackgroundView(ecran: .users)
+
                 Form {
-                    if let profile = vm.profile {
-                        
-                        // Identité
+                    if let profile = sessionVM.currentUser {
+
                         Section("Identité") {
                             profileRow("Prénom", profile.firstName)
                             profileRow("Nom", profile.lastName)
                             profileRow("Email", profile.email)
                         }
-                        
-                        // Compte
+
                         Section("Compte") {
                             profileRow(
                                 "Profil",
                                 profile.profil == "MGR" ? "Manager" : "Utilisateur"
                             )
-                            
                             profileRow(
                                 "Statut",
                                 profile.status == "ACTIVE" ? "Actif" : "Inactif"
                             )
                         }
-                        
-                        // Dates
+
                         Section("Dates") {
-                            profileRow("Création", profile.creationDateFormatted)
-                            /* TODO: création d'un profil Admin
-                             profileRow(
-                             "Sortie",
-                             profile.exitDate ?? "-"
-                             )*/
+                            profileRow(
+                                "Création",
+                                profile.creationDateFormatted
+                            )
                         }
-                        
-                        // Actions
+
                         Section("Actions") {
-                            
                             BoutonImageView(
                                 title: "Modifier mon profil",
                                 systemImage: "pencil",
@@ -71,7 +60,7 @@ struct ProfileView: View {
                             ) {
                                 showEditProfile = true
                             }
-                            
+
                             BoutonImageView(
                                 title: "Se déconnecter",
                                 systemImage: "arrow.backward.square",
@@ -80,9 +69,10 @@ struct ProfileView: View {
                                 handleLogout()
                             }
                         }
+                    } else {
+                        ProgressView("Chargement du profil…")
                     }
                 }
-                .listSectionSpacing(.compact)
                 .navigationTitle("Mon profil")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -96,18 +86,15 @@ struct ProfileView: View {
                 }
             }
             .sheet(isPresented: $showEditProfile) {
-                if let profile = vm.profile {
+                if let profile = sessionVM.currentUser {
                     RegisterView(
-                        mode: .edit(profile: profile),
-                        profileViewModel: vm
+                        mode: .edit(profile: profile)
                     )
-                    .environmentObject(appState)
                 }
             }
         }
     }
 
-    // UI Helpers
     private func profileRow(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label.uppercased())
@@ -117,25 +104,20 @@ struct ProfileView: View {
             Text(value)
                 .font(.subheadline)
         }
-        .profileRowStyle()
     }
-    
-    // Logout
+
     private func handleLogout() {
-        SessionManager.shared.logout()
+        sessionVM.logout()
         dismiss()
         appState.flow = .loginHome
     }
 }
 
-
-extension View {
-    func profileRowStyle() -> some View {
-        self
-            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-    }
-}
-
 #Preview {
-    ProfileView(viewModel: ProfileViewModel.preview)
+    let session = SessionViewModel()
+    session.currentUser = .preview
+
+    return ProfileView()
+        .environmentObject(session)
+        .environmentObject(AppState())
 }

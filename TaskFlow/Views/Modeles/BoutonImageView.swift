@@ -13,6 +13,7 @@ struct BoutonImageView: View {
 
     enum Style {
         case primary
+        case secondary
         case success
         case danger
 
@@ -23,6 +24,16 @@ struct BoutonImageView: View {
                     colors: [
                         Color(red: 0.35, green: 0.55, blue: 0.85),
                         Color(red: 0.25, green: 0.45, blue: 0.75)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                
+            case .secondary:
+                return LinearGradient(
+                    colors: [
+                        Color(red: 0.70, green: 0.82, blue: 0.95),
+                        Color(red: 0.58, green: 0.74, blue: 0.90)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing

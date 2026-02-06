@@ -14,7 +14,7 @@ struct TodoView: View {
         ZStack {
             BackgroundView(ecran: .aVenir)
             VStack {
-                
+                BacklogView(etatUS: .aVenir)
                 Spacer()
             }
         }

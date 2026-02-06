@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ProjectsView: View {
 
+    @EnvironmentObject private var sessionVM: SessionViewModel
     @StateObject private var vm: ProjectListViewModel
 
     // INIT PROD
@@ -44,7 +45,10 @@ struct ProjectsView: View {
                                 vm: ProjectDetailViewModel(project: project)
                             )
                         } label: {
-                            projectRow(project: project)
+                            ProjectsRowView(
+                                project: project,
+                                isOwner: project.owner.id == sessionVM.currentUser?.id
+                            )
                         }
                     }
                     .scrollContentBackground(.hidden)
@@ -62,44 +66,6 @@ struct ProjectsView: View {
         ) { _ in
             Task { await vm.fetchProjects() }
         }
-    }
-
-    // Row
-    private func projectRow(project: ProjectResponse) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(project.title)
-                    .font(.headline)
-
-                Text(project.description)
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-
-                Text(
-                    project.membersCount == 1
-                    ? "1 membre"
-                    : "\(project.membersCount) membres"
-                )
-                .font(.footnote)
-                .foregroundColor(.secondary)
-            }
-
-            Spacer()
-
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(project.status.color)
-                    .frame(width: 8, height: 8)
-
-                Text(project.status.label)
-                    .font(.caption.bold())
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(project.status.color.opacity(0.15))
-            .cornerRadius(8)
-        }
-        .padding(.vertical, 4)
     }
 }
 
@@ -123,5 +89,12 @@ extension ProcessInfo {
         ProjectsView(
             vm: ProjectListViewModel.preview()
         )
+        .environmentObject({
+            let vm = SessionViewModel()
+            vm.currentUser = .preview   
+            vm.isAuthenticated = true
+            return vm
+        }())
     }
 }
+

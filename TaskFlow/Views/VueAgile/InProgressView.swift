@@ -14,7 +14,7 @@ struct InProgressView: View {
         ZStack {
             BackgroundView(ecran: .enCours)
             VStack {
-                
+                BacklogView(etatUS: .enCours)
                 Spacer()
             }
         }

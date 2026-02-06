@@ -9,41 +9,44 @@ import SwiftUI
 
 struct BacklogView: View {
 
+    let etatUS: UserStoriesStatus
     @StateObject private var vm: ProjectListViewModel
 
     // INIT PROD
-    init() {
+    init(etatUS: UserStoriesStatus = .enCours) {
+        self.etatUS = etatUS
         _vm = StateObject(wrappedValue: ProjectListViewModel())
     }
 
     // INIT PREVIEW / TEST
-    init(vm: ProjectListViewModel) {
+    init(
+        etatUS: UserStoriesStatus = .enCours,
+        vm: ProjectListViewModel
+    ) {
+        self.etatUS = etatUS
         _vm = StateObject(wrappedValue: vm)
     }
 
     var body: some View {
-        ZStack {
-            BackgroundView(ecran: .projets)
+        VStack {
+            if vm.isLoading {
+                ProgressView()
 
-            VStack {
-                if vm.isLoading {
-                    ProgressView()
+            } else if let error = vm.errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
 
-                } else if let error = vm.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
+            } else if vm.projects.isEmpty {
+                Text("Aucun projet trouvé")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
 
-                } else if vm.projects.isEmpty {
-                    Text("Aucun projet trouvé")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-
-                } else {
-                    List(vm.projects) { project in
-                        projectRow(project: project)}
-                    .scrollContentBackground(.hidden)
+            } else {
+                List(vm.projects) { project in
+                    projectRow(project: project)
                 }
+                .scrollContentBackground(.hidden)
             }
         }
         .task {
@@ -58,17 +61,13 @@ struct BacklogView: View {
             Task { await vm.fetchActiveProjects() }
         }
     }
-
+        
     // Row
     private func projectRow(project: ProjectResponse) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(project.title)
                     .font(.headline)
-
-                Text(project.description)
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
 
                 Text(
                     project.membersCount == 1
@@ -78,30 +77,16 @@ struct BacklogView: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
             }
-
             Spacer()
-
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(project.status.color)
-                    .frame(width: 8, height: 8)
-
-                Text(project.status.label)
-                    .font(.caption.bold())
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(project.status.color.opacity(0.15))
-            .cornerRadius(8)
         }
         .padding(.vertical, 4)
     }
 }
 
-
 #Preview {
     NavigationStack {
-        ProjectsView(
+        BacklogView(
+            etatUS: .enCours,
             vm: ProjectListViewModel.preview()
         )
     }

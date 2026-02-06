@@ -44,6 +44,14 @@ enum AdminUserProfil: String {
     case mgr = "MGR"
 }
 
+
+enum UserStoriesStatus: String {
+    case aVenir = "NS"
+    case enCours = "ENC"
+    case termine = "TER"
+}
+
+
 enum AppConfig {
     static let version: Version = .dev
 

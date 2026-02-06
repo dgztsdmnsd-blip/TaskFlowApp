@@ -35,10 +35,10 @@ final class RefreshService {
             retry: false
         )
 
-        // 🔐 Sauvegarde du NOUVEAU refresh token
+        // Sauvegarde du NOUVEAU refresh token
         try SessionManager.shared.updateRefreshToken(response.refreshToken)
 
-        // 🔑 Sauvegarde du nouvel access token
+        // Sauvegarde du nouvel access token
         SessionManager.shared.saveAccessToken(response.token)
 
         return response.token

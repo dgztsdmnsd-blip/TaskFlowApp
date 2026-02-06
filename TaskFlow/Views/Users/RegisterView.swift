@@ -11,13 +11,6 @@
 //  - vider la mémoire
 //
 
-//
-//  RegisterView.swift
-//  TaskFlow
-//
-//  Created by luc banchetti on 26/01/2026.
-//
-
 import SwiftUI
 
 @MainActor
@@ -25,32 +18,28 @@ struct RegisterView: View {
 
     // Environment
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var session: SessionViewModel
 
     // State
     @State private var showAlert = false
     @StateObject private var vm: RegisterViewModel
 
-    // VM partagé pour reload du profil
-    let profileViewModel: ProfileViewModel?
-
-    // init
-    init(
-        mode: RegisterMode,
-        profileViewModel: ProfileViewModel? = nil
-    ) {
+    // Init
+    init(mode: RegisterMode) {
         _vm = StateObject(wrappedValue: RegisterViewModel(mode: mode))
-        self.profileViewModel = profileViewModel
     }
 
-    // Body
     var body: some View {
         NavigationStack {
             ZStack {
                 BackgroundView(ecran: .users)
+
                 Form {
-                
+
+                    // --------------------
                     // Identité
+                    // --------------------
                     Section("Identité") {
                         LabeledTextField(label: "Nom", text: $vm.lastName)
                         LabeledTextField(label: "Prénom", text: $vm.firstName)
@@ -60,8 +49,10 @@ struct RegisterView: View {
                             keyboard: .emailAddress
                         )
                     }
-                    
-                    // Mot de passe (création uniquement)
+
+                    // --------------------
+                    // Mot de passe (création)
+                    // --------------------
                     if vm.isCreateMode {
                         Section("Mot de passe") {
                             LabeledTextField(
@@ -69,7 +60,7 @@ struct RegisterView: View {
                                 text: $vm.password,
                                 isSecure: true
                             )
-                            
+
                             LabeledTextField(
                                 label: "Confirmation",
                                 text: $vm.password2,
@@ -77,17 +68,20 @@ struct RegisterView: View {
                             )
                         }
                     }
-                    //TODO: Mot de passe oublié
-                    
+
+                    // --------------------
                     // Erreur
+                    // --------------------
                     if let error = vm.errorMessage {
                         Text(error)
                             .foregroundColor(.red)
                             .font(.caption)
                             .padding(.vertical, 4)
                     }
-                    
-                    // Enregistrement
+
+                    // --------------------
+                    // Action
+                    // --------------------
                     Button {
                         Task {
                             await vm.submit()
@@ -116,7 +110,6 @@ struct RegisterView: View {
                             } label: {
                                 Image(systemName: "xmark.app.fill")
                             }
-                            .accessibilityLabel("Fermer")
                         }
                     }
                 }
@@ -129,8 +122,8 @@ struct RegisterView: View {
                             if vm.isCreateMode {
                                 appState.flow = .loginForm
                             } else {
-                                // reload profil
-                                await profileViewModel?.reloadProfile()
+                                // REFRESH SESSION
+                                await session.refreshCurrentUser()
                                 dismiss()
                             }
                         }
@@ -147,9 +140,13 @@ struct RegisterView: View {
     }
 }
 
+
 #Preview("Edition profil") {
-    RegisterView(
-        mode: .edit(profile: .preview),
-        profileViewModel: ProfileViewModel.preview
-    )
+    let session = SessionViewModel()
+    session.currentUser = .preview
+    session.isAuthenticated = true
+
+    return RegisterView(mode: .edit(profile: .preview))
+        .environmentObject(session)
+        .environmentObject(AppState())
 }

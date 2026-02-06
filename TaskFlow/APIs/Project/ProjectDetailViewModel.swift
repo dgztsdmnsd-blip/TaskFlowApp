@@ -28,4 +28,17 @@ final class ProjectDetailViewModel: ObservableObject {
         }
         isLoading = false
     }
+    
+    func updateStatus(to status: ProjectStatus) async {
+        isLoading = true
+        do {
+            let updated = try await ProjectService.shared
+                .updateProjectStatus(id: project.id, status: status)
+            project = updated
+        } catch {
+            errorMessage = "Impossible de modifier le statut"
+        }
+        isLoading = false
+    }
+
 }

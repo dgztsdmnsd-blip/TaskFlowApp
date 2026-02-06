@@ -1,3 +1,13 @@
+//
+//  UserProjectsViewModel.swift
+//  TaskFlow
+//
+//  Created by luc banchetti on 05/02/2026.
+//
+
+import Foundation
+import Combine
+
 @MainActor
 final class UserProjectsViewModel: ObservableObject {
 
@@ -17,7 +27,7 @@ final class UserProjectsViewModel: ObservableObject {
 
         do {
             projects = try await ProjectService.shared
-                .listProjects(for: userId)
+                .listProjectsForUser(for: userId)
         } catch APIError.httpError(_, let message) {
             errorMessage = message
         } catch {
@@ -25,5 +35,29 @@ final class UserProjectsViewModel: ObservableObject {
         }
 
         isLoading = false
+    }
+    
+    
+    @MainActor
+    func assignProjectToUser(projectId: Int) async {
+        do {
+            try await ProjectService.shared.addMember(
+                projectId: projectId,
+                userId: userId
+            )
+            await fetchProjects()
+        } catch {
+            errorMessage = "Impossible d’attribuer le projet"
+        }
+    }
+
+}
+
+extension UserProjectsViewModel {
+    static var preview: UserProjectsViewModel {
+        let vm = UserProjectsViewModel(userId: 1)
+        vm.projects = [ProjectResponse.previewInProgress]
+        vm.isLoading = false
+        return vm
     }
 }

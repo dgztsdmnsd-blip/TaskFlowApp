@@ -40,9 +40,15 @@ final class SessionManager {
             account: email
         )
     }
+    
+    private let accessTokenKey = "accessToken"
+
 
     // Access token (mémoire uniquement)
-    private var accessToken: String?
+    private var accessToken: String? {
+        get { UserDefaults.standard.string(forKey: accessTokenKey) }
+        set { UserDefaults.standard.setValue(newValue, forKey: accessTokenKey) }
+    }
 
     /// Enregistre un nouvel access token (login ou refresh).
     func saveAccessToken(_ token: String) {

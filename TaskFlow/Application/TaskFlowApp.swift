@@ -15,44 +15,37 @@ import SwiftUI
 struct TaskFlowApp: App {
 
     @StateObject private var appState = AppState()
+    @StateObject private var session = SessionViewModel()
+
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
             ZStack {
-                // Navigation racine contrôlée par appState.flow.
                 switch appState.flow {
                 case .welcome:
-                    // Écran d’accueil
                     WelcomeView()
-                        .transition(.opacity)
 
                 case .loginHome:
-                    // Écran de connexion (email + Face ID)
                     ConnexionView()
-                        .transition(.move(edge: .trailing))
-                    
+
                 case .loginForm:
-                    // Écran de connexion (email + Face ID)
                     LoginView()
-                        .transition(.move(edge: .trailing))
 
                 case .main:
-                    // Contenu principal de l’app (après authentification)
                     MainView()
-                        .transition(.opacity)
                 }
             }
-            // Animation appliquée à chaque changement de flow
             .animation(.easeInOut(duration: 0.4), value: appState.flow)
+            .task {
+                await session.loadCurrentUser()
+            }
+            .onChange(of: session.isAuthenticated) { _, isAuth in
+                appState.flow = isAuth ? .main : .loginHome
+            }
+            .environmentObject(appState)
+            .environmentObject(session)
         }
-        // Injection de l’état global dans toute la hiérarchie de vues
-        // via EnvironmentObject.
-        // Toutes les vues peuvent lire/modifier appState.flow.
-        .environmentObject(appState)
     }
 }
-
-
-
 
