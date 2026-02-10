@@ -24,7 +24,7 @@ final class StoriesService {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/projects/\(projectId)/userstories/create")
 
-        print("Create Project → URL:", url)
+        print("Create User Story → URL:", url)
 
         struct Body: Encodable {
             let title: String
@@ -129,7 +129,7 @@ final class StoriesService {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/projects/\(projectId)/userstories/list")
 
-        print("Projects List → URL:", url)
+        print("User stories List → URL:", url)
 
         let stories: [StoryResponse] = try await APIClient.shared.request(
             url: url,
@@ -162,7 +162,7 @@ final class StoriesService {
         return stories
     }
     
-    // Detail d'un projet
+    // Detail d'une user story
     func fetchUserStory(userStoryId: Int) async throws -> StoryResponse {
 
         let url = AppConfig.baseURL
@@ -178,7 +178,7 @@ final class StoriesService {
     }
 
     
-    // Suppression d'un projet
+    // Suppression d'une user story
     func deleteStory(
         userStoryId: Int
     ) async throws {

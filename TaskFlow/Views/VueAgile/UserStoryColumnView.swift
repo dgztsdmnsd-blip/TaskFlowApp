@@ -82,6 +82,15 @@ struct UserStoryColumnView: View {
                 await vm.fetchStories(projectId: projectId, statut: statut)
             }
         }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: .userStoryDidChange
+            )
+        ) { _ in
+            Task {
+                await vm.fetchStories(projectId: projectId, statut: statut)
+            }
+        }
     }
 
     // Drop handler

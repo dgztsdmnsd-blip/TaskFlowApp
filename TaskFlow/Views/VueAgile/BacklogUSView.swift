@@ -9,6 +9,13 @@ import SwiftUI
 
 struct BacklogUSView: View {
     let story: StoryResponse
+    
+    @EnvironmentObject private var sessionVM: SessionViewModel
+    @State private var showDetail = false
+    
+    private var isOwner: Bool {
+            sessionVM.currentUser?.id == story.owner.id
+        }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -75,5 +82,24 @@ struct BacklogUSView: View {
         .draggable(
             DraggableStory(id: story.id)
         )
+        // Tap = consultation
+        .onTapGesture {
+            showDetail = true
+        }
+
+        // Détail / édition
+        .fullScreenCover(isPresented: $showDetail) {
+            UserStoryDetailView(
+                story: story,
+                mode: isOwner ? .edit : .readOnly,
+                onDeleted: {
+                    NotificationCenter.default.post(
+                        name: .userStoryDidChange,
+                        object: nil
+                    )
+                }
+            )
+        }
+
     }
 }

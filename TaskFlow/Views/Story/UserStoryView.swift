@@ -12,7 +12,14 @@ struct UserStoryView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: UserStoryFormViewModel
 
-    init(project: ProjectResponse, owner: ProfileLiteResponse) {
+    let onCreated: () -> Void
+
+    init(
+        project: ProjectResponse,
+        owner: ProfileLiteResponse,
+        onCreated: @escaping () -> Void
+    ) {
+        self.onCreated = onCreated
         _vm = StateObject(
             wrappedValue: UserStoryFormViewModel(
                 mode: .create,
@@ -22,17 +29,16 @@ struct UserStoryView: View {
         )
     }
 
-    // Body
     var body: some View {
         NavigationStack {
             Form {
-                
+
                 // Informations principales
                 Section(header: Text("User story")) {
-                    
+
                     TextField("Titre", text: $vm.titre)
                         .textInputAutocapitalization(.sentences)
-                    
+
                     ZStack(alignment: .topLeading) {
                         if vm.description.isEmpty {
                             Text("Description de la user story")
@@ -40,7 +46,7 @@ struct UserStoryView: View {
                                 .padding(.top, 8)
                                 .padding(.leading, 5)
                         }
-                        
+
                         TextEditor(text: $vm.description)
                             .frame(minHeight: 100)
                     }
@@ -50,10 +56,10 @@ struct UserStoryView: View {
                     )
                     .padding(.vertical, 4)
                 }
-                
+
                 // Planification
                 Section(header: Text("Planification")) {
-                    
+
                     TextField(
                         "Date de livraison (YYYY-MM-DD)",
                         text: Binding(
@@ -62,7 +68,7 @@ struct UserStoryView: View {
                         )
                     )
                     .keyboardType(.numbersAndPunctuation)
-                    
+
                     Stepper(
                         value: Binding(
                             get: { vm.priority ?? 1 },
@@ -72,7 +78,7 @@ struct UserStoryView: View {
                     ) {
                         Text("Priorité : \(vm.priority ?? 1)")
                     }
-                    
+
                     Stepper(
                         value: Binding(
                             get: { vm.storyPoint ?? 0 },
@@ -83,10 +89,10 @@ struct UserStoryView: View {
                         Text("Story points : \(vm.storyPoint ?? 0)")
                     }
                 }
-                
+
                 // Couleur
                 Section(header: Text("Couleur")) {
-                    
+
                     ColorPicker(
                         "Couleur de la user story",
                         selection: Binding(
@@ -95,8 +101,8 @@ struct UserStoryView: View {
                         )
                     )
                 }
-                
-                //  Erreur
+
+                // Erreur
                 if let error = vm.errorMessage {
                     Section {
                         Text(error)
@@ -104,11 +110,11 @@ struct UserStoryView: View {
                             .font(.caption)
                     }
                 }
-                
+
                 HStack {
-                    
+
                     Spacer()
-                   
+
                     BoutonImageView(
                         title: "Enregistrer",
                         systemImage: "folder.badge.plus",
@@ -117,15 +123,15 @@ struct UserStoryView: View {
                         Task {
                             await vm.submit()
                             if vm.isSuccess {
+                                onCreated()
                                 dismiss()
                             }
                         }
                     }
                     .disabled(!vm.isFormValid)
-                    
+
                     Spacer()
                 }
-                
             }
             .navigationTitle("Création d'une user story")
             .toolbar {
@@ -140,4 +146,3 @@ struct UserStoryView: View {
         }
     }
 }
-

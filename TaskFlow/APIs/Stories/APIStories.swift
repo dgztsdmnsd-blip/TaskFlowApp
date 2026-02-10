@@ -53,22 +53,3 @@ struct StoryResponse: Codable, Identifiable {
     let owner: ProfileLiteResponse
     let couleur: String
 }
-
-
-struct StoryCreateRequest: Codable {
-    let title: String
-    let description: String
-    let priority: Int?
-    let storyPoint: Int?
-    let dueAt: String?
-    let couleur: String
-}
-
-struct StoryUpdateRequest: Codable {
-    let title: String?
-    let description: String?
-    let priority: Int?
-    let storyPoint: Int?
-    let dueAt: String?
-    let couleur: String?
-}

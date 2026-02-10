@@ -104,6 +104,10 @@ extension Notification.Name {
         Notification.Name("userStoryStatusDidChange")
 }
 
+extension Notification.Name {
+    static let userStoryDidChange =
+        Notification.Name("userStoryDidChange")
+}
 
 extension String {
     func toDateOnly() -> Date? {
@@ -114,3 +118,7 @@ extension String {
     }
 }
 
+enum UserStoryDetailMode {
+    case readOnly
+    case edit
+}
