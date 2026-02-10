@@ -107,6 +107,7 @@ struct ProfileView: View {
     }
 
     private func handleLogout() {
+        
         sessionVM.logout()
         dismiss()
         appState.flow = .loginHome

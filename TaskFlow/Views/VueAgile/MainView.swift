@@ -21,40 +21,17 @@ struct MainView: View {
 
                 TabView {
 
-                    // --------------------
-                    // À venir
-                    // --------------------
-                    NavigationStack {
-                        TodoView()
-                            .navigationTitle("À venir")
-                            .toolbar { profileButton }
-                    }
-                    .tabItem {
-                        Label("À venir", systemImage: "calendar")
-                    }
-
-                    // --------------------
-                    // En cours
-                    // --------------------
-                    NavigationStack {
-                        InProgressView()
-                            .navigationTitle("En cours")
-                            .toolbar { profileButton }
-                    }
-                    .tabItem {
-                        Label("En cours", systemImage: "clock")
-                    }
-
+                   
                     // --------------------
                     // Terminées
                     // --------------------
                     NavigationStack {
-                        CompletedView()
-                            .navigationTitle("Terminées")
+                        BacklogView()
+                            .navigationTitle("Backlog")
                             .toolbar { profileButton }
                     }
                     .tabItem {
-                        Label("Terminées", systemImage: "checkmark.circle.fill")
+                        Label("Backlog", systemImage: "checkmark.circle.fill")
                     }
 
                     // --------------------
@@ -93,8 +70,7 @@ struct MainView: View {
                                 object: nil
                             )
                         }
-                    )
-                    .presentationDetents([.medium, .large])
+                    ).presentationDetents([.large])
                 }
 
             } else {

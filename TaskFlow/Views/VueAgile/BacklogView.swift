@@ -9,21 +9,18 @@ import SwiftUI
 
 struct BacklogView: View {
 
-    let etatUS: UserStoriesStatus
     @StateObject private var vm: ProjectListViewModel
+    @EnvironmentObject private var sessionVM: SessionViewModel
 
     // INIT PROD
-    init(etatUS: UserStoriesStatus = .enCours) {
-        self.etatUS = etatUS
+    init(etatUS: StoryStatus = .inProgress) {
         _vm = StateObject(wrappedValue: ProjectListViewModel())
     }
 
     // INIT PREVIEW / TEST
     init(
-        etatUS: UserStoriesStatus = .enCours,
         vm: ProjectListViewModel
     ) {
-        self.etatUS = etatUS
         _vm = StateObject(wrappedValue: vm)
     }
 
@@ -31,22 +28,29 @@ struct BacklogView: View {
         VStack {
             if vm.isLoading {
                 ProgressView()
-
+                
             } else if let error = vm.errorMessage {
                 Text(error)
                     .foregroundColor(.red)
                     .font(.caption)
-
+                
             } else if vm.projects.isEmpty {
                 Text("Aucun projet trouvé")
                     .foregroundColor(.secondary)
                     .font(.caption)
-
+                
             } else {
-                List(vm.projects) { project in
-                    projectRow(project: project)
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(vm.projects) { project in
+                            BacklogProjetsView(
+                                project: project,
+                                isOwner: project.owner.id == sessionVM.currentUser?.id
+                            )
+                            .padding()
+                        }
+                    }
                 }
-                .scrollContentBackground(.hidden)
             }
         }
         .task {
@@ -54,35 +58,14 @@ struct BacklogView: View {
             await vm.fetchActiveProjects()
         }
         .onReceive(
-            NotificationCenter.default.publisher(
-                for: .projectListShouldRefresh
-            )
+            NotificationCenter.default.publisher(for: .projectListShouldRefresh)
         ) { _ in
             Task { await vm.fetchActiveProjects() }
         }
     }
-        
-    // Row
-    private func projectRow(project: ProjectResponse) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(project.title)
-                    .font(.headline)
-
-                Text(
-                    project.membersCount == 1
-                    ? "1 membre"
-                    : "\(project.membersCount) membres"
-                )
-                .font(.footnote)
-                .foregroundColor(.secondary)
-            }
-            Spacer()
-        }
-        .padding(.vertical, 4)
-    }
 }
 
+/*
 #Preview {
     NavigationStack {
         BacklogView(
@@ -90,4 +73,4 @@ struct BacklogView: View {
             vm: ProjectListViewModel.preview()
         )
     }
-}
+}*/

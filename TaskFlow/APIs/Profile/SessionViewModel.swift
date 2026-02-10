@@ -37,6 +37,7 @@ final class SessionViewModel: ObservableObject {
         currentUser = nil
         isAuthenticated = false
     }
+    
 }
 
 extension SessionViewModel {

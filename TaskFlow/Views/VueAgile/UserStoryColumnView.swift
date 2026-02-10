@@ -8,11 +8,100 @@
 import SwiftUI
 
 struct UserStoryColumnView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
 
-#Preview {
-    UserStoryColumnView()
+    let projectId: Int
+    let title: String
+    let statut: StoryStatus
+
+    @StateObject private var vm = UserStoryListViewModel()
+    @State private var isTargeted = false
+
+    var body: some View {
+
+        VStack(alignment: .leading, spacing: 8) {
+
+            // Titre colonne
+            Text(title)
+                .font(.caption.bold())
+                .foregroundColor(.secondary)
+
+            VStack(spacing: 8) {
+
+                if vm.isLoading {
+                    ProgressView()
+
+                } else if let error = vm.errorMessage {
+                    Text(error)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+
+                } else if vm.stories.isEmpty {
+                    Text("Déposer ici")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, minHeight: 80)
+
+                } else {
+                    ForEach(vm.stories) { story in
+                        BacklogUSView(story: story)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 120)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(
+                        isTargeted
+                        ? Color.accentColor.opacity(0.15)
+                        : Color.secondary.opacity(0.05)
+                    )
+            )
+            .animation(.easeInOut, value: isTargeted)
+            .dropDestination(
+                for: DraggableStory.self,
+                action: { items, _ in
+                    Task {
+                        await handleDrop(items)
+                    }
+                    return true
+                },
+                isTargeted: { targeted in
+                    isTargeted = targeted
+                }
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .task {
+            guard !ProcessInfo.isRunningPreviews else { return }
+            await vm.fetchStories(projectId: projectId, statut: statut)
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(for: .userStoryStatusDidChange)
+        ) { _ in
+            Task {
+                await vm.fetchStories(projectId: projectId, statut: statut)
+            }
+        }
+    }
+
+    // Drop handler
+    private func handleDrop(_ items: [DraggableStory]) async {
+        guard let item = items.first else { return }
+
+        do {
+            _ = try await StoriesService.shared.updateStoryStatus(
+                userStoryId: item.id,
+                status: statut
+            )
+
+            // Refresh toutes les colonnes
+            NotificationCenter.default.post(
+                name: .userStoryStatusDidChange,
+                object: nil
+            )
+
+        } catch {
+            print("Erreur changement de statut")
+        }
+    }
 }

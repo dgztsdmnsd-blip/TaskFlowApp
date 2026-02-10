@@ -31,7 +31,7 @@ struct BackgroundView: View {
     private let colcompdeb = Color(red: 0.60, green: 0.85, blue: 0.70)
     private let colcompfin = Color(red: 0.45, green: 0.75, blue: 0.60)
     
-    // Terminées: Vert clair
+    // Projets: Vert clair
     private let colprojdeb = Color(red: 0.88, green: 0.96, blue: 0.91)
     private let colprojfin = Color(red: 0.78, green: 0.92, blue: 0.84)
 
