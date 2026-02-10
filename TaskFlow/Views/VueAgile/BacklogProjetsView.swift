@@ -99,7 +99,13 @@ struct BacklogProjetsView: View {
                         email: user.email,
                         firstName: user.firstName,
                         lastName: user.lastName
-                    )
+                    ),
+                    onCreated: {
+                        NotificationCenter.default.post(
+                            name: .userStoryDidChange,
+                            object: nil
+                        )
+                    }
                 )
             }
         }
