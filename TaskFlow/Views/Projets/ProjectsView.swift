@@ -83,7 +83,7 @@ extension ProcessInfo {
     }
 }
 
-
+/*
 #Preview {
     NavigationStack {
         ProjectsView(
@@ -98,3 +98,4 @@ extension ProcessInfo {
     }
 }
 
+*/

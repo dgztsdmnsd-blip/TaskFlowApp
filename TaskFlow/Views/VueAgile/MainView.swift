@@ -21,14 +21,16 @@ struct MainView: View {
 
                 TabView {
 
-                   
                     // --------------------
-                    // Terminées
+                    // Backlog
                     // --------------------
                     NavigationStack {
                         BacklogView()
                             .navigationTitle("Backlog")
                             .toolbar { profileButton }
+                            .sheet(isPresented: $showProfile) {
+                                ProfileView()
+                            }
                     }
                     .tabItem {
                         Label("Backlog", systemImage: "checkmark.circle.fill")
@@ -43,6 +45,9 @@ struct MainView: View {
                             UsersListView(currentUser: user)
                                 .navigationTitle("Utilisateurs")
                                 .toolbar { profileButton }
+                                .sheet(isPresented: $showProfile) {
+                                    ProfileView()
+                                }
                         }
                         .tabItem {
                             Label("Utilisateurs", systemImage: "person.3.fill")
@@ -52,25 +57,22 @@ struct MainView: View {
                             ProjectsView()
                                 .navigationTitle("Projets")
                                 .toolbar { projectButton }
+                                .fullScreenCover(isPresented: $showProject) {
+                                    ProjectCreationView(
+                                        viewModel: ProjectFormViewModel(mode: .create),
+                                        onCreated: {
+                                            NotificationCenter.default.post(
+                                                name: .projectListShouldRefresh,
+                                                object: nil
+                                            )
+                                        }
+                                    )
+                                }
                         }
                         .tabItem {
                             Label("Projets", systemImage: "folder.fill")
                         }
                     }
-                }
-                .sheet(isPresented: $showProfile) {
-                    ProfileView()
-                }
-                .sheet(isPresented: $showProject) {
-                    ProjectCreationView(
-                        viewModel: ProjectFormViewModel(mode: .create),
-                        onCreated: {
-                            NotificationCenter.default.post(
-                                name: .projectListShouldRefresh,
-                                object: nil
-                            )
-                        }
-                    ).presentationDetents([.large])
                 }
 
             } else {
@@ -101,13 +103,4 @@ struct MainView: View {
             }
         }
     }
-}
-
-#Preview {
-    let session = SessionViewModel()
-    session.currentUser = .preview
-    session.isAuthenticated = true
-
-    return MainView()
-        .environmentObject(session)
 }

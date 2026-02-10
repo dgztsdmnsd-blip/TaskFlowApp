@@ -12,25 +12,24 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct ConnexionView: View {
 
+    @EnvironmentObject var sessionVM: SessionViewModel
+
     var body: some View {
-        // la navigation vers LoginView
         NavigationStack {
             ZStack {
-
-                // Fond général de l’application
                 BackgroundView(ecran: .general)
 
                 VStack(spacing: 20) {
 
-                    // Titre principal
                     TitreView(
                         couleur: .white,
                         texte: "Bienvenue sur TaskFlow"
                     )
 
-                    // Sous-titre descriptif
                     SousTitreView(
                         couleur: .white,
                         texte: "L'application de gestion de vos projets en mode Agile"
@@ -40,16 +39,13 @@ struct ConnexionView: View {
 
                     VStack(spacing: 16) {
 
-                        // Bouton Connexion
-                        // Navigation vers l’écran de login
                         NavigationLink {
-                            LoginView()
+                            LoginView(sessionVM: sessionVM)
                         } label: {
                             BoutonView(title: "Connexion")
                         }
                         .buttonStyle(.plain)
 
-                        // Bouton Inscription
                         NavigationLink {
                             RegisterView(mode: .create)
                         } label: {
@@ -63,6 +59,7 @@ struct ConnexionView: View {
         }
     }
 }
+
 
 #Preview {
     ConnexionView()

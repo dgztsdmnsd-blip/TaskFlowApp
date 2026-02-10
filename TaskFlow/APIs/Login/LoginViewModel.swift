@@ -15,6 +15,8 @@ import LocalAuthentication
 
 @MainActor
 final class LoginViewModel: ObservableObject {
+    
+    let sessionVM: SessionViewModel
 
     // Email saisi par l’utilisateur
     @Published var email = ""
@@ -33,6 +35,10 @@ final class LoginViewModel: ObservableObject {
 
     // Empêche les appels concurrents à Face ID
     @Published var isAuthenticatingWithBiometrics = false
+    
+    init(sessionVM: SessionViewModel) {
+        self.sessionVM = sessionVM
+    }
 
 
     // Login classique (email / mot de passe)
@@ -79,8 +85,11 @@ final class LoginViewModel: ObservableObject {
                 refreshToken: response.refreshToken
             )
 
-            // Succès → l’UI peut naviguer vers MainView
+            await sessionVM.loadCurrentUser()
+
+            // Optionnel : uniquement pour la vue de login
             isAuthenticated = true
+
 
         } catch APIError.unauthorized(let message) {
             // Identifiants incorrects

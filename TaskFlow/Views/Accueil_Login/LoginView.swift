@@ -14,24 +14,22 @@ import SwiftUI
 
 struct LoginView: View {
 
-    // ViewModel responsable de la logique de login
-    @StateObject private var vm = LoginViewModel()
+    @EnvironmentObject var sessionVM: SessionViewModel
 
-    // État global de l’application pour changer de flow
-    @EnvironmentObject var appState: AppState
-
-    // Empêche plusieurs tentatives automatiques de Face ID
+    @StateObject private var vm: LoginViewModel
     @State private var didAttemptBiometric = false
+
+    init(sessionVM: SessionViewModel) {
+        _vm = StateObject(
+            wrappedValue: LoginViewModel(sessionVM: sessionVM)
+        )
+    }
 
     var body: some View {
         ZStack {
-
-            // Fond général de l’écran de login
             BackgroundView(ecran: .general)
 
             VStack(spacing: 20) {
-
-                // Titre et sous-titre
                 TitreView(couleur: .white, texte: "TaskFlow")
                 SousTitreView(couleur: .white, texte: "Connexion")
 
@@ -39,22 +37,18 @@ struct LoginView: View {
 
                 VStack(spacing: 16) {
 
-                    // Champ email
                     LabeledTextField(
                         label: "Email",
                         text: $vm.email,
                         keyboard: .emailAddress
                     )
 
-                    // Champ mot de passe
                     LabeledTextField(
                         label: "Mot de passe",
                         text: $vm.password,
                         isSecure: true
                     )
 
-                    
-                    // Message d’erreur éventuel
                     if let error = vm.errorMessage {
                         Text(error)
                             .foregroundColor(.red)
@@ -63,15 +57,9 @@ struct LoginView: View {
 
                     Spacer()
 
-                    // Bouton de connexion classique
                     Button {
                         Task {
                             await vm.login()
-
-                            // En cas de succès, on bascule vers l’app principale
-                            if vm.isAuthenticated {
-                                appState.flow = .main
-                            }
                         }
                     } label: {
                         BoutonView(
@@ -80,38 +68,23 @@ struct LoginView: View {
                                 : "Connexion"
                         )
                     }
-                    // Désactive le bouton pendant le chargement
                     .disabled(vm.isLoading)
-                    
-                    // TODO: Mot de passe oublié
                 }
             }
             .padding()
-            /// Reconnexion automatique Face ID
             .onAppear {
                 guard !didAttemptBiometric else { return }
                 didAttemptBiometric = true
 
                 Task {
-                    // Petit délai pour laisser la vue s’afficher
                     try? await Task.sleep(nanoseconds: 300_000_000)
 
-                    // On tente Face ID uniquement si une session existe
                     guard SessionManager.shared.hasStoredSession else { return }
 
-                    // Déverrouillage biométrique + refresh du token
                     await vm.loginWithBiometrics()
-
-                    // Si la session est reconstruite, on entre dans l’app
-                    if vm.isAuthenticated {
-                        appState.flow = .main
-                    }
                 }
             }
         }
     }
 }
 
-#Preview {
-    LoginView()
-}

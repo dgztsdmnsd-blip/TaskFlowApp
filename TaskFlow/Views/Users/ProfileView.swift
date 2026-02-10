@@ -113,7 +113,7 @@ struct ProfileView: View {
         appState.flow = .loginHome
     }
 }
-
+/*
 #Preview {
     let session = SessionViewModel()
     session.currentUser = .preview
@@ -122,3 +122,4 @@ struct ProfileView: View {
         .environmentObject(session)
         .environmentObject(AppState())
 }
+*/

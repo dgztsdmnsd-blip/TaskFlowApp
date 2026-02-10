@@ -140,7 +140,7 @@ struct RegisterView: View {
     }
 }
 
-
+/*
 #Preview("Edition profil") {
     let session = SessionViewModel()
     session.currentUser = .preview
@@ -150,3 +150,4 @@ struct RegisterView: View {
         .environmentObject(session)
         .environmentObject(AppState())
 }
+*/

@@ -90,7 +90,7 @@ struct BacklogProjetsView: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.red.opacity(0.5), lineWidth: 0.5)
         )
-        .sheet(isPresented: $showCreateStory) {
+        .fullScreenCover(isPresented: $showCreateStory) {
             if let user = sessionVM.currentUser {
                 UserStoryView(
                     project: project,
@@ -103,5 +103,6 @@ struct BacklogProjetsView: View {
                 )
             }
         }
+
     }
 }
