@@ -11,7 +11,7 @@ struct BacklogView: View {
 
     @StateObject private var vm: ProjectListViewModel
     @EnvironmentObject private var sessionVM: SessionViewModel
-
+    
     // INIT PROD
     init(etatUS: StoryStatus = .inProgress) {
         _vm = StateObject(wrappedValue: ProjectListViewModel())
@@ -23,6 +23,7 @@ struct BacklogView: View {
     ) {
         _vm = StateObject(wrappedValue: vm)
     }
+    
 
     var body: some View {
         VStack {

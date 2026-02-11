@@ -43,7 +43,8 @@ struct UserStoryColumnView: View {
 
                 } else {
                     ForEach(vm.stories) { story in
-                        BacklogUSView(story: story)
+                        BacklogUSView(
+                            story: story)
                     }
                 }
             }

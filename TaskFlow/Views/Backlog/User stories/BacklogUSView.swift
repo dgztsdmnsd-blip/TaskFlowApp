@@ -34,6 +34,8 @@ struct BacklogUSView: View {
                 Text("\(story.owner.lastName.capitalized) \(story.owner.firstName.capitalized)")
                     .font(.caption)
                     .foregroundColor(.black)
+                
+                ProgressTaskView(progression: story.progress ?? 0)
 
                 HStack(spacing: 12) {
 

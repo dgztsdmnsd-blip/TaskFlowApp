@@ -1,5 +1,5 @@
 //
-//  UserStoryView.swift
+//  UserStoryFormView.swift
 //  TaskFlow
 //
 //  Created by luc banchetti on 09/02/2026.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UserStoryView: View {
+struct UserStoryFormView: View {
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: UserStoryFormViewModel
