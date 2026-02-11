@@ -109,6 +109,10 @@ extension Notification.Name {
         Notification.Name("userStoryDidChange")
 }
 
+extension Notification.Name {
+    static let taskDidChange = Notification.Name("taskDidChange")
+}
+
 extension String {
     func toDateOnly() -> Date? {
         let formatter = DateFormatter()

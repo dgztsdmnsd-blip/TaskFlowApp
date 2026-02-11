@@ -7,12 +7,24 @@
 
 import SwiftUI
 
-struct CardStyleView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+struct CardStyleView: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }
 }
 
-#Preview {
-    CardStyleView()
+extension View {
+    func cardStyleView() -> some View {
+        modifier(CardStyleView())
+    }
 }

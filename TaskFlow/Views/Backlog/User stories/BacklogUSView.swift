@@ -35,7 +35,8 @@ struct BacklogUSView: View {
                     .font(.caption)
                     .foregroundColor(.black)
                 
-                ProgressTaskView(progression: story.progress ?? 0)
+                ProgressTaskView(progression: story.progress)
+
 
                 HStack(spacing: 12) {
 
@@ -93,13 +94,7 @@ struct BacklogUSView: View {
         .fullScreenCover(isPresented: $showDetail) {
             UserStoryDetailView(
                 story: story,
-                mode: isOwner ? .edit : .readOnly,
-                onDeleted: {
-                    NotificationCenter.default.post(
-                        name: .userStoryDidChange,
-                        object: nil
-                    )
-                }
+                mode: isOwner ? .edit : .readOnly
             )
         }
 

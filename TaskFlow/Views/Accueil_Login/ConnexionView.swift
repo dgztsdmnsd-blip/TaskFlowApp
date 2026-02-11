@@ -12,8 +12,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct ConnexionView: View {
 
     @EnvironmentObject var sessionVM: SessionViewModel

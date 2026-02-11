@@ -33,6 +33,14 @@ enum TaskStatus: String, Codable {
         case .finished: return .green
         }
     }
+    
+    var nextStatus: TaskStatus {
+        switch self {
+        case .notStarted: return .inProgress
+        case .inProgress: return .finished
+        case .finished: return .notStarted
+        }
+    }
 }
 
 struct TaskResponse: Codable, Identifiable {
@@ -58,3 +66,4 @@ struct TaskListResponse: Codable, Identifiable {
     let storyPoint: Int?
     let status: TaskStatus
 }
+

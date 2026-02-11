@@ -14,6 +14,7 @@ struct UserStoryFormView: View {
 
     let onCreated: () -> Void
 
+    // CREATE
     init(
         project: ProjectResponse,
         owner: ProfileLiteResponse,
@@ -29,45 +30,43 @@ struct UserStoryFormView: View {
         )
     }
 
+    // EDIT
+    init(
+        story: StoryResponse,
+        onCreated: @escaping () -> Void
+    ) {
+        self.onCreated = onCreated
+        _vm = StateObject(
+            wrappedValue: UserStoryFormViewModel(
+                mode: .edit(story: story),
+                project: story.project,
+                owner: story.owner
+            )
+        )
+    }
+
+
     var body: some View {
         NavigationStack {
             Form {
 
-                // Informations principales
                 Section(header: Text("User story")) {
 
                     TextField("Titre", text: $vm.titre)
-                        .textInputAutocapitalization(.sentences)
 
-                    ZStack(alignment: .topLeading) {
-                        if vm.description.isEmpty {
-                            Text("Description de la user story")
-                                .foregroundColor(.secondary)
-                                .padding(.top, 8)
-                                .padding(.leading, 5)
-                        }
-
-                        TextEditor(text: $vm.description)
-                            .frame(minHeight: 100)
-                    }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.3))
-                    )
-                    .padding(.vertical, 4)
+                    TextEditor(text: $vm.description)
+                        .frame(minHeight: 100)
                 }
 
-                // Planification
                 Section(header: Text("Planification")) {
 
                     TextField(
-                        "Date de livraison (YYYY-MM-DD)",
+                        "Date (YYYY-MM-DD)",
                         text: Binding(
                             get: { vm.dueAt ?? "" },
                             set: { vm.dueAt = $0.isEmpty ? nil : $0 }
                         )
                     )
-                    .keyboardType(.numbersAndPunctuation)
 
                     Stepper(
                         value: Binding(
@@ -90,11 +89,9 @@ struct UserStoryFormView: View {
                     }
                 }
 
-                // Couleur
                 Section(header: Text("Couleur")) {
-
                     ColorPicker(
-                        "Couleur de la user story",
+                        "Couleur",
                         selection: Binding(
                             get: { Color(hex: vm.couleur) },
                             set: { vm.couleur = $0.toHex() ?? "#FF5733" }
@@ -102,47 +99,27 @@ struct UserStoryFormView: View {
                     )
                 }
 
-                // Erreur
                 if let error = vm.errorMessage {
-                    Section {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
+                    Text(error)
+                        .foregroundColor(.red)
                 }
 
-                HStack {
-
-                    Spacer()
-
-                    BoutonImageView(
-                        title: "Enregistrer",
-                        systemImage: "folder.badge.plus",
-                        style: .secondary
-                    ) {
-                        Task {
-                            await vm.submit()
-                            if vm.isSuccess {
-                                onCreated()
-                                dismiss()
-                            }
+                BoutonImageView(
+                    title: "Enregistrer",
+                    systemImage: vm.isEditMode ? "square.and.pencil" : "folder.badge.plus",
+                    style: .secondary
+                ) {
+                    Task {
+                        await vm.submit()
+                        if vm.isSuccess {
+                            onCreated()
+                            dismiss()
                         }
                     }
-                    .disabled(!vm.isFormValid)
-
-                    Spacer()
                 }
+                .disabled(!vm.isFormValid)
             }
-            .navigationTitle("Création d'une user story")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                }
-            }
+            .navigationTitle(vm.isEditMode ? "Modification" : "Création")
         }
     }
 }

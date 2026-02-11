@@ -139,15 +139,3 @@ struct RegisterView: View {
         }
     }
 }
-
-/*
-#Preview("Edition profil") {
-    let session = SessionViewModel()
-    session.currentUser = .preview
-    session.isAuthenticated = true
-
-    return RegisterView(mode: .edit(profile: .preview))
-        .environmentObject(session)
-        .environmentObject(AppState())
-}
-*/

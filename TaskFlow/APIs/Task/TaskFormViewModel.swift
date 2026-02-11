@@ -28,6 +28,13 @@ final class TaskFormViewModel: ObservableObject {
         !description.trimmingCharacters(in: .whitespaces).isEmpty &&
         !type.trimmingCharacters(in: .whitespaces).isEmpty
     }
+    
+    var isEditing: Bool {
+        if case .edit = mode {
+            return true
+        }
+        return false
+    }
 
     init(mode: TaskMode, userStory: StoryResponse) {
         self.mode = mode

@@ -25,6 +25,11 @@ final class UserStoryFormViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var isSuccess = false
     @Published var errorMessage: String?
+    
+    var isEditMode: Bool {
+        if case .edit = mode { return true }
+        return false
+    }
 
     var isFormValid: Bool {
         !titre.trimmingCharacters(in: .whitespaces).isEmpty &&

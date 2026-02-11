@@ -8,11 +8,26 @@
 import SwiftUI
 
 struct ProgressTaskView: View {
+    var progression: Double
+    
+    private var progressColor: Color {
+        switch progression {
+        case 0..<0.3: return .red
+        case 0.3..<0.7: return .orange
+        default: return .green
+        }
+    }
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ProgressView(value: progression)
+            .tint(progressColor)
+        
+        Text("\(Int(progression * 100)) % terminé")
+            .font(.caption)
+            .foregroundColor(.secondary)
     }
 }
 
 #Preview {
-    ProgressTaskView()
+    ProgressTaskView(progression: 0.5)
 }

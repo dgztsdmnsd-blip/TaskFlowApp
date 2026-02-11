@@ -121,13 +121,14 @@ final class StoriesService {
     }
     
 
-    // Liste des user stories
-    func listUserStories(
-        projectId: Int
+    // Liste toutes les user stories
+    func listAllUserStories(
+        projectId: Int,
+        statut: StoryStatus
     )
     async throws -> [StoryResponse] {
 
-        let url = AppConfig.baseURL.appendingPathComponent("/api/projects/\(projectId)/userstories/list")
+        let url = AppConfig.baseURL.appendingPathComponent("/api/projects/\(projectId)/userstories/list/statut/\(statut.rawValue)")
 
         print("User stories List → URL:", url)
 
@@ -137,7 +138,7 @@ final class StoriesService {
             requiresAuth: true
         )
 
-        print("User Stories List succès → count:", stories.count)
+        print("All user stories List succès → count:", stories.count)
         return stories
     }
   
@@ -161,6 +162,7 @@ final class StoriesService {
         print("User Stories owner List succès → count:", stories.count)
         return stories
     }
+    
     
     // Detail d'une user story
     func fetchUserStory(userStoryId: Int) async throws -> StoryResponse {

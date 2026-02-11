@@ -11,18 +11,15 @@ struct UsersListView: View {
 
     @StateObject private var vm: UsersListViewModel
     let currentUser: ProfileResponse
+    
+    @State private var selectedUser: ProfileResponse?
 
-    // PROD
     init(currentUser: ProfileResponse) {
         self.currentUser = currentUser
         _vm = StateObject(wrappedValue: UsersListViewModel())
     }
 
-    // PREVIEW / TEST
-    init(
-        currentUser: ProfileResponse,
-        vm: UsersListViewModel
-    ) {
+    init(currentUser: ProfileResponse, vm: UsersListViewModel) {
         self.currentUser = currentUser
         _vm = StateObject(wrappedValue: vm)
     }
@@ -30,8 +27,8 @@ struct UsersListView: View {
     var body: some View {
         ZStack {
             BackgroundView(ecran: .users)
+
             VStack {
-                
                 if vm.isLoading {
                     ProgressView()
 
@@ -47,8 +44,8 @@ struct UsersListView: View {
 
                 } else {
                     List(vm.users) { user in
-                        NavigationLink {
-                            UserDetailView(currentUser: currentUser, user: user)
+                        Button {
+                            selectedUser = user
                         } label: {
                             ProfileRowView(user: user, isOwner: false)
                         }
@@ -57,18 +54,12 @@ struct UsersListView: View {
                 }
             }
         }
+        .navigationDestination(item: $selectedUser) { user in
+            UserDetailView(currentUser: currentUser, user: user)
+        }
         .onAppear {
             guard !ProcessInfo.isRunningPreviews else { return }
             Task { await vm.fetchUsersList() }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        UsersListView(
-            currentUser: .preview,
-            vm: UsersListViewModel.preview()
-        )
     }
 }

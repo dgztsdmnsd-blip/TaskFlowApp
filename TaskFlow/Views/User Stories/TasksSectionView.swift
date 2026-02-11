@@ -7,17 +7,31 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct TasksSectionView: View {
 
     let story: StoryResponse
     @ObservedObject var tasksVM: UserStoryTasksViewModel
-    
+
     let onAddTask: () -> Void
     let onDeleteTask: (Int) -> Void
-    
+    let onTaskUpdated: (() -> Void)?
+
     @EnvironmentObject private var session: SessionViewModel
+    @State private var selectedTaskId: Int?
+
+    init(
+        story: StoryResponse,
+        tasksVM: UserStoryTasksViewModel,
+        onAddTask: @escaping () -> Void,
+        onDeleteTask: @escaping (Int) -> Void,
+        onTaskUpdated: (() -> Void)? = nil
+    ) {
+        self.story = story
+        self.tasksVM = tasksVM
+        self.onAddTask = onAddTask
+        self.onDeleteTask = onDeleteTask
+        self.onTaskUpdated = onTaskUpdated
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -34,33 +48,30 @@ struct TasksSectionView: View {
                 Text("Aucune tâche pour cette user story.")
                     .font(.caption)
                     .foregroundColor(.secondary)
-            }
+            } else {
 
-            List {
-                ForEach(tasksVM.tasks) { task in
-                    NavigationLink {
-                        TaskDetailView(
-                            taskId: task.id,
-                            onDeleted: {
-                                onDeleteTask(task.id) 
-                            }
-                        )
-                    } label: {
-                        TaskRowView(task: task)
-                    }
-                    .swipeActions {
-                        if canEditTasks {
-                            Button(role: .destructive) {
-                                delete(task.id)
-                            } label: {
-                                Label("Supprimer", systemImage: "trash")
+                // Liste "safe" dans un ScrollView
+                LazyVStack(spacing: 8) {
+                    ForEach(tasksVM.tasks) { task in
+                        Button {
+                            selectedTaskId = task.id
+                        } label: {
+                            TaskRowView(task: task)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .swipeActions {
+                            if canEditTasks {
+                                Button(role: .destructive) {
+                                    delete(task.id)
+                                } label: {
+                                    Label("Supprimer", systemImage: "trash")
+                                }
                             }
                         }
                     }
                 }
             }
-            .listStyle(.plain)
-            .frame(height: 300)
 
             if canEditTasks {
                 BoutonImageView(
@@ -75,6 +86,17 @@ struct TasksSectionView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyleView()
+        .navigationDestination(item: $selectedTaskId) { taskId in
+            TaskDetailView(
+                taskId: taskId
+            )
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .taskDidChange)) { _ in
+            Task {
+                await tasksVM.loadTasks()
+            }
+        }
+
     }
 
     private var canEditTasks: Bool {

@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-// TaskRowView.swift
-
-import SwiftUI
-
 struct TaskRowView: View {
 
     let task: TaskListResponse

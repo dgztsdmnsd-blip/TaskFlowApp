@@ -24,7 +24,6 @@ struct UserProjectsView: View {
         }
     }
 
-
     init(
         userId: Int,
         vm: UserProjectsViewModel? = nil,
@@ -110,14 +109,3 @@ struct UserProjectsView: View {
         }
     }
 }
-/* TODO: A corriger
-#Preview {
-    NavigationStack {
-        UserProjectsView(
-            userId: 1,
-            vm: .preview,
-            vmo: .preview
-        )
-        .environmentObject(SessionViewModel.mock)
-    }
-}*/

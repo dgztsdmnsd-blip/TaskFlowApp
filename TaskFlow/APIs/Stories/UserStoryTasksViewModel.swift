@@ -16,6 +16,13 @@ final class UserStoryTasksViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     let userStoryId: Int
+    
+    var progress: Double {
+        guard !tasks.isEmpty else { return 0 }
+
+        let finishedCount = tasks.filter { $0.status == .finished }.count
+        return Double(finishedCount) / Double(tasks.count)
+    }
 
     init(userStoryId: Int) {
         self.userStoryId = userStoryId

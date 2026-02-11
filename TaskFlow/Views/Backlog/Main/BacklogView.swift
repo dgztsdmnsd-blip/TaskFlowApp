@@ -65,13 +65,3 @@ struct BacklogView: View {
         }
     }
 }
-
-/*
-#Preview {
-    NavigationStack {
-        BacklogView(
-            etatUS: .enCours,
-            vm: ProjectListViewModel.preview()
-        )
-    }
-}*/

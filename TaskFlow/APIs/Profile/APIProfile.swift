@@ -14,7 +14,7 @@
 import Foundation
 
 // Structure de réponse de Login
-struct ProfileResponse: Codable, Identifiable {
+struct ProfileResponse: Codable, Identifiable, Hashable {
     let id: Int
     var email: String
     var firstName: String
@@ -26,7 +26,7 @@ struct ProfileResponse: Codable, Identifiable {
     let projectsCount: Int
 }
 
-struct ProfileLiteResponse: Codable, Identifiable {
+struct ProfileLiteResponse: Codable, Identifiable, Hashable {
     let id: Int
     let email: String
     let firstName: String

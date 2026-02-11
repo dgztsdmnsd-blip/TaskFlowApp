@@ -12,17 +12,22 @@ struct TaskFormView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: TaskFormViewModel
 
-    let onCreated: () -> Void
-
-    init(
-        story: StoryResponse,
-        onCreated: @escaping () -> Void
-    ) {
-        self.onCreated = onCreated
+    // INIT CREATION
+    init(story: StoryResponse) {
         _vm = StateObject(
-            wrappedValue:TaskFormViewModel(
+            wrappedValue: TaskFormViewModel(
                 mode: .create,
                 userStory: story
+            )
+        )
+    }
+
+    // INIT EDITION
+    init(task: TaskResponse) {
+        _vm = StateObject(
+            wrappedValue: TaskFormViewModel(
+                mode: .edit(task: task),
+                userStory: task.userStory
             )
         )
     }
@@ -31,8 +36,8 @@ struct TaskFormView: View {
         NavigationStack {
             Form {
 
-                // Informations principales
-                Section(header: Text("Tâches de la user story")) {
+                // Infos principales
+                Section(header: Text("Tâche")) {
 
                     TextField("Titre", text: $vm.titre)
                         .textInputAutocapitalization(.sentences)
@@ -81,7 +86,7 @@ struct TaskFormView: View {
                         }
 
                         TextEditor(text: $vm.type)
-                            .frame(minHeight: 100)
+                            .frame(minHeight: 80)
                     }
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
@@ -99,29 +104,23 @@ struct TaskFormView: View {
                     }
                 }
 
+                // Bouton Save
                 HStack {
-
                     Spacer()
 
                     BoutonImageView(
                         title: "Enregistrer",
-                        systemImage: "folder.badge.plus",
+                        systemImage: "checkmark.circle.fill",
                         style: .secondary
                     ) {
-                        Task {
-                            await vm.submit()
-                            if vm.isSuccess {
-                                onCreated()
-                                dismiss()
-                            }
-                        }
+                        submit()
                     }
                     .disabled(!vm.isFormValid)
 
                     Spacer()
                 }
             }
-            .navigationTitle("Création de la tâche")
+            .navigationTitle(vm.isEditing ? "Modifier la tâche" : "Nouvelle tâche")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -130,6 +129,27 @@ struct TaskFormView: View {
                         Image(systemName: "xmark")
                     }
                 }
+            }
+        }
+    }
+}
+
+
+private extension TaskFormView {
+
+    func submit() {
+        Task {
+            await vm.submit()
+
+            if vm.isSuccess {
+
+                // Notifie toute l’app
+                NotificationCenter.default.post(
+                    name: .taskDidChange,
+                    object: nil
+                )
+
+                dismiss()
             }
         }
     }

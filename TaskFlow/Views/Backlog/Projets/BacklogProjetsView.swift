@@ -49,36 +49,37 @@ struct BacklogProjetsView: View {
                 UserStoryColumnView(
                     projectId: project.id,
                     title: "À faire",
-                    statut: .notStarted
+                    statut: .notStarted,
+                    owner: isOwner
                 )
 
                 UserStoryColumnView(
                     projectId: project.id,
                     title: "En cours",
-                    statut: .inProgress
+                    statut: .inProgress,
+                    owner: isOwner
                 )
 
                 UserStoryColumnView(
                     projectId: project.id,
                     title: "Terminé",
-                    statut: .finished
+                    statut: .finished,
+                    owner: isOwner
                 )
             }
 
 
             // Bouton création
-            if isOwner {
-                HStack {
-                    
-                    BoutonImageView(
-                        title: "Ajouter une user story",
-                        systemImage: "list.bullet.rectangle",
-                        style: .secondary
-                    ) {
-                        showCreateStory = true
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
+            HStack {
+                
+                BoutonImageView(
+                    title: "Ajouter une user story",
+                    systemImage: "list.bullet.rectangle",
+                    style: .secondary
+                ) {
+                    showCreateStory = true
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .padding()
@@ -92,7 +93,7 @@ struct BacklogProjetsView: View {
         )
         .fullScreenCover(isPresented: $showCreateStory) {
             if let user = sessionVM.currentUser {
-                UserStoryView(
+                UserStoryFormView(
                     project: project,
                     owner: ProfileLiteResponse(
                         id: user.id,

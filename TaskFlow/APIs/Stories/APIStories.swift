@@ -52,4 +52,6 @@ struct StoryResponse: Codable, Identifiable {
     let project: ProjectResponse
     let owner: ProfileLiteResponse
     let couleur: String
+    
+    let progress: Double
 }

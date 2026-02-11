@@ -12,6 +12,7 @@ struct UserStoryColumnView: View {
     let projectId: Int
     let title: String
     let statut: StoryStatus
+    let owner: Bool
 
     @StateObject private var vm = UserStoryListViewModel()
     @State private var isTargeted = false
@@ -74,24 +75,35 @@ struct UserStoryColumnView: View {
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
-            await vm.fetchStories(projectId: projectId, statut: statut)
+            if owner {
+                await vm.fetchAllStories(projectId: projectId, statut: statut)
+            } else {
+                await vm.fetchStories(projectId: projectId, statut: statut)
+            }
         }
         .onReceive(
             NotificationCenter.default.publisher(for: .userStoryStatusDidChange)
         ) { _ in
             Task {
-                await vm.fetchStories(projectId: projectId, statut: statut)
+                if owner {
+                    await vm.fetchAllStories(projectId: projectId, statut: statut)
+                } else {
+                    await vm.fetchStories(projectId: projectId, statut: statut)
+                }
             }
         }
         .onReceive(
-            NotificationCenter.default.publisher(
-                for: .userStoryDidChange
-            )
+            NotificationCenter.default.publisher(for: .userStoryDidChange)
         ) { _ in
             Task {
-                await vm.fetchStories(projectId: projectId, statut: statut)
+                if owner {
+                    await vm.fetchAllStories(projectId: projectId, statut: statut)
+                } else {
+                    await vm.fetchStories(projectId: projectId, statut: statut)
+                }
             }
         }
+
     }
 
     // Drop handler

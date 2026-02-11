@@ -35,4 +35,25 @@ final class UserStoryListViewModel: ObservableObject {
 
         isLoading = false
     }
+    
+    // Liste des user stories de l'utilisateur connecté (owner)
+    func fetchAllStories(
+        projectId: Int,
+        statut: StoryStatus
+    ) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            stories = try await StoriesService.shared.listAllUserStories(projectId: projectId, statut: statut)
+        } catch APIError.httpError(let code, let message) {
+            print("HTTP ERROR:", code, message ?? "")
+            errorMessage = message ?? "Erreur lors du chargement des user stories."
+        } catch {
+            errorMessage = "Erreur réseau."
+        }
+
+
+        isLoading = false
+    }
 }

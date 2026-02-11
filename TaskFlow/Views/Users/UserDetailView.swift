@@ -62,66 +62,70 @@ struct UserDetailView: View {
                 Section("Projets") {
                     projectsBadge
                     
-                    if currentUser.profil == "MGR" {
-                        // Attribuer un projet
-                        BoutonImageView(
-                            title: "Attribuer un projet",
-                            systemImage: "folder.badge.plus",
-                            style: .primary
-                        ) {
-                            showUserProjects = true
+                    if vm.user.id != currentUser.id {
+                        if currentUser.profil == "MGR" {
+                            // Attribuer un projet
+                            BoutonImageView(
+                                title: "Attribuer un projet",
+                                systemImage: "folder.badge.plus",
+                                style: .primary
+                            ) {
+                                showUserProjects = true
+                            }
                         }
                     }
                 }
                 
                 // Actions (Manager uniquement)
-                if currentUser.profil == "MGR" {
-                    Section("Actions") {
-                        
-                        // Activer / Désactiver
-                        BoutonImageView(
-                            title: vm.isActive ? "Désactiver le compte" : "Réactiver le compte",
-                            systemImage: vm.isActive ? "person.slash" : "person.check",
-                            style: vm.isActive ? .danger : .primary
-                        ) {
-                            showConfirmStatus = true
-                        }
-                        .confirmationDialog(
-                            vm.isActive ? "Désactiver ce compte ?" : "Réactiver ce compte ?",
-                            isPresented: $showConfirmStatus
-                        ) {
-                            Button(
-                                vm.isActive ? "Désactiver" : "Réactiver",
-                                role: vm.isActive ? .destructive : .none
+                if vm.user.id != currentUser.id {
+                    if currentUser.profil == "MGR" {
+                        Section("Actions") {
+                            
+                            // Activer / Désactiver
+                            BoutonImageView(
+                                title: vm.isActive ? "Désactiver le compte" : "Réactiver le compte",
+                                systemImage: vm.isActive ? "person.slash" : "person.check",
+                                style: vm.isActive ? .danger : .primary
                             ) {
-                                Task { await vm.toggleStatus() }
+                                showConfirmStatus = true
+                            }
+                            .confirmationDialog(
+                                vm.isActive ? "Désactiver ce compte ?" : "Réactiver ce compte ?",
+                                isPresented: $showConfirmStatus
+                            ) {
+                                Button(
+                                    vm.isActive ? "Désactiver" : "Réactiver",
+                                    role: vm.isActive ? .destructive : .none
+                                ) {
+                                    Task { await vm.toggleStatus() }
+                                }
+                                
+                                Button("Annuler", role: .cancel) {}
                             }
                             
-                            Button("Annuler", role: .cancel) {}
-                        }
-                        
-                        // Changer le rôle
-                        BoutonImageView(
-                            title: vm.isManager ? "Passer en utilisateur" : "Passer en manager",
-                            systemImage: "arrow.triangle.2.circlepath",
-                            style: .primary
-                        ) {
-                            showConfirmRole = true
-                        }
-                        .disabled(vm.isLoading)
-                        .confirmationDialog(
-                            vm.isManager
-                            ? "Passer cet utilisateur en utilisateur ?"
-                            : "Passer cet utilisateur en manager ?",
-                            isPresented: $showConfirmRole
-                        ) {
-                            Button("Confirmer") {
-                                Task { await vm.toggleRole() }
+                            // Changer le rôle
+                            BoutonImageView(
+                                title: vm.isManager ? "Passer en utilisateur" : "Passer en manager",
+                                systemImage: "arrow.triangle.2.circlepath",
+                                style: .primary
+                            ) {
+                                showConfirmRole = true
+                            }
+                            .disabled(vm.isLoading)
+                            .confirmationDialog(
+                                vm.isManager
+                                ? "Passer cet utilisateur en utilisateur ?"
+                                : "Passer cet utilisateur en manager ?",
+                                isPresented: $showConfirmRole
+                            ) {
+                                Button("Confirmer") {
+                                    Task { await vm.toggleRole() }
+                                }
+                                
+                                Button("Annuler", role: .cancel) {}
                             }
                             
-                            Button("Annuler", role: .cancel) {}
                         }
-
                     }
                 }
             }
