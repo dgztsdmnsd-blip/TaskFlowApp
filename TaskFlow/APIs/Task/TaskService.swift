@@ -100,25 +100,47 @@ final class TaskService {
             let status: String
         }
 
-        let response: TaskResponse = try await APIClient.shared.request(
-            url: url,
-            method: "PATCH",
-            body: Body(status: status.rawValue),
-            requiresAuth: true
-        )
+        let body = Body(status: status.rawValue)
 
-        print("Update Task succès → id:", response.id)
-        return response
+        print("Update Task Status")
+        print("URL:", url)
+        print("Task ID:", taskId)
+        print("Status envoyé:", status.rawValue)
+
+        do {
+            let response: TaskResponse = try await APIClient.shared.request(
+                url: url,
+                method: "PATCH",
+                body: body,
+                requiresAuth: true
+            )
+
+            print("Update Task succès")
+            print("Task ID:", response.id)
+            print("Nouveau statut:", response.status)
+
+            return response
+
+        } catch {
+            print("Erreur Update Task Status")
+            print("Task ID:", taskId)
+            print("Status tenté:", status.rawValue)
+            print("Erreur:", error.localizedDescription)
+
+            throw error
+        }
     }
+
     
 
     // Liste des tâches
     func listTasks(
-        userStoryId: Int
+        userStoryId: Int,
+        statut: String
     )
     async throws -> [TaskListResponse] {
 
-        let url = AppConfig.baseURL.appendingPathComponent("/api/userstories/\(userStoryId)/tasks/list")
+        let url = AppConfig.baseURL.appendingPathComponent("/api/userstories/\(userStoryId)/tasks/list/statut/\(statut)")
 
         print("Tasks List → URL:", url)
 

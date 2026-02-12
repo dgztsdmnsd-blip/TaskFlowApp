@@ -253,34 +253,34 @@ private extension UserStoryDetailView {
 }
 
 private extension UserStoryDetailView {
-
+    
     func refreshAll() async {
         do {
             currentStory = try await StoriesService.shared.fetchUserStory(
                 userStoryId: story.id
             )
-
-            await tasksVM.loadTasks()
-
+            
+            await tasksVM.loadTasksByStatus()
+            
         } catch {
             print("Refresh error:", error)
         }
     }
-
+    
     func deleteStory() {
         Task {
             do {
                 try await StoriesService.shared.deleteStory(
                     userStoryId: currentStory.id
                 )
-
+                
                 NotificationCenter.default.post(
                     name: .userStoryDidChange,
                     object: nil
                 )
-
+                
                 dismiss()
-
+                
             } catch {
                 print("Delete story error:", error)
             }

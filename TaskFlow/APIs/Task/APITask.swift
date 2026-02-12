@@ -59,11 +59,11 @@ struct TaskResponse: Codable, Identifiable {
     let userStory: StoryResponse
 }
 
-struct TaskListResponse: Codable, Identifiable {
+struct TaskListResponse: Identifiable, Codable, Equatable {
     let id: Int
     let title: String
     let type: String
     let storyPoint: Int?
-    let status: TaskStatus
+    var status: TaskStatus
 }
 

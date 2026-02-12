@@ -58,8 +58,7 @@ struct TaskDetailView: View {
         }) {
             if let task {
                 TaskFormView(
-                    task: task/*,
-                    onCreated: { }*/
+                    task: task
                 )
             }
         }

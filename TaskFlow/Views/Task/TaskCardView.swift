@@ -41,7 +41,7 @@ struct TaskCardView: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity)
-        .frame(height: 60)   // ✅ HAUTEUR FIXE = colonnes propres
+        .frame(height: 60)   
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color(.systemBackground))

@@ -96,6 +96,7 @@ final class StoriesService {
         return response
     }
     
+    
     // Modification statut
     func updateStoryStatus(
         userStoryId: Int,
@@ -109,17 +110,37 @@ final class StoriesService {
             let status: String
         }
 
-        let response: StoryResponse = try await APIClient.shared.request(
-            url: url,
-            method: "PATCH",
-            body: Body(status: status.rawValue),
-            requiresAuth: true
-        )
+        let body = Body(status: status.rawValue)
 
-        print("Update User Story succès → id:", response.id)
-        return response
+        print("Update Story Status")
+        print("URL:", url)
+        print("Story ID:", userStoryId)
+        print("Status envoyé:", status.rawValue)
+
+        do {
+            let response: StoryResponse = try await APIClient.shared.request(
+                url: url,
+                method: "PATCH",
+                body: body,
+                requiresAuth: true
+            )
+
+            print("Update User Story succès")
+            print("ID:", response.id)
+            print("Nouveau statut:", response.status)
+
+            return response
+
+        } catch {
+            print("Erreur Update Story Status")
+            print("Story ID:", userStoryId)
+            print("Status tenté:", status.rawValue)
+            print("Erreur:", error.localizedDescription)
+
+            throw error
+        }
     }
-    
+
 
     // Liste toutes les user stories
     func listAllUserStories(

@@ -44,31 +44,44 @@ struct TasksSectionView: View {
                     .frame(maxWidth: .infinity)
             }
 
-            if tasksVM.tasks.isEmpty && !tasksVM.isLoading {
+            if tasksVM.todo.isEmpty &&
+               tasksVM.doing.isEmpty &&
+               tasksVM.done.isEmpty &&
+               !tasksVM.isLoading {
+
                 Text("Aucune tâche pour cette user story.")
                     .font(.caption)
                     .foregroundColor(.secondary)
+
             } else {
 
-                // Liste "safe" dans un ScrollView
-                LazyVStack(spacing: 8) {
-                    ForEach(tasksVM.tasks) { task in
-                        Button {
-                            selectedTaskId = task.id
-                        } label: {
-                            TaskRowView(task: task)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .swipeActions {
-                            if canEditTasks {
-                                Button(role: .destructive) {
-                                    delete(task.id)
-                                } label: {
-                                    Label("Supprimer", systemImage: "trash")
-                                }
-                            }
-                        }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(alignment: .top, spacing: 12) {
+
+                        TaskColumnView(
+                            title: "À faire",
+                            status: .notStarted,
+                            tasks: tasksVM.todo,
+                            tasksVM: tasksVM,
+                            selectedTaskId: $selectedTaskId
+                        )
+
+                        TaskColumnView(
+                            title: "En cours",
+                            status: .inProgress,
+                            tasks: tasksVM.doing,
+                            tasksVM: tasksVM,
+                            selectedTaskId: $selectedTaskId
+                        )
+
+                        TaskColumnView(
+                            title: "Terminé",
+                            status: .finished,
+                            tasks: tasksVM.done,
+                            tasksVM: tasksVM,
+                            selectedTaskId: $selectedTaskId
+                        )
+
                     }
                 }
             }
@@ -87,16 +100,13 @@ struct TasksSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyleView()
         .navigationDestination(item: $selectedTaskId) { taskId in
-            TaskDetailView(
-                taskId: taskId
-            )
+            TaskDetailView(taskId: taskId)
         }
         .onReceive(NotificationCenter.default.publisher(for: .taskDidChange)) { _ in
             Task {
-                await tasksVM.loadTasks()
+                await tasksVM.loadTasksByStatus()
             }
         }
-
     }
 
     private var canEditTasks: Bool {
