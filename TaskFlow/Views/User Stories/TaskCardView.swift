@@ -10,6 +10,7 @@ import SwiftUI
 struct TaskRowView: View {
 
     let task: TaskListResponse
+    let onTap: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -21,6 +22,7 @@ struct TaskRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(task.title)
                     .font(.body)
+                    .lineLimit(1)  
 
                 if let points = task.storyPoint {
                     Text("\(points) pts")
@@ -35,6 +37,12 @@ struct TaskRowView: View {
                 .font(.caption2)
                 .foregroundColor(task.status.color)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
+        .onTapGesture { onTap?() }
+        .draggable(DraggableTask(id: task.id))
+
     }
 }
