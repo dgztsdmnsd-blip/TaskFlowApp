@@ -22,6 +22,7 @@ enum APIError: Error {
     case unauthorized(message: String?)
     case httpError(Int, message: String?)
     case decodingError(Error)
+    case invalidColor
 }
 
 // Backend Error Response

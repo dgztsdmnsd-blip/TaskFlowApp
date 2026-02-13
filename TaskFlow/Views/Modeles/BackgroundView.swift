@@ -16,7 +16,7 @@ struct BackgroundView: View {
         case general
         case terminees
         case enCours
-        case aVenir
+        case backlog
         case projets
         case users
     }
@@ -52,7 +52,7 @@ struct BackgroundView: View {
         switch ecran {
         case .terminees: return colcompdeb
         case .enCours:   return colencdeb
-        case .aVenir:    return coltododeb
+        case .backlog:    return coltododeb
         case .general:   return colgendeb
         case .projets:   return colprojdeb
         case .users:     return coluserdeb
@@ -63,7 +63,7 @@ struct BackgroundView: View {
         switch ecran {
         case .terminees: return colcompfin
         case .enCours:   return colencfin
-        case .aVenir:    return coltodofin
+        case .backlog:    return coltodofin
         case .general:   return colgenfin
         case .projets:   return colprojfin
         case .users:     return coluserfin

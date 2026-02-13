@@ -16,6 +16,7 @@ struct UserStoryDetailView: View {
     @State private var showEditStory = false
     @State private var showCreateTask = false
     @State private var showDeleteAlert = false
+    @State private var showTagPicker = false
 
     @EnvironmentObject private var session: SessionViewModel
     @StateObject private var tasksVM: UserStoryTasksViewModel
@@ -41,6 +42,7 @@ struct UserStoryDetailView: View {
                 VStack(spacing: 20) {
 
                     header
+                    tagsSection
                     statusSection
                     metaSection
                     descriptionSection
@@ -103,6 +105,14 @@ struct UserStoryDetailView: View {
                 await refreshAll()
             }
         }
+        
+        // Tags
+        .sheet(isPresented: $showTagPicker) {
+            TagPickerView { selectedTag in
+                showTagPicker = false
+                attachTag(selectedTag)
+            }
+        }
 
         // Refresh backlog au retour
         .onDisappear {
@@ -145,6 +155,42 @@ private extension UserStoryDetailView {
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyleView()
     }
+    
+    var tagsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+
+            HStack {
+                Label("Tags", systemImage: "tag.fill")
+                    .font(.headline)
+
+                Spacer()
+
+                Button {
+                    showTagPicker = true
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                }
+            }
+
+            if currentStory.tags.isEmpty {
+                Text("Aucun tag associé")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else {
+                FlowLayout(spacing: 8) {
+                    ForEach(currentStory.tags) { tag in
+                        TagBadgeView(tag: tag) {
+                            removeTag(tag)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardStyleView()
+    }
+
 
     var statusSection: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -250,6 +296,40 @@ private extension UserStoryDetailView {
             }
         }
     }
+    
+    func attachTag(_ tag: TagResponse) {
+        Task {
+            do {
+                _ = try await TagsService.shared.attachTag(
+                    tagId: tag.id,
+                    toStory: currentStory.id
+                )
+
+                await refreshAll()
+
+            } catch {
+                print("Attach tag error:", error)
+            }
+        }
+    }
+    
+    func removeTag(_ tag: TagResponse) {
+        Task {
+            do {
+                try await TagsService.shared.detachTag(
+                    tagId: tag.id,
+                    fromStory: currentStory.id
+                )
+
+                await refreshAll()
+
+            } catch {
+                print("Detach tag error:", error)
+            }
+        }
+    }
+
+
 }
 
 private extension UserStoryDetailView {

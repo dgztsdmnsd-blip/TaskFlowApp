@@ -54,6 +54,9 @@ struct BacklogView: View {
                 }
             }
         }
+        .background(
+            BackgroundView(ecran: .backlog)
+        )
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
             await vm.fetchActiveProjects()
@@ -61,6 +64,9 @@ struct BacklogView: View {
         .onReceive(
             NotificationCenter.default.publisher(for: .projectListShouldRefresh)
         ) { _ in
+            Task { await vm.fetchActiveProjects() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .userStoryDidChange)) { _ in
             Task { await vm.fetchActiveProjects() }
         }
     }

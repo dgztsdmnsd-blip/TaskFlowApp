@@ -31,6 +31,8 @@ struct BacklogUSView: View {
                     .font(.headline)
                     .lineLimit(1)
                 
+                tagsView
+                
                 Text("\(story.owner.lastName.capitalized) \(story.owner.firstName.capitalized)")
                     .font(.caption)
                     .foregroundColor(.black)
@@ -72,7 +74,7 @@ struct BacklogUSView: View {
             }
         }
         .padding(12)
-        .frame(height: 140)  
+        .frame(height: 160)  
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.systemBackground))
@@ -99,4 +101,38 @@ struct BacklogUSView: View {
         }
 
     }
+    
+    var tagsView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(story.tags) { tag in
+                    TagBadgeMiniView(tag: tag) {
+                        deleteTag(tag)
+                    }
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
+    
+    func deleteTag(_ tag: TagResponse) {
+        Task {
+            do {
+                try await TagsService.shared.detachTag(
+                    tagId: tag.id,
+                    fromStory: story.id
+                )
+
+                NotificationCenter.default.post(
+                    name: .userStoryDidChange,
+                    object: nil
+                )
+
+            } catch {
+                print("Detach tag error:", error)
+            }
+        }
+    }
+
+
 }
