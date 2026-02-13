@@ -13,7 +13,7 @@ enum TagMode {
     case liste
 }
 
-struct TagResponse: Codable, Identifiable {
+struct TagResponse: Codable, Identifiable, Equatable {
     let id: Int
     let tagName: String
     let couleur: String
