@@ -132,6 +132,7 @@ struct UserDetailView: View {
         }
         .navigationTitle("Utilisateur")
         .navigationBarTitleDisplayMode(.inline)
+        .logLifecycle("UserDetailView")
         .sheet(isPresented: $showUserProjects) {
             NavigationStack {
                 UserProjectsView(userId: vm.user.id)
@@ -183,14 +184,5 @@ struct UserDetailView: View {
             .font(.caption)
             .foregroundColor(.secondary)
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        UserDetailView(
-            currentUser: .preview, 
-            user: .preview2
-        )
     }
 }

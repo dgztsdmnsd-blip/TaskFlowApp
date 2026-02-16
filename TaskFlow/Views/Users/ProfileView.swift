@@ -85,6 +85,7 @@ struct ProfileView: View {
                     }
                 }
             }
+            .logLifecycle("ProfileView")
             .sheet(isPresented: $showEditProfile) {
                 if let profile = sessionVM.currentUser {
                     RegisterView(

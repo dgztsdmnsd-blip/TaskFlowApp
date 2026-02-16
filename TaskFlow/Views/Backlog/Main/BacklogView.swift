@@ -162,6 +162,7 @@ struct BacklogView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 6)
+                .logLifecycle("BacklogView")
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }

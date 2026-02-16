@@ -32,7 +32,7 @@ final class UsersListViewModel: ObservableObject {
     }
 }
 
-
+/*
 @MainActor
 extension UsersListViewModel {
     static func preview() -> UsersListViewModel {
@@ -57,3 +57,4 @@ extension UsersListViewModel {
         return vm
     }
 }
+*/

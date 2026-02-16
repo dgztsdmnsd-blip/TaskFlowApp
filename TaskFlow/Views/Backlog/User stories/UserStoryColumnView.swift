@@ -73,6 +73,7 @@ struct UserStoryColumnView: View {
             )
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
+        .logLifecycle("UserStoryColumnView")
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
             if owner {

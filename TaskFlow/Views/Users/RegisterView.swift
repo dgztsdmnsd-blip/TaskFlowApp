@@ -102,6 +102,7 @@ struct RegisterView: View {
                     vm.isCreateMode ? "Inscription" : "Modifier le profil"
                 )
                 .navigationBarTitleDisplayMode(.inline)
+                .logLifecycle("RegisterView")
                 .toolbar {
                     if !vm.isCreateMode {
                         ToolbarItem(placement: .navigationBarTrailing) {

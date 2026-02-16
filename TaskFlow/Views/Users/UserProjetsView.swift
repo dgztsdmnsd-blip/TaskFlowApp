@@ -93,6 +93,7 @@ struct UserProjectsView: View {
         }
         .navigationTitle("Projets")
         .navigationBarTitleDisplayMode(.inline)
+        .logLifecycle("UserProjetsView")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {

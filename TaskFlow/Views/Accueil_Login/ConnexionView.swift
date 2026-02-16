@@ -54,6 +54,7 @@ struct ConnexionView: View {
                 }
                 .padding(32)
             }
+            .logLifecycle("ConnexionView")
         }
     }
 }

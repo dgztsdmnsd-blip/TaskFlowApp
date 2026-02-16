@@ -57,6 +57,7 @@ struct ProjectEditView: View {
                 }
                 .navigationTitle("Modifier le projet")
                 .navigationBarTitleDisplayMode(.inline)
+                .logLifecycle("ProjectEditView")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Fermer") { dismiss() }
@@ -69,12 +70,6 @@ struct ProjectEditView: View {
                 }
             }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        ProjectEditView(project: .previewNotStarted)
     }
 }
 

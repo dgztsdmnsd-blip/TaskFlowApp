@@ -63,6 +63,7 @@ struct ProjectCreationView: View {
                 }
             }
             .navigationTitle("Création de projet")
+            .logLifecycle("ProjectCreationView")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

@@ -135,7 +135,7 @@ struct ProjectDetailView: View {
             }
             .navigationTitle("Détail du projet")
             .navigationBarTitleDisplayMode(.inline)
-            
+            .logLifecycle("ProjectDetailView")
             // -----------------
             // EDIT
             // -----------------
@@ -206,15 +206,5 @@ struct ProjectDetailView: View {
                     .foregroundColor(.orange)
             }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        ProjectDetailView(
-            vm: ProjectDetailViewModel(
-                project: .previewNotStarted
-            )
-        )
     }
 }

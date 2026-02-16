@@ -43,13 +43,15 @@ final class ProjectListViewModel: ObservableObject {
         } catch APIError.httpError(_, let message) {
             errorMessage = message ?? "Erreur lors du chargement des projets."
         } catch {
+            print("CATCH TRIGGERED")
+            print(error)
             errorMessage = "Erreur réseau."
         }
 
         isLoading = false
     }
 }
-
+/*
 // Preview
 @MainActor
 extension ProjectListViewModel {
@@ -68,3 +70,4 @@ extension ProjectListViewModel {
         return vm
     }
 }
+*/

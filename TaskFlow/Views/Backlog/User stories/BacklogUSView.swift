@@ -74,7 +74,8 @@ struct BacklogUSView: View {
             }
         }
         .padding(12)
-        .frame(height: 160)  
+        .frame(height: 160)
+        .logLifecycle("BacklogUSView")
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.systemBackground))

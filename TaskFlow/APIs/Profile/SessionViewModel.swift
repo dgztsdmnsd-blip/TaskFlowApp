@@ -75,7 +75,7 @@ final class SessionViewModel: ObservableObject {
         isAuthenticated = false
     }
 }
-
+/*
 // Preview
 extension SessionViewModel {
 
@@ -86,3 +86,4 @@ extension SessionViewModel {
         return vm
     }
 }
+*/

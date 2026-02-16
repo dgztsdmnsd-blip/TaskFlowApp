@@ -120,6 +120,7 @@ struct UserStoryFormView: View {
                 .disabled(!vm.isFormValid)
             }
             .navigationTitle(vm.isEditMode ? "Modification" : "Création")
+            .logLifecycle("UserStoryFormView")
             .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Annuler") {

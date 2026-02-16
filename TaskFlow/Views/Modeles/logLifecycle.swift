@@ -8,10 +8,8 @@
 import SwiftUI
 
 extension View {
-    func logLifecycle() -> some View {
-        let name = String(describing: Self.self)
-
-        return self
+    func logLifecycle(_ name: String) -> some View {
+        self
             .onAppear {
                 print("🟢 \(name) – onAppear")
             }

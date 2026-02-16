@@ -83,6 +83,7 @@ struct BacklogProjetsView: View {
             }
         }
         .padding()
+        .logLifecycle("BacklogProjetsView")
         .background(
             BackgroundView(ecran: .projets)
         )

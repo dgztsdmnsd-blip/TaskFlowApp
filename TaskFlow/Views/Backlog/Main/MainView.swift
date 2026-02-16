@@ -79,6 +79,7 @@ struct MainView: View {
                 ProgressView("Initialisation…")
             }
         }
+        .logLifecycle("MainView")
     }
 
     // --------------------

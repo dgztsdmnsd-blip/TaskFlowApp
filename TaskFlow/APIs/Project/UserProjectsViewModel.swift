@@ -52,7 +52,7 @@ final class UserProjectsViewModel: ObservableObject {
     }
 
 }
-
+/*
 extension UserProjectsViewModel {
     static var preview: UserProjectsViewModel {
         let vm = UserProjectsViewModel(userId: 1)
@@ -61,3 +61,4 @@ extension UserProjectsViewModel {
         return vm
     }
 }
+*/

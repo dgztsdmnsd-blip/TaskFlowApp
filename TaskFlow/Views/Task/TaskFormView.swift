@@ -121,6 +121,7 @@ struct TaskFormView: View {
                 }
             }
             .navigationTitle(vm.isEditing ? "Modifier la tâche" : "Nouvelle tâche")
+            .logLifecycle("TaskFormView")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {

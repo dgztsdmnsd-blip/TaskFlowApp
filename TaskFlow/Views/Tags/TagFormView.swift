@@ -93,6 +93,7 @@ struct TagFormView: View {
                 }
             }
             .navigationTitle(viewModel.isEditing ? "Modifier Tag" : "Créer Tag")
+            .logLifecycle("TagFormView")
             .toolbar {
 
                 // Annuler

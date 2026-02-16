@@ -55,6 +55,7 @@ struct ProjectsView: View {
                 }
             }
         }
+        .logLifecycle("ProjectsView")
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
             await vm.fetchProjects()

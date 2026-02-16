@@ -208,6 +208,7 @@ private extension TaskDetailView {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .logLifecycle("TaskDetailView")
                 .cardStyleView()
             }
         }
@@ -223,10 +224,12 @@ private extension TaskDetailView {
 
         do {
             task = try await TaskService.shared.fetchTask(taskId: taskId)
+            print("Task chargée:", task?.title ?? "")
         } catch {
             print("Erreur chargement tâche:", error)
         }
     }
+
 
     func deleteTask() {
         guard let task else { return }

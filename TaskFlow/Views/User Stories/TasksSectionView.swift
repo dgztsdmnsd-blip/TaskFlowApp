@@ -98,6 +98,7 @@ struct TasksSectionView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .logLifecycle("TasksSectionView")
         .cardStyleView()
         .navigationDestination(item: $selectedTaskId) { taskId in
             TaskDetailView(taskId: taskId)

@@ -81,7 +81,7 @@ struct TagPickerView: View {
             .task {
                 await viewModel.loadTags()
             }
-
+            .logLifecycle("TagPickerView")
             // Sheet création
             .sheet(isPresented: $showCreateTag) {
                 NavigationStack {

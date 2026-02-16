@@ -132,10 +132,43 @@ final class APIClient {
 
         // Décodage JSON
         do {
-            return try JSONDecoder().decode(T.self, from: data)
+            let decoder = JSONDecoder()
+
+            decoder.dateDecodingStrategy = .custom { decoder in
+                let container = try decoder.singleValueContainer()
+                let string = try container.decode(String.self)
+
+                // ISO8601 complet (datetime)
+                let isoFormatter = ISO8601DateFormatter()
+                if let date = isoFormatter.date(from: string) {
+                    return date
+                }
+
+                // yyyy-MM-dd (date simple Symfony)
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+                if let date = dateFormatter.date(from: string) {
+                    return date
+                }
+
+                throw DecodingError.dataCorruptedError(
+                    in: container,
+                    debugDescription: "Invalid date: \(string)"
+                )
+            }
+
+            return try decoder.decode(T.self, from: data)
+
         } catch {
+            print("DECODING ERROR:", error)
+            print("RAW JSON:", String(data: data, encoding: .utf8) ?? "nil")
+
             throw APIError.decodingError(error)
         }
+
+
     }
 }
 

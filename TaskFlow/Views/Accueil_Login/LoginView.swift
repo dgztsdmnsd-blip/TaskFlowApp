@@ -72,6 +72,7 @@ struct LoginView: View {
                 }
             }
             .padding()
+            .logLifecycle("LoginView")
             .onAppear {
                 guard !didAttemptBiometric else { return }
                 didAttemptBiometric = true

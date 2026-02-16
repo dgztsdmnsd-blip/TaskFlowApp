@@ -188,6 +188,7 @@ private extension UserStoryDetailView {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .logLifecycle("UserStoryDetailView")
         .cardStyleView()
     }
 

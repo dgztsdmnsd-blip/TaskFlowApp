@@ -19,12 +19,16 @@ struct ProfileResponse: Codable, Identifiable, Hashable {
     var email: String
     var firstName: String
     var lastName: String
+
     let status: String
     let profil: String
-    let creationDate: String
-    let exitDate: String?
+
+    let creationDate: Date
+    let exitDate: Date?
+
     let projectsCount: Int
 }
+
 
 struct ProfileLiteResponse: Codable, Identifiable, Hashable {
     let id: Int
@@ -41,23 +45,25 @@ extension String {
 }
 
 extension ProfileResponse {
+
     var creationDateFormatted: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        return formatter.string(from: creationDate.toDate() ?? Date())
+        return formatter.string(from: creationDate)
     }
-    
-    
+
     var exitDateFormatted: String {
-        guard let exitDate, let date = exitDate.toDate() else { return "" }
+        guard let exitDate else { return "" }
+
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        return formatter.string(from: date)
+        return formatter.string(from: exitDate)
     }
 }
 
+/*
 extension ProfileResponse {
 
     static let preview = ProfileResponse(
@@ -100,3 +106,4 @@ extension ProfileLiteResponse {
         lastName: "Ban"
     )
 }
+*/

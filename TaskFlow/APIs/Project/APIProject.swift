@@ -40,10 +40,19 @@ struct ProjectResponse: Codable, Identifiable {
     let title: String
     let description: String
     let status: ProjectStatus
+
+    let startDate: Date?
+    let endDate: Date?
+    let creationDate: Date?
+    let updateDate: Date?
+    let completedAt: Date?
+
     let owner: ProfileLiteResponse
+    let members: [ProfileLiteResponse]
     let membersCount: Int
 }
 
+/*
 extension ProjectResponse {
 
     static let previewNotStarted = ProjectResponse(
@@ -73,7 +82,7 @@ extension ProjectResponse {
         membersCount: 2
     )
 }
-
+*/
 
 struct ProjectMembersResponse: Decodable {
     let ownerId: Int

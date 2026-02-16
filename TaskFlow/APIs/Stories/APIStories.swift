@@ -54,5 +54,5 @@ struct StoryResponse: Codable, Identifiable {
     let couleur: String
     
     let progress: Double
-    let tags: [TagResponse] 
+    let tags: [TagResponse]
 }

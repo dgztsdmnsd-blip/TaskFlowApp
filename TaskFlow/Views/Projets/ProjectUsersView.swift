@@ -80,6 +80,7 @@ struct ProjectUsersView: View {
         }
         .navigationTitle("Membres du projet")
         .navigationBarTitleDisplayMode(.inline)
+        .logLifecycle("ProjectUsersView")
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
             await vm.fetchMembers()

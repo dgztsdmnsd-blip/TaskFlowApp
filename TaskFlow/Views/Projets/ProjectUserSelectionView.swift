@@ -78,6 +78,7 @@ struct ProjectUserSelectionView: View {
         }
         .navigationTitle("Ajouter un membre")
         .navigationBarTitleDisplayMode(.inline)
+        .logLifecycle("ProjectUserSelectionView")
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
             await vm.fetchUsersList()
@@ -92,18 +93,5 @@ struct ProjectUserSelectionView: View {
                 .accessibilityLabel("Fermer")
             }
         }
-    }
-}
-
-
-#Preview {
-    NavigationStack {
-        ProjectUserSelectionView(
-            vm: UsersListViewModel.preview(),
-            excludedUserIds: [15, 18], 
-            onAddMember: { id in
-                print("add member \(id)")
-            }
-        )
     }
 }

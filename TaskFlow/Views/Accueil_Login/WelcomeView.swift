@@ -45,7 +45,8 @@ struct WelcomeView: View {
             }
             .padding(32)
         }
-        /// Transition automatique
+        .logLifecycle("WelcomeView")
+        // Transition automatique
         .onAppear {
             // Après 2,5 secondes, on quitte l’écran d’accueil
             // pour afficher l’écran de connexion.

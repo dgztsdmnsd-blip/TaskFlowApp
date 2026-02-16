@@ -57,6 +57,7 @@ struct UsersListView: View {
         .navigationDestination(item: $selectedUser) { user in
             UserDetailView(currentUser: currentUser, user: user)
         }
+        .logLifecycle("UserListView")
         .onAppear {
             guard !ProcessInfo.isRunningPreviews else { return }
             Task { await vm.fetchUsersList() }

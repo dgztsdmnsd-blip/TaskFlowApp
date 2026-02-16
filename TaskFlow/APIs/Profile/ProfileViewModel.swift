@@ -49,7 +49,7 @@ final class ProfileViewModel: ObservableObject {
         profile?.profil == "MGR"
     }
 }
-
+/*
 extension ProfileViewModel {
 
     static let preview: ProfileViewModel = {
@@ -58,3 +58,4 @@ extension ProfileViewModel {
         return vm
     }()
 }
+*/
