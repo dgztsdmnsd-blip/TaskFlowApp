@@ -12,6 +12,7 @@ struct NewPasswordView: View {
     let token: String
 
     @StateObject private var vm: NewPasswordViewModel
+    @Environment(\.dismiss) private var dismiss
 
     init(token: String) {
         self.token = token
@@ -37,6 +38,12 @@ struct NewPasswordView: View {
         }
         .navigationTitle("Nouveau mot de passe")
         .logLifecycle("NewPasswordView")
+        .onChange(of: vm.isSuccess) { _, success in
+            if success {
+                print("Reset SUCCESS → dismiss")
+                dismiss()
+                dismiss()
+            }
+        }
     }
 }
-

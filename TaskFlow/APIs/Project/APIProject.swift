@@ -52,38 +52,6 @@ struct ProjectResponse: Codable, Identifiable {
     let membersCount: Int
 }
 
-/*
-extension ProjectResponse {
-
-    static let previewNotStarted = ProjectResponse(
-        id: 1,
-        title: "Refonte du site Web",
-        description: "Projet UX/UI complet du site institutionnel.",
-        status: .notStarted,
-        owner: .preview,
-        membersCount: 1
-    )
-
-    static let previewInProgress = ProjectResponse(
-        id: 2,
-        title: "Migration CRM",
-        description: "Migration des données vers le nouveau CRM.",
-        status: .inProgress,
-        owner: .preview,
-        membersCount: 4
-    )
-
-    static let previewFinished = ProjectResponse(
-        id: 3,
-        title: "Audit sécurité",
-        description: "Analyse complète des failles de sécurité.",
-        status: .finished,
-        owner: .preview,
-        membersCount: 2
-    )
-}
-*/
-
 struct ProjectMembersResponse: Decodable {
     let ownerId: Int
     let members: [ProfileResponse]

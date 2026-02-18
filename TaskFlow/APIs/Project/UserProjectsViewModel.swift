@@ -52,13 +52,3 @@ final class UserProjectsViewModel: ObservableObject {
     }
 
 }
-/*
-extension UserProjectsViewModel {
-    static var preview: UserProjectsViewModel {
-        let vm = UserProjectsViewModel(userId: 1)
-        vm.projects = [ProjectResponse.previewInProgress]
-        vm.isLoading = false
-        return vm
-    }
-}
-*/

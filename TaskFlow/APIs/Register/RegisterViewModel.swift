@@ -95,6 +95,20 @@ final class RegisterViewModel: ObservableObject {
             }
         }
 
+        // Validation édition (si password saisi)
+        if !isCreateMode && !password.isEmpty {
+            guard !password2.isEmpty else {
+                errorMessage = "Veuillez confirmer votre nouveau mot de passe."
+                return
+            }
+
+            guard password == password2 else {
+                errorMessage = "Les mots de passe ne correspondent pas."
+                return
+            }
+        }
+
+
         isLoading = true
 
         do {

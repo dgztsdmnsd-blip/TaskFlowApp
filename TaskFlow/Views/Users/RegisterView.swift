@@ -70,6 +70,31 @@ struct RegisterView: View {
                     }
 
                     // --------------------
+                    // Mot de passe (édition)
+                    // --------------------
+                    if !vm.isCreateMode {
+                        Section("Changer le mot de passe") {
+
+                            LabeledTextField(
+                                label: "Nouveau mot de passe",
+                                text: $vm.password,
+                                isSecure: true
+                            )
+
+                            LabeledTextField(
+                                label: "Confirmation",
+                                text: $vm.password2,
+                                isSecure: true
+                            )
+
+                            Text("Laissez vide pour conserver le mot de passe actuel.")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+
+                    // --------------------
                     // Erreur
                     // --------------------
                     if let error = vm.errorMessage {

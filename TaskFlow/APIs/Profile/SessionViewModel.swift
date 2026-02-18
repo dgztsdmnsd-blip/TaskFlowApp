@@ -75,15 +75,3 @@ final class SessionViewModel: ObservableObject {
         isAuthenticated = false
     }
 }
-/*
-// Preview
-extension SessionViewModel {
-
-    static var mock: SessionViewModel {
-        let vm = SessionViewModel()
-        vm.currentUser = .preview
-        vm.isAuthenticated = true
-        return vm
-    }
-}
-*/

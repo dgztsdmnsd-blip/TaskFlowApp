@@ -21,40 +21,39 @@ struct ProjectsView: View {
     }
 
     var body: some View {
-        ZStack {
-            BackgroundView(ecran: .projets)
+        VStack {
+            if vm.isLoading {
+                ProgressView()
 
-            VStack {
-                if vm.isLoading {
-                    ProgressView()
+            } else if let error = vm.errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
 
-                } else if let error = vm.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
+            } else if vm.projects.isEmpty {
+                Text("Aucun projet trouvé")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
 
-                } else if vm.projects.isEmpty {
-                    Text("Aucun projet trouvé")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-
-                } else {
-                    List(vm.projects) { project in
-                        NavigationLink {
-                            ProjectDetailView(
-                                vm: ProjectDetailViewModel(project: project)
-                            )
-                        } label: {
-                            ProjectsRowView(
-                                project: project,
-                                isOwner: project.owner.id == sessionVM.currentUser?.id
-                            )
-                        }
+            } else {
+                List(vm.projects) { project in
+                    NavigationLink {
+                        ProjectDetailView(
+                            vm: ProjectDetailViewModel(project: project)
+                        )
+                    } label: {
+                        ProjectsRowView(
+                            project: project,
+                            isOwner: project.owner.id == sessionVM.currentUser?.id
+                        )
                     }
-                    .scrollContentBackground(.hidden)
                 }
+                .scrollContentBackground(.hidden)
             }
         }
+        .background(
+            BackgroundView(ecran: .projets)
+        )
         .logLifecycle("ProjectsView")
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
@@ -68,13 +67,6 @@ struct ProjectsView: View {
             Task { await vm.fetchProjects() }
         }
     }
-}
-
-
-extension Notification.Name {
-    /// Demande de rafraîchissement de la liste des projets
-    static let projectListShouldRefresh =
-        Notification.Name("projectListShouldRefresh")
 }
 
 

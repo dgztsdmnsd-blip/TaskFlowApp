@@ -18,6 +18,7 @@ struct LoginView: View {
 
     @StateObject private var vm: LoginViewModel
     @State private var didAttemptBiometric = false
+    @State private var showForgotPassword = false
 
     init(sessionVM: SessionViewModel) {
         _vm = StateObject(
@@ -69,6 +70,12 @@ struct LoginView: View {
                         )
                     }
                     .disabled(vm.isLoading)
+                    
+                    Button("Mot de passe oublié ?") {
+                        showForgotPassword = true
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 }
             }
             .padding()
@@ -84,6 +91,9 @@ struct LoginView: View {
 
                     await vm.loginWithBiometrics()
                 }
+            }
+            .sheet(isPresented: $showForgotPassword) {
+                ForgotPasswordView()
             }
         }
     }

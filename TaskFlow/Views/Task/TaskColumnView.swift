@@ -56,6 +56,7 @@ struct TaskColumnView: View {
     private func handleDrop(_ items: [DraggableTask]) async {
         guard let item = items.first else { return }
 
+        // UI optimiste
         await MainActor.run {
             tasksVM.moveTask(taskId: item.id, to: status)
         }
@@ -65,8 +66,13 @@ struct TaskColumnView: View {
                 taskId: item.id,
                 status: status
             )
-        } catch {
+
+            // NOTIFIER APRÈS SUCCÈS
             NotificationCenter.default.post(name: .taskDidChange, object: nil)
+
+        } catch {
+            print("Drop updateTaskStatus ERROR:", error)
         }
     }
+
 }

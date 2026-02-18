@@ -49,130 +49,106 @@ struct ProjectDetailView: View {
     // Body
     var body: some View {
         ZStack {
-            BackgroundView(ecran: .projets)
-            Form {
-                    
-                    // -----------------
-                    // Header
-                    // -----------------
-                    Section ("Projet") {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(vm.project.title)
-                                .font(.title2.bold())
-                            
-                            Text(vm.project.description)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    
-                    // -----------------
-                    // Infos
-                    // -----------------
-                    Section ("Statut") {
-                        VStack(spacing: 16) {
-                            statusBadge
-                            membersBadge
-                        }
-                    }
-                    
-                    
-                    // -----------------
-                    // Actions
-                    // -----------------
-                if vm.project.owner.id == sessionVM.currentUser?.id {
-                        Section {
-                            VStack(spacing: 12) {
-                                
-                                // Progression de l'état
-                                BoutonImageView(
-                                    title: nextStatusTitle,
-                                    systemImage: statusActionIcon,
-                                    style: .primary
-                                ) {
-                                    Task {
-                                        await vm.updateStatus(to: nextStatus)
-                                    }
-                                }
-                                
-                                BoutonImageView(
-                                    title: "Membres",
-                                    systemImage: "person.3.fill",
-                                    style: .secondary
-                                ) {
-                                    showMembers = true
-                                }
-                                
-                                
-                            }
-                        }
-                        
-                        Section {
-                            VStack(spacing: 12) {
-                                BoutonImageView(
-                                    title: "Modifier",
-                                    systemImage: "pencil",
-                                    style: .secondary
-                                ) {
-                                    showEdit = true
-                                }
-                                
-                                // Suppression uniquement si projet non démarré
-                                if vm.project.status == .notStarted {
-                                    BoutonImageView(
-                                        title: "Supprimer",
-                                        systemImage: "trash",
-                                        style: .danger
-                                    ) {
-                                        showDeleteAlert = true
-                                    }
-                                }
-                                
-                                
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Détail du projet")
-            .navigationBarTitleDisplayMode(.inline)
-            .logLifecycle("ProjectDetailView")
-            // -----------------
-            // EDIT
-            // -----------------
-            .sheet(isPresented: $showEdit) {
-                ProjectEditView(
-                    project: vm.project,
-                    onSaved: {
-                        Task { await vm.reload() }
-                    }
-                )
-            }
-        
-            // -----------------
-            // MEMBERS
-            // -----------------
-            .sheet(isPresented: $showMembers) {
-                NavigationStack {
-                    ProjectUsersView(project: vm.project)
-                }
-            }
             
-            // -----------------
-            // DELETE
-            // -----------------
-            .alert("Supprimer le projet ?", isPresented: $showDeleteAlert) {
-                Button("Supprimer", role: .destructive) {
-                    Task {
-                        try? await ProjectService.shared
-                            .deleteProject(id: vm.project.id)
-                        dismiss()
+            BackgroundView(ecran: .projets)
+                .ignoresSafeArea()
+
+            Form {
+                
+                Section("Projet") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(vm.project.title)
+                            .font(.title2.bold())
+                        
+                        Text(vm.project.description)
+                            .foregroundColor(.secondary)
                     }
                 }
-                Button("Annuler", role: .cancel) {}
-            } message: {
-                Text("Cette action est définitive.")
+
+                Section("Statut") {
+                    VStack(spacing: 16) {
+                        statusBadge
+                        membersBadge
+                    }
+                }
+
+                if vm.project.owner.id == sessionVM.currentUser?.id {
+
+                    Section {
+                        VStack(spacing: 12) {
+
+                            BoutonImageView(
+                                title: nextStatusTitle,
+                                systemImage: statusActionIcon,
+                                style: .primary
+                            ) {
+                                Task { await vm.updateStatus(to: nextStatus) }
+                            }
+
+                            BoutonImageView(
+                                title: "Membres",
+                                systemImage: "person.3.fill",
+                                style: .secondary
+                            ) {
+                                showMembers = true
+                            }
+                        }
+                    }
+
+                    Section {
+                        VStack(spacing: 12) {
+
+                            BoutonImageView(
+                                title: "Modifier",
+                                systemImage: "pencil",
+                                style: .secondary
+                            ) {
+                                showEdit = true
+                            }
+
+                            if vm.project.status == .notStarted {
+                                BoutonImageView(
+                                    title: "Supprimer",
+                                    systemImage: "trash",
+                                    style: .danger
+                                ) {
+                                    showDeleteAlert = true
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            .scrollContentBackground(.hidden)  
+            .background(Color.clear)
+        }
+        .navigationTitle("Détail du projet")
+        .navigationBarTitleDisplayMode(.inline)
+        .logLifecycle("ProjectDetailView")
+        .sheet(isPresented: $showEdit) {
+            ProjectEditView(
+                project: vm.project,
+                onSaved: { Task { await vm.reload() } }
+            )
+        }
+        .sheet(isPresented: $showMembers) {
+            NavigationStack {
+                ProjectUsersView(project: vm.project)
+            }
+        }
+        .alert("Supprimer le projet ?", isPresented: $showDeleteAlert) {
+            Button("Supprimer", role: .destructive) {
+                Task {
+                    try? await ProjectService.shared.deleteProject(id: vm.project.id)
+                    dismiss()
+                }
+            }
+            Button("Annuler", role: .cancel) {}
+        } message: {
+            Text("Cette action est définitive.")
+        }
     }
+
 
     // Badges
     private var statusBadge: some View {

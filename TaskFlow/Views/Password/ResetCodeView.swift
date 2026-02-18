@@ -36,7 +36,7 @@ struct ResetCodeView: View {
             }
 
             Button("Vérifier") {
-                Task { await vm.verifyCode() }
+                Task { await vm.validateCode() }
             }
         }
         .navigationTitle("Validation du code")
@@ -47,7 +47,3 @@ struct ResetCodeView: View {
     }
 }
 
-
-#Preview {
-    ResetCodeView()
-}

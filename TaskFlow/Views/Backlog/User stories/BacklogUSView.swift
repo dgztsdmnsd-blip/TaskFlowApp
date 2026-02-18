@@ -9,6 +9,7 @@ import SwiftUI
 
 struct BacklogUSView: View {
     let story: StoryResponse
+    let isFiltering: Bool
     
     @EnvironmentObject private var sessionVM: SessionViewModel
     @State private var showDetail = false
@@ -85,9 +86,9 @@ struct BacklogUSView: View {
                 .stroke(Color.primary.opacity(0.05), lineWidth: 1)
         )
         .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
-        .draggable(
-            DraggableStory(id: story.id)
-        )
+        .if(!isFiltering) { view in
+            view.draggable(DraggableStory(id: story.id))
+        }
         // Tap = consultation
         .onTapGesture {
             showDetail = true

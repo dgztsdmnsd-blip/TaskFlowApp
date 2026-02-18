@@ -12,6 +12,7 @@ struct BacklogProjetsView: View {
     // Inputs
     let project: ProjectResponse
     let isOwner: Bool
+    let filteredStories: [StoryResponse]?
     
     // Session
     @EnvironmentObject private var sessionVM: SessionViewModel
@@ -33,13 +34,30 @@ struct BacklogProjetsView: View {
                     .foregroundColor(.orange)
             }
 
-            Text(
-                project.membersCount == 1
-                ? "1 membre"
-                : "\(project.membersCount) membres"
-            )
-            .font(.footnote)
-            .foregroundColor(.secondary)
+            VStack(alignment: .leading, spacing: 6) {
+                
+                Text(
+                    project.membersCount == 1
+                    ? "1 membre"
+                    : "\(project.membersCount) membres"
+                )
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack (spacing: 6) {
+                        // OWNER
+                        ownerBadge(project.owner)
+                        
+                        if !project.members.isEmpty {
+                            // MEMBERS
+                            ForEach(project.members) { member in
+                                memberBadge(member)
+                            }
+                        }
+                    }
+                }
+            }
 
             Spacer()
 
@@ -50,21 +68,24 @@ struct BacklogProjetsView: View {
                     projectId: project.id,
                     title: "À faire",
                     statut: .notStarted,
-                    owner: isOwner
+                    owner: isOwner,
+                    filteredStories: filteredStories
                 )
 
                 UserStoryColumnView(
                     projectId: project.id,
                     title: "En cours",
                     statut: .inProgress,
-                    owner: isOwner
+                    owner: isOwner,
+                    filteredStories: filteredStories
                 )
 
                 UserStoryColumnView(
                     projectId: project.id,
                     title: "Terminé",
                     statut: .finished,
-                    owner: isOwner
+                    owner: isOwner,
+                    filteredStories: filteredStories
                 )
             }
 
@@ -113,4 +134,31 @@ struct BacklogProjetsView: View {
         }
 
     }
+    
+    
+    private func memberBadge(_ member: ProfileLiteResponse) -> some View {
+        Text(member.firstName)
+            .font(.caption2)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.blue.opacity(0.25))
+            .clipShape(Capsule())
+    }
+    
+    private func ownerBadge(_ member: ProfileLiteResponse) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "crown.fill")
+                .font(.system(size: 10))
+            
+            Text(member.firstName)
+                .font(.caption2.bold())
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color.orange.opacity(0.2))
+        .foregroundColor(.orange)
+        .clipShape(Capsule())
+    }
+
+
 }

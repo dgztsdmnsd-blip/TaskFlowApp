@@ -99,19 +99,6 @@ extension Color {
     }
 }
 
-extension Notification.Name {
-    static let userStoryStatusDidChange =
-        Notification.Name("userStoryStatusDidChange")
-}
-
-extension Notification.Name {
-    static let userStoryDidChange =
-        Notification.Name("userStoryDidChange")
-}
-
-extension Notification.Name {
-    static let taskDidChange = Notification.Name("taskDidChange")
-}
 
 extension String {
     func toDateOnly() -> Date? {
@@ -125,4 +112,28 @@ extension String {
 enum UserStoryDetailMode {
     case readOnly
     case edit
+}
+
+extension View {
+    @ViewBuilder
+    func `if`<Content: View>(
+        _ condition: Bool,
+        transform: (Self) -> Content
+    ) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
+
+extension Notification.Name {
+
+    static let userStoryDidChange = Notification.Name("userStoryDidChange")
+    static let userStoryStatusDidChange = Notification.Name("userStoryStatusDidChange")
+    static let projectListShouldRefresh = Notification.Name("projectListShouldRefresh")
+    static let taskDidChange = Notification.Name("taskDidChange")
+    static let tagsDidChange = Notification.Name("tagsDidChange")
 }

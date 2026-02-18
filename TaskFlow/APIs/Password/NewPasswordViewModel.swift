@@ -11,27 +11,23 @@ import Combine
 @MainActor
 final class NewPasswordViewModel: ObservableObject {
 
-    // MARK: - Inputs
-    
+    // Inputs
+
     let token: String
-    
     @Published var password: String = ""
     @Published var password2: String = ""
 
-    // MARK: - State
-    
+    // State
     @Published var isLoading = false
     @Published var isSuccess = false
     @Published var errorMessage: String?
 
-    // MARK: - Init
-    
+    // Init
     init(token: String) {
         self.token = token
     }
 
-    // MARK: - Validation
-    
+    // Validation
     var isFormValid: Bool {
         !password.isEmpty &&
         !password2.isEmpty &&
@@ -39,8 +35,7 @@ final class NewPasswordViewModel: ObservableObject {
         password.count >= 6
     }
 
-    // MARK: - Actions
-    
+    // Actions
     func resetPassword() async {
 
         errorMessage = nil
@@ -63,10 +58,13 @@ final class NewPasswordViewModel: ObservableObject {
         isLoading = true
 
         do {
-            try await AuthService.shared.updatePasswordWithToken(
+            let response = try await AuthService.shared.updatePasswordWithToken(
                 token: token,
                 password: password
             )
+
+            print("Password reset:", response.message)
+
 
             isSuccess = true
 

@@ -94,6 +94,11 @@ struct TagPickerView: View {
                         Task {
                             await viewModel.loadTags()
                         }
+                        
+                        NotificationCenter.default.post(
+                                name: .tagsDidChange,
+                                object: nil
+                            )
                     }
                 }
             }

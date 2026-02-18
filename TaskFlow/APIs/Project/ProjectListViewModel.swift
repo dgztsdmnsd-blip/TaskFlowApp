@@ -14,12 +14,16 @@ final class ProjectListViewModel: ObservableObject {
     @Published var projects: [ProjectResponse] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var filteredStories: [StoryResponse]? = nil
+    @Published var isTagFilterActive: Bool = false    
 
     // Liste des projets accessibles par l'utilisateur connecté (membre ou owner)
     // ProjectsView et UserProjectsView
     func fetchProjects() async {
         isLoading = true
         errorMessage = nil
+        filteredStories = nil
+        
 
         do {
             projects = try await ProjectService.shared.listProjects()
@@ -37,6 +41,7 @@ final class ProjectListViewModel: ObservableObject {
     func fetchActiveProjects() async {
         isLoading = true
         errorMessage = nil
+        filteredStories = nil
 
         do {
             projects = try await ProjectService.shared.listActiveProjects()
@@ -51,23 +56,3 @@ final class ProjectListViewModel: ObservableObject {
         isLoading = false
     }
 }
-/*
-// Preview
-@MainActor
-extension ProjectListViewModel {
-
-    static func preview() -> ProjectListViewModel {
-        let vm = ProjectListViewModel()
-
-        vm.isLoading = false
-        vm.errorMessage = nil
-        vm.projects = [
-            .previewNotStarted,
-            .previewInProgress,
-            .previewFinished
-        ]
-
-        return vm
-    }
-}
-*/

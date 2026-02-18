@@ -1,10 +1,3 @@
-//
-//  ProjectsRowView.swift
-//  TaskFlow
-//
-//  Created by luc banchetti on 06/02/2026.
-//
-
 import SwiftUI
 
 struct ProjectsRowView: View {
@@ -13,41 +6,38 @@ struct ProjectsRowView: View {
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
+
                 Text(project.title)
                     .font(.headline)
 
                 Text(project.description)
                     .font(.footnote)
                     .foregroundColor(.secondary)
-                
-                HStack {
-                    Text(
-                        project.membersCount == 1
-                        ? "1 membre"
-                        : "\(project.membersCount) membres"
-                    )
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    
-                    
-                }
+
+                Text(
+                    project.membersCount == 1
+                    ? "1 membre"
+                    : "\(project.membersCount) membres"
+                )
+                .font(.footnote)
+                .foregroundColor(.secondary)
             }
 
             Spacer()
 
-            
             VStack {
                 if isOwner {
                     Label("Owner", systemImage: "crown.fill")
                         .font(.caption.bold())
                         .foregroundColor(.orange)
                 }
-                
+
                 statusBadge
             }
         }
         .padding(.vertical, 4)
+
     }
 
     private var statusBadge: some View {
@@ -65,4 +55,3 @@ struct ProjectsRowView: View {
         .cornerRadius(8)
     }
 }
-

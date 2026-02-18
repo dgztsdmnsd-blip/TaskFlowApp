@@ -31,6 +31,7 @@ struct APIErrorResponse: Decodable {
     let errors: String?
 }
 
+
 // Empty Response (204)
 struct EmptyResponse: Decodable {}
 

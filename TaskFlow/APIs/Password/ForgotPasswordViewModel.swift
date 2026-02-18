@@ -21,7 +21,9 @@ final class ForgotPasswordViewModel: ObservableObject {
         isLoading = true
 
         do {
-            try await AuthService.shared.requestResetCode(email: email)
+            let response = try await AuthService.shared.requestResetCode(email: email)
+            print("Reset code requested:", response.message)
+
             goToCode = true
         } catch APIError.httpError(_, let message) {
             errorMessage = message ?? "Email invalide"

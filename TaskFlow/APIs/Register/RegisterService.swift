@@ -107,6 +107,26 @@ final class RegisterService {
             body: Body(password: password),
             requiresAuth: true
         )
-    }   
+    }
+    
+    func requestResetCode(email: String) async throws -> APIMessageResponse {
+
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/auth/request-reset-code")
+
+        struct Body: Encodable {
+            let email: String
+        }
+
+        print("Request reset code → URL:", url)
+        print("Email:", email)
+
+        return try await APIClient.shared.request(
+            url: url,
+            method: "POST",
+            body: Body(email: email),
+            requiresAuth: false
+        )
+    }
 }
 
