@@ -24,12 +24,10 @@ struct ConnexionView: View {
                 VStack(spacing: 20) {
 
                     TitreView(
-                        couleur: .white,
                         texte: "Bienvenue sur TaskFlow"
                     )
 
                     SousTitreView(
-                        couleur: .white,
                         texte: "L'application de gestion de vos projets en mode Agile"
                     )
 

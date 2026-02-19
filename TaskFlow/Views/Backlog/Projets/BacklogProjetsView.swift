@@ -27,6 +27,7 @@ struct BacklogProjetsView: View {
             // Projet
             Text(project.title)
                 .font(.headline)
+                .foregroundStyle(.black)
 
             if isOwner {
                 Label("Owner", systemImage: "crown.fill")
@@ -42,7 +43,7 @@ struct BacklogProjetsView: View {
                     : "\(project.membersCount) membres"
                 )
                 .font(.footnote)
-                .foregroundColor(.secondary)
+                .foregroundColor(.black)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack (spacing: 6) {
@@ -62,32 +63,36 @@ struct BacklogProjetsView: View {
             Spacer()
 
             // User Stories
-            HStack(alignment: .top, spacing: 12) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: 12) {
 
-                UserStoryColumnView(
-                    projectId: project.id,
-                    title: "À faire",
-                    statut: .notStarted,
-                    owner: isOwner,
-                    filteredStories: filteredStories
-                )
+                    UserStoryColumnView(
+                        projectId: project.id,
+                        title: "À faire",
+                        statut: .notStarted,
+                        owner: isOwner,
+                        filteredStories: filteredStories
+                    )
 
-                UserStoryColumnView(
-                    projectId: project.id,
-                    title: "En cours",
-                    statut: .inProgress,
-                    owner: isOwner,
-                    filteredStories: filteredStories
-                )
+                    UserStoryColumnView(
+                        projectId: project.id,
+                        title: "En cours",
+                        statut: .inProgress,
+                        owner: isOwner,
+                        filteredStories: filteredStories
+                    )
 
-                UserStoryColumnView(
-                    projectId: project.id,
-                    title: "Terminé",
-                    statut: .finished,
-                    owner: isOwner,
-                    filteredStories: filteredStories
-                )
+                    UserStoryColumnView(
+                        projectId: project.id,
+                        title: "Terminé",
+                        statut: .finished,
+                        owner: isOwner,
+                        filteredStories: filteredStories
+                    )
+                }
+                .padding(.horizontal, 4)
             }
+
 
 
             // Bouton création

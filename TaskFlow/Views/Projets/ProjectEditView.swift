@@ -26,14 +26,22 @@ struct ProjectEditView: View {
         NavigationStack {
             ZStack {
                 BackgroundView(ecran: .projets)
+                    .ignoresSafeArea()
+                
                 Form {
-                    Section("Titre") {
+                    Section {
                         TextField("Titre du projet", text: $vm.titre)
+                    } header : {
+                        Text("Titre")
+                            .foregroundStyle(.black)
                     }
                     
-                    Section("Description") {
+                    Section {
                         TextEditor(text: $vm.description)
                             .frame(minHeight: 120)
+                    } header : {
+                        Text("Description")
+                            .foregroundStyle(.black)
                     }
                     
                     if let errorMessage = vm.errorMessage {
@@ -55,8 +63,9 @@ struct ProjectEditView: View {
                         }
                     }
                 }
-                .navigationTitle("Modifier le projet")
-                .navigationBarTitleDisplayMode(.inline)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .appNavigationTitle("Modifier le projet")
                 .logLifecycle("ProjectEditView")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {

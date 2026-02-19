@@ -13,12 +13,15 @@ struct BacklogUSView: View {
     
     @EnvironmentObject private var sessionVM: SessionViewModel
     @State private var showDetail = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
     
     private var isOwner: Bool {
             sessionVM.currentUser?.id == story.owner.id
         }
 
     var body: some View {
+        let cardSize = UIConstants.cardSize(for: sizeClass)
+        
         HStack(alignment: .top, spacing: 12) {
 
             // Barre de couleur (owner)
@@ -31,6 +34,7 @@ struct BacklogUSView: View {
                 Text(story.title)
                     .font(.headline)
                     .lineLimit(1)
+                    .foregroundStyle(.black)
                 
                 tagsView
                 
@@ -44,7 +48,7 @@ struct BacklogUSView: View {
                 HStack(spacing: 12) {
 
                     if let priority = story.priority {
-                        Label("P\(priority)", systemImage: "exclamationmark.circle")
+                        Text("P\(priority)")
                             .font(.caption)
                             .foregroundColor(.orange)
                     }
@@ -54,32 +58,36 @@ struct BacklogUSView: View {
                             .font(.caption)
                             .foregroundColor(.blue)
                     }
+                }
+                
+                if let dueAt = story.dueAt?.toDateOnly() {
 
-                    Spacer()
-
-                    if let dueAt = story.dueAt?.toDateOnly() {
-                        Label {
-                            Text(dueAt, style: .date)
-                        } icon: {
-                            Image(systemName: "calendar")
-                        }
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                    Label {
+                        Text(dueAt, formatter: Self.dateFormatter)
+                    } icon: {
+                        Image(systemName: "calendar")
                     }
+                    .font(.caption2)
+                    .foregroundColor(.black)
                 }
                 
                 Text(story.description)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.black)
                     .lineLimit(2)
             }
         }
         .padding(12)
-        .frame(height: 160)
+        .frame(
+            width: cardSize.width,
+            height: cardSize.height
+        )
         .logLifecycle("BacklogUSView")
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(
+                    BackgroundView.StoryGradient
+                )
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
@@ -103,6 +111,13 @@ struct BacklogUSView: View {
         }
 
     }
+    
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/yyyy"
+        formatter.locale = Locale(identifier: "fr_FR")
+        return formatter
+    }()
     
     var tagsView: some View {
         ScrollView(.horizontal, showsIndicators: false) {

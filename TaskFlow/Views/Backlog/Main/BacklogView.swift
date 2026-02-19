@@ -43,7 +43,7 @@ struct BacklogView: View {
 
             content
         }
-        .background(BackgroundView(ecran: .backlog))
+        .background(BackgroundView(ecran: .general))
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
             await vm.fetchActiveProjects()
@@ -223,9 +223,9 @@ struct BacklogView: View {
                     }
                 }
 
-                print("🎯 TAG FILTER RESULT")
-                print("   projects:", impact.projects.map(\.id))
-                print("   stories:", impact.userStories.map(\.id))
+                print("TAG FILTER RESULT")
+                print("projects:", impact.projects.map(\.id))
+                print("stories:", impact.userStories.map(\.id))
 
             } catch {
                 print("Erreur filtrage tag:", error)

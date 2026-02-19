@@ -24,17 +24,21 @@ struct ProfileView: View {
         NavigationStack {
             ZStack {
                 BackgroundView(ecran: .users)
+                    .ignoresSafeArea()
 
                 Form {
                     if let profile = sessionVM.currentUser {
 
-                        Section("Identité") {
+                        Section {
                             profileRow("Prénom", profile.firstName)
                             profileRow("Nom", profile.lastName)
                             profileRow("Email", profile.email)
+                        } header : {
+                            Text("Identité")
+                                .foregroundStyle(.black)
                         }
 
-                        Section("Compte") {
+                        Section {
                             profileRow(
                                 "Profil",
                                 profile.profil == "MGR" ? "Manager" : "Utilisateur"
@@ -43,16 +47,22 @@ struct ProfileView: View {
                                 "Statut",
                                 profile.status == "ACTIVE" ? "Actif" : "Inactif"
                             )
+                        } header : {
+                            Text("Compte")
+                                .foregroundStyle(.black)
                         }
 
-                        Section("Dates") {
+                        Section {
                             profileRow(
                                 "Création",
                                 profile.creationDateFormatted
                             )
+                        } header : {
+                            Text("Dates")
+                                .foregroundStyle(.black)
                         }
 
-                        Section("Actions") {
+                        Section {
                             BoutonImageView(
                                 title: "Modifier mon profil",
                                 systemImage: "pencil",
@@ -68,13 +78,15 @@ struct ProfileView: View {
                             ) {
                                 handleLogout()
                             }
+                        } header : {
+                            Text("Actions")
+                                .foregroundStyle(.black)
                         }
                     } else {
                         ProgressView("Chargement du profil…")
                     }
                 }
-                .navigationTitle("Mon profil")
-                .navigationBarTitleDisplayMode(.inline)
+                .appNavigationTitle("Mon profil")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
@@ -85,12 +97,14 @@ struct ProfileView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
             .logLifecycle("ProfileView")
-            .sheet(isPresented: $showEditProfile) {
+            .fullScreenCover(isPresented: $showEditProfile) {
                 if let profile = sessionVM.currentUser {
-                    RegisterView(
-                        mode: .edit(profile: profile)
-                    )
+                    NavigationStack {
+                        RegisterView(mode: .edit(profile: profile))
+                        }
                 }
             }
         }

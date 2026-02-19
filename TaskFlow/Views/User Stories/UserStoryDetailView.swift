@@ -21,6 +21,7 @@ struct UserStoryDetailView: View {
     @EnvironmentObject private var session: SessionViewModel
     @StateObject private var tasksVM: UserStoryTasksViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     init(
         story: StoryResponse,
@@ -53,9 +54,8 @@ struct UserStoryDetailView: View {
                 }
                 .padding()
             }
-            .background(BackgroundView(ecran: .projets))
-            .navigationTitle("User Story")
-            .navigationBarTitleDisplayMode(.inline)
+            .background(BackgroundView(ecran: .stories))
+            .appNavigationTitle("User Story")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -231,14 +231,21 @@ private extension UserStoryDetailView {
                     .foregroundColor(.blue)
             }
 
-            if let dueAt = currentStory.dueAt?.toDateOnly() {
+            if let dueAtString = currentStory.dueAt,
+               let dueDate = dueAtString.toDateOnly() {
+
                 Label {
-                    Text(dueAt, style: .date)
+                    Text(dueDate, style: .date)
                 } icon: {
                     Image(systemName: "calendar")
                 }
-                .foregroundColor(.secondary)
+
+            } else if currentStory.dueAt != nil {
+
+                Label(currentStory.dueAt!, systemImage: "calendar")
+                    .foregroundColor(.secondary)
             }
+
 
             Spacer()
         }

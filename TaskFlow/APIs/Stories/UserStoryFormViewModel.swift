@@ -17,7 +17,7 @@ final class UserStoryFormViewModel: ObservableObject {
 
     @Published var titre = ""
     @Published var description = ""
-    @Published var dueAt: String?
+    @Published var dueDate: Date? = nil
     @Published var priority: Int?
     @Published var storyPoint: Int?
     @Published var couleur = "#000000"
@@ -25,6 +25,11 @@ final class UserStoryFormViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var isSuccess = false
     @Published var errorMessage: String?
+    
+    var dueAt: String? {
+            guard let dueDate else { return nil }
+            return dueDate.formatted(.iso8601.year().month().day())
+        }
     
     var isEditMode: Bool {
         if case .edit = mode { return true }
@@ -48,11 +53,54 @@ final class UserStoryFormViewModel: ObservableObject {
         if case .edit(let story) = mode {
             titre = story.title
             description = story.description
-            dueAt = story.dueAt
             priority = story.priority
             storyPoint = story.storyPoint
             couleur = story.couleur
+
+            // Parse robuste de dueAt -> dueDate
+            if let dueAt = story.dueAt, !dueAt.isEmpty {
+
+                // 1) ISO8601 (avec fractions)
+                let iso = ISO8601DateFormatter()
+                iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                if let d = iso.date(from: dueAt) {
+                    dueDate = d
+                    return
+                }
+
+                // 2) ISO8601 (sans fractions)
+                iso.formatOptions = [.withInternetDateTime]
+                if let d = iso.date(from: dueAt) {
+                    dueDate = d
+                    return
+                }
+
+                // 3) "yyyy-MM-dd"
+                let f1 = DateFormatter()
+                f1.locale = Locale(identifier: "en_US_POSIX")
+                f1.timeZone = TimeZone(secondsFromGMT: 0)
+                f1.dateFormat = "yyyy-MM-dd"
+                if let d = f1.date(from: dueAt) {
+                    dueDate = d
+                    return
+                }
+
+                // 4) "yyyy-MM-dd HH:mm:ss" (au cas où)
+                let f2 = DateFormatter()
+                f2.locale = Locale(identifier: "en_US_POSIX")
+                f2.timeZone = TimeZone(secondsFromGMT: 0)
+                f2.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                if let d = f2.date(from: dueAt) {
+                    dueDate = d
+                    return
+                }
+
+                // Si on arrive ici, le format n'est pas reconnu
+                // (optionnel) print pour debug
+                print("Impossible de parser dueAt:", dueAt)
+            }
         }
+
     }
 
     func submit() async {

@@ -11,16 +11,15 @@
 import SwiftUI
 
 struct TitreView: View {
-    let couleur: Color
     let texte: String
     
     var body: some View {
         Text(texte)
             .font(.largeTitle.bold())
-            .foregroundStyle(couleur)
+            .foregroundStyle(.black)
     }
 }
 
 #Preview {
-    TitreView(couleur: .blue, texte: "Bienvenue")
+    TitreView(texte: "Bienvenue")
 }

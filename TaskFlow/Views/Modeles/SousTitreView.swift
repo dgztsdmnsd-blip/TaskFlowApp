@@ -11,18 +11,17 @@
 import SwiftUI
 
 struct SousTitreView: View {
-    let couleur: Color
     let texte: String
     
     var body: some View {
         Text(texte)
             .font(.title3)
             .fontWeight(.medium)
-            .foregroundStyle(couleur.opacity(0.9))
+            .foregroundStyle(.black.opacity(0.9))
             .multilineTextAlignment(.center)
     }
 }
 
 #Preview {
-    SousTitreView(couleur: .blue, texte: "Bienvenue")
+    SousTitreView(texte: "Bienvenue")
 }

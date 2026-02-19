@@ -34,13 +34,14 @@ struct RegisterView: View {
         NavigationStack {
             ZStack {
                 BackgroundView(ecran: .users)
+                    .ignoresSafeArea()
 
                 Form {
 
                     // --------------------
                     // Identité
                     // --------------------
-                    Section("Identité") {
+                    Section {
                         LabeledTextField(label: "Nom", text: $vm.lastName)
                         LabeledTextField(label: "Prénom", text: $vm.firstName)
                         LabeledTextField(
@@ -48,13 +49,16 @@ struct RegisterView: View {
                             text: $vm.email,
                             keyboard: .emailAddress
                         )
+                    } header : {
+                        Text("Identité")
+                            .foregroundStyle(.black)
                     }
 
                     // --------------------
                     // Mot de passe (création)
                     // --------------------
                     if vm.isCreateMode {
-                        Section("Mot de passe") {
+                        Section {
                             LabeledTextField(
                                 label: "Mot de passe",
                                 text: $vm.password,
@@ -66,6 +70,9 @@ struct RegisterView: View {
                                 text: $vm.password2,
                                 isSecure: true
                             )
+                        } header : {
+                            Text("Mot de passe")
+                                .foregroundStyle(.black)
                         }
                     }
 
@@ -73,7 +80,7 @@ struct RegisterView: View {
                     // Mot de passe (édition)
                     // --------------------
                     if !vm.isCreateMode {
-                        Section("Changer le mot de passe") {
+                        Section {
 
                             LabeledTextField(
                                 label: "Nouveau mot de passe",
@@ -90,6 +97,9 @@ struct RegisterView: View {
                             Text("Laissez vide pour conserver le mot de passe actuel.")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
+                        } header : {
+                            Text("Changer le mot de passe")
+                                .foregroundStyle(.black)
                         }
                     }
 
@@ -123,10 +133,11 @@ struct RegisterView: View {
                     }
                     .disabled(vm.isLoading)
                 }
-                .navigationTitle(
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .appNavigationTitle(
                     vm.isCreateMode ? "Inscription" : "Modifier le profil"
                 )
-                .navigationBarTitleDisplayMode(.inline)
                 .logLifecycle("RegisterView")
                 .toolbar {
                     if !vm.isCreateMode {

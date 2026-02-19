@@ -26,10 +26,12 @@ struct MainView: View {
                     // --------------------
                     NavigationStack {
                         BacklogView()
-                            .navigationTitle("Backlog")
+                            .appNavigationTitle("Backlog")
                             .toolbar { profileButton }
-                            .sheet(isPresented: $showProfile) {
-                                ProfileView()
+                            .fullScreenCover(isPresented: $showProfile) {
+                                NavigationStack {
+                                    ProfileView()
+                                }
                             }
                     }
                     .tabItem {
@@ -43,7 +45,7 @@ struct MainView: View {
 
                         NavigationStack {
                             UsersListView(currentUser: user)
-                                .navigationTitle("Utilisateurs")
+                                .appNavigationTitle("Utilisateurs")
                                 .toolbar { profileButton }
                                 .sheet(isPresented: $showProfile) {
                                     ProfileView()
@@ -55,7 +57,7 @@ struct MainView: View {
 
                         NavigationStack {
                             ProjectsView()
-                                .navigationTitle("Projets")
+                                .appNavigationTitle("Projets")
                                 .toolbar { projectButton }
                                 .fullScreenCover(isPresented: $showProject) {
                                     ProjectCreationView(

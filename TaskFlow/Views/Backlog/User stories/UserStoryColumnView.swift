@@ -15,14 +15,15 @@ struct UserStoryColumnView: View {
     let statut: StoryStatus
     let owner: Bool
     
-    /// nil → fonctionnement normal (API)
-    /// non-nil → mode filtré
-    let filteredStories: [StoryResponse]?
-
     // State
     @StateObject private var vm = UserStoryListViewModel()
     @State private var isTargeted = false
-
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    
+    /// nil → fonctionnement normal (API)
+    /// non-nil → mode filtré
+    let filteredStories: [StoryResponse]?
+    
     // Computed
     private var isFiltering: Bool {
         filteredStories != nil
@@ -35,11 +36,11 @@ struct UserStoryColumnView: View {
                 $0.project.id == projectId && $0.status == statut
             }
 
-            print("🟣 Column \(title) [FILTERED] →", result.map(\.id))
+            print("Column \(title) [FILTERED] →", result.map(\.id))
             return result
         }
 
-        print("🔵 Column \(title) [VM] →", vm.stories.map(\.id))
+        print("Column \(title) [VM] →", vm.stories.map(\.id))
         return vm.stories
     }
 
@@ -47,7 +48,8 @@ struct UserStoryColumnView: View {
     // Body
     var body: some View {
 
-        let stories = displayedStories   // 👈 clé magique
+        let stories = displayedStories
+        let cardSize = UIConstants.cardSize(for: sizeClass)
 
         return VStack(alignment: .leading, spacing: 8) {
 
@@ -69,12 +71,8 @@ struct UserStoryColumnView: View {
                     Text(isFiltering ? "Aucune user story" : "Déposer ici")
                         .font(.caption2)
                         .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, minHeight: 80)
-
+                        .frame(width: cardSize.width, height: cardSize.height)
                 } else {
-                    //print(" Rendering Column \(title)")
-                    //print("   stories:", stories.map(\.id))
-
                     ForEach(stories) { story in
                         BacklogUSView(
                             story: story,
@@ -113,10 +111,10 @@ struct UserStoryColumnView: View {
             Task { await refreshIfNeeded() }
         }
         .onAppear {
-            print("📍 Column \(title)")
-            print("   isFiltering:", filteredStories != nil)
-            print("   filteredStories:", filteredStories?.map(\.id) ?? [])
-            print("   vm.stories:", vm.stories.map(\.id))
+            print("Column \(title)")
+            print("isFiltering:", filteredStories != nil)
+            print("filteredStories:", filteredStories?.map(\.id) ?? [])
+            print("vm.stories:", vm.stories.map(\.id))
         }
 
     }

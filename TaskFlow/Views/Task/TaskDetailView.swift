@@ -32,8 +32,7 @@ struct TaskDetailView: View {
                     .foregroundColor(.secondary)
             }
         }
-        .navigationTitle("Tâche")
-        .navigationBarTitleDisplayMode(.inline)
+        .appNavigationTitle("Tâche")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -99,7 +98,7 @@ private extension TaskDetailView {
             }
             .padding()
         }
-        .background(BackgroundView(ecran: .projets))
+        .background(BackgroundView(ecran: .tasks))
     }
 
     func header(_ task: TaskResponse) -> some View {

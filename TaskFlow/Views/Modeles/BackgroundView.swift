@@ -14,11 +14,11 @@ struct BackgroundView: View {
 
     enum Ecran {
         case general
-        case terminees
-        case enCours
-        case backlog
+        case stories
         case projets
         case users
+        case tasks
+        case tags
     }
 
     let ecran: Ecran
@@ -27,46 +27,47 @@ struct BackgroundView: View {
     private let colgendeb = Color(red: 0.75, green: 0.65, blue: 0.95)
     private let colgenfin = Color(red: 0.55, green: 0.80, blue: 0.95)
 
-    // Terminées: Vert
-    private let colcompdeb = Color(red: 0.60, green: 0.85, blue: 0.70)
-    private let colcompfin = Color(red: 0.45, green: 0.75, blue: 0.60)
-    
     // Projets: Vert clair
     private let colprojdeb = Color(red: 0.88, green: 0.96, blue: 0.91)
     private let colprojfin = Color(red: 0.78, green: 0.92, blue: 0.84)
 
-    // En cours: Bleu
-    private let colencdeb = Color(red: 0.55, green: 0.75, blue: 0.95)
-    private let colencfin = Color(red: 0.35, green: 0.60, blue: 0.90)
-
-    // À venir: Lavande
-    private let coltododeb = Color(red: 0.75, green: 0.70, blue: 0.95)
-    private let coltodofin = Color(red: 0.60, green: 0.55, blue: 0.90)
+    // Stories: Orange
+    private let colstoriesdeb = Color(red: 1.00, green: 0.95, blue: 0.90)
+    private let colstoriesfin = Color(red: 1.00, green: 0.82, blue: 0.72)
     
     // User: Bleu clair
     private let coluserdeb = Color(red: 0.85, green: 0.92, blue: 0.98)
     private let coluserfin = Color(red: 0.72, green: 0.85, blue: 0.95)
+    
+    // Tasks: Turquoise clair
+    private let coltaskdeb = Color(red: 0.86, green: 0.96, blue: 0.97)
+    private let coltaskfin = Color(red: 0.70, green: 0.90, blue: 0.93)
+    
+    // Tags: Rose poudré
+    private let coltagdeb = Color(red: 0.99, green: 0.92, blue: 0.94)
+    private let coltagfin = Color(red: 0.96, green: 0.78, blue: 0.82)
+
 
 
     private var coldeb: Color {
         switch ecran {
-        case .terminees: return colcompdeb
-        case .enCours:   return colencdeb
-        case .backlog:    return coltododeb
-        case .general:   return colgendeb
-        case .projets:   return colprojdeb
-        case .users:     return coluserdeb
+        case .stories: return colstoriesdeb
+        case .general: return colgendeb
+        case .projets: return colprojdeb
+        case .users:   return coluserdeb
+        case .tasks:   return coltaskdeb
+        case .tags:    return coltagdeb
         }
     }
 
     private var colfin: Color {
         switch ecran {
-        case .terminees: return colcompfin
-        case .enCours:   return colencfin
-        case .backlog:    return coltodofin
+        case .stories: return colstoriesfin
         case .general:   return colgenfin
         case .projets:   return colprojfin
         case .users:     return coluserfin
+        case .tasks:     return coltaskfin
+        case .tags:      return coltagfin
         }
     }
 
@@ -78,6 +79,27 @@ struct BackgroundView: View {
         )
         .ignoresSafeArea()
     }
+}
+
+extension BackgroundView {
+
+    static let tasksGradient = LinearGradient(
+        colors: [
+            Color(red: 0.86, green: 0.96, blue: 0.97),
+            Color(red: 0.70, green: 0.90, blue: 0.93)
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+    
+    static let StoryGradient = LinearGradient(
+        colors: [
+            Color(red: 1.00, green: 0.95, blue: 0.90),
+            Color(red: 1.00, green: 0.82, blue: 0.72)
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+    )
 }
 
 #Preview {

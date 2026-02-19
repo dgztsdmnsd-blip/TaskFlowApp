@@ -23,83 +23,96 @@ struct TagFormView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-
-                // Nom du tag
-                Section(header: Text("Nom du tag")) {
-                    TextField("Ex: Urgent, Backend…", text: $viewModel.tagName)
-                }
-
-                // Couleur
-                Section(header: Text("Couleur")) {
-                    HStack {
-
-                        ColorPicker(
-                            "Choisir une couleur",
-                            selection: Binding(
-                                get: {
-                                    Color(hex: viewModel.couleur)
-                                },
-                                set: { newColor in
-                                    viewModel.couleur = newColor.toHex() ?? "#FF5733"
-                                }
-                            )
-                        )
-
-                        Spacer()
-
-                        // Preview couleur
-                        Circle()
-                            .fill(Color(hex: viewModel.couleur))
-                            .frame(width: 26, height: 26)
-                    }
-                }
-
-                // Message d’erreur
-                if let error = viewModel.errorMessage {
+            ZStack {
+                BackgroundView(ecran: .tags)
+                    .ignoresSafeArea()
+                
+                Form {
+                    
+                    // Nom du tag
                     Section {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
+                        TextField("Ex: Urgent, Backend…", text: $viewModel.tagName)
+                    } header : {
+                        Text("Nom du tag")
+                            .foregroundStyle(.black)
                     }
-                }
-
-                // Bouton Enregistrer
-                Section {
-                    Button {
-                        Task {
-                            await viewModel.submit()
-
-                            if viewModel.isSuccess {
-                                onSuccess?()
-                                dismiss()
-                            }
-                        }
-                    } label: {
+                    
+                    // Couleur
+                    Section {
                         HStack {
+                            
+                            ColorPicker(
+                                "Choisir une couleur",
+                                selection: Binding(
+                                    get: {
+                                        Color(hex: viewModel.couleur)
+                                    },
+                                    set: { newColor in
+                                        viewModel.couleur = newColor.toHex() ?? "#FF5733"
+                                    }
+                                )
+                            )
+                            
                             Spacer()
-
-                            if viewModel.isLoading {
-                                ProgressView()
-                            } else {
-                                Text(viewModel.isEditing ? "Mettre à jour" : "Créer le tag")
-                                    .bold()
-                            }
-
-                            Spacer()
+                            
+                            // Preview couleur
+                            Circle()
+                                .fill(Color(hex: viewModel.couleur))
+                                .frame(width: 26, height: 26)
+                        }
+                    } header : {
+                        Text("Couleur")
+                            .foregroundStyle(.black)
+                    }
+                    
+                    // Message d’erreur
+                    if let error = viewModel.errorMessage {
+                        Section {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.caption)
                         }
                     }
-                    .disabled(!viewModel.isFormValid || viewModel.isLoading)
+                    
+                    // Bouton Enregistrer
+                    Section {
+                        Button {
+                            Task {
+                                await viewModel.submit()
+                                
+                                if viewModel.isSuccess {
+                                    onSuccess?()
+                                    dismiss()
+                                }
+                            }
+                        } label: {
+                            HStack {
+                                Spacer()
+                                
+                                if viewModel.isLoading {
+                                    ProgressView()
+                                } else {
+                                    Text(viewModel.isEditing ? "Mettre à jour" : "Créer le tag")
+                                        .bold()
+                                }
+                                
+                                Spacer()
+                            }
+                        }
+                        .disabled(!viewModel.isFormValid || viewModel.isLoading)
+                    }
                 }
-            }
-            .navigationTitle(viewModel.isEditing ? "Modifier Tag" : "Créer Tag")
-            .logLifecycle("TagFormView")
-            .toolbar {
-
-                // Annuler
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Annuler") {
-                        dismiss()
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .appNavigationTitle(viewModel.isEditing ? "Modifier Tag" : "Créer Tag")
+                .logLifecycle("TagFormView")
+                .toolbar {
+                    
+                    // Annuler
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Annuler") {
+                            dismiss()
+                        }
                     }
                 }
             }

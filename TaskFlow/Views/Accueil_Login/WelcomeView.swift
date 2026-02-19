@@ -30,13 +30,11 @@ struct WelcomeView: View {
 
                 // Titre principal
                 TitreView(
-                    couleur: .black,
                     texte: "Bienvenue sur TaskFlow"
                 )
 
                 // Sous-titre descriptif
                 SousTitreView(
-                    couleur: .black,
                     texte: "L'application de gestion de vos projets en mode Agile"
                 )
 

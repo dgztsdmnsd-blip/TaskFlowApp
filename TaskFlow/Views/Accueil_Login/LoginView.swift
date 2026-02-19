@@ -31,8 +31,8 @@ struct LoginView: View {
             BackgroundView(ecran: .general)
 
             VStack(spacing: 20) {
-                TitreView(couleur: .white, texte: "TaskFlow")
-                SousTitreView(couleur: .white, texte: "Connexion")
+                TitreView(texte: "TaskFlow")
+                SousTitreView(texte: "Connexion")
 
                 Spacer()
 

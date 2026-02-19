@@ -58,16 +58,19 @@ struct UserProjectsView: View {
                 } else {
                     VStack {
                         List {
-                            Section("Projets attribués") {
+                            Section {
                                 ForEach(vm.projects) { project in
                                     ProjectsRowView(
                                         project: project,
                                         isOwner: project.owner.id == sessionVM.currentUser?.id
                                     )
                                 }
+                            } header : {
+                                Text("Projets attribués")
+                                    .foregroundStyle(.black)
                             }
 
-                            Section("Attribuer de nouveaux projets") {
+                            Section {
                                 ForEach(availableProjects) { project in
                                     ProjectsRowView(
                                         project: project,
@@ -84,6 +87,9 @@ struct UserProjectsView: View {
                                         .tint(.green)
                                     }
                                 }
+                            } header : {
+                                Text("Attribuer de nouveaux projets")
+                                    .foregroundStyle(.black)
                             }
                         }
                         .scrollContentBackground(.hidden)
@@ -91,8 +97,7 @@ struct UserProjectsView: View {
                 }
             }
         }
-        .navigationTitle("Projets")
-        .navigationBarTitleDisplayMode(.inline)
+        .appNavigationTitle("Projets")
         .logLifecycle("UserProjetsView")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

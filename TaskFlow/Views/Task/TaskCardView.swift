@@ -12,7 +12,12 @@ struct TaskCardView: View {
     let task: TaskListResponse
     let onTap: (() -> Void)?
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
     var body: some View {
+
+        let cardSize = UIConstants.cardSize(for: sizeClass)
+
         HStack(alignment: .top, spacing: 12) {
 
             Circle()
@@ -40,11 +45,13 @@ struct TaskCardView: View {
                 .foregroundColor(task.status.color)
         }
         .padding(10)
-        .frame(maxWidth: .infinity)
-        .frame(height: 60)   
+        .frame(
+            width: cardSize.width,
+            height: 60
+        )
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(BackgroundView.tasksGradient.opacity(0.35))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -56,4 +63,3 @@ struct TaskCardView: View {
         .draggable(DraggableTask(id: task.id))
     }
 }
-

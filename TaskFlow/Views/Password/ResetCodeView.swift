@@ -18,28 +18,38 @@ struct ResetCodeView: View {
     }
 
     var body: some View {
-        Form {
-            Section("Code reçu par email") {
-
-                Text("Entrez le code à 6 chiffres envoyé à \(email)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                TextField("123456", text: $vm.code)
-                    .keyboardType(.numberPad)
-            }
-
-            if let error = vm.errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-                    .font(.caption)
-            }
-
-            Button("Vérifier") {
-                Task { await vm.validateCode() }
+        ZStack {
+            BackgroundView(ecran: .general)
+                .ignoresSafeArea()
+            
+            Form {
+                Section {
+                    
+                    Text("Entrez le code à 6 chiffres envoyé à \(email)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    TextField("123456", text: $vm.code)
+                        .keyboardType(.numberPad)
+                } header : {
+                    Text("Code reçu par email")
+                        .foregroundStyle(.black)
+                }
+                
+                if let error = vm.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
+                
+                Button("Vérifier") {
+                    Task { await vm.validateCode() }
+                }
             }
         }
-        .navigationTitle("Validation du code")
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
+        .appNavigationTitle("Validation du code")
         .logLifecycle("ResetCodeView")
         .navigationDestination(isPresented: $vm.goToNewPassword) {
             NewPasswordView(token: vm.resetToken)

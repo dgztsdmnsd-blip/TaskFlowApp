@@ -49,13 +49,12 @@ struct ProjectDetailView: View {
     // Body
     var body: some View {
         ZStack {
-            
             BackgroundView(ecran: .projets)
                 .ignoresSafeArea()
 
             Form {
                 
-                Section("Projet") {
+                Section {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(vm.project.title)
                             .font(.title2.bold())
@@ -63,13 +62,19 @@ struct ProjectDetailView: View {
                         Text(vm.project.description)
                             .foregroundColor(.secondary)
                     }
+                } header : {
+                    Text("Projet")
+                        .foregroundStyle(.black)
                 }
 
-                Section("Statut") {
+                Section {
                     VStack(spacing: 16) {
                         statusBadge
                         membersBadge
                     }
+                } header : {
+                    Text("Statut")
+                        .foregroundStyle(.black)
                 }
 
                 if vm.project.owner.id == sessionVM.currentUser?.id {
@@ -122,8 +127,7 @@ struct ProjectDetailView: View {
             .scrollContentBackground(.hidden)  
             .background(Color.clear)
         }
-        .navigationTitle("Détail du projet")
-        .navigationBarTitleDisplayMode(.inline)
+        .appNavigationTitle("Détail du projet")
         .logLifecycle("ProjectDetailView")
         .sheet(isPresented: $showEdit) {
             ProjectEditView(

@@ -78,8 +78,7 @@ struct ProjectUsersView: View {
             }
             .padding(.top)
         }
-        .navigationTitle("Membres du projet")
-        .navigationBarTitleDisplayMode(.inline)
+        .appNavigationTitle("Membres du projet")
         .logLifecycle("ProjectUsersView")
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }

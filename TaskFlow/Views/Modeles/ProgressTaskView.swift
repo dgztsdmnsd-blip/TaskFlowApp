@@ -24,7 +24,7 @@ struct ProgressTaskView: View {
         
         Text("\(Int(progression * 100)) % terminé")
             .font(.caption)
-            .foregroundColor(.secondary)
+            .foregroundColor(.black)
     }
 }
 

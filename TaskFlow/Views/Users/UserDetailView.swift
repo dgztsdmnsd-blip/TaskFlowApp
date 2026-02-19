@@ -29,6 +29,7 @@ struct UserDetailView: View {
     var body: some View {
         ZStack {
             BackgroundView(ecran: .users)
+                .ignoresSafeArea()
             Form {
                 // Identité
                 Section {
@@ -45,21 +46,27 @@ struct UserDetailView: View {
                 }
                 
                 // Rôle & statut
-                Section("Profil") {
+                Section {
                     HStack(spacing: 12) {
                         roleBadge
                         statusBadge
                     }
                     .padding(.vertical, 4)
+                } header : {
+                    Text("Profil")
+                        .foregroundStyle(.black)
                 }
                 
                 // Dates
-                Section("Dates") {
+                Section {
                     infoRow(label: "Création", value: vm.user.creationDateFormatted)
                     //infoRow(label: "Sortie", value: vm.user.exitDateFormatted)
+                } header : {
+                    Text("Dates")
+                        .foregroundStyle(.black)
                 }
                 
-                Section("Projets") {
+                Section {
                     projectsBadge
                     
                     if vm.user.id != currentUser.id {
@@ -74,12 +81,15 @@ struct UserDetailView: View {
                             }
                         }
                     }
+                } header : {
+                    Text("Projets")
+                        .foregroundStyle(.black)
                 }
                 
                 // Actions (Manager uniquement)
                 if vm.user.id != currentUser.id {
                     if currentUser.profil == "MGR" {
-                        Section("Actions") {
+                        Section {
                             
                             // Activer / Désactiver
                             BoutonImageView(
@@ -125,13 +135,17 @@ struct UserDetailView: View {
                                 Button("Annuler", role: .cancel) {}
                             }
                             
+                        } header : {
+                            Text("Action")
+                                .foregroundStyle(.black)
                         }
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
         }
-        .navigationTitle("Utilisateur")
-        .navigationBarTitleDisplayMode(.inline)
+        .appNavigationTitle("Utilisateur")
         .logLifecycle("UserDetailView")
         .sheet(isPresented: $showUserProjects) {
             NavigationStack {

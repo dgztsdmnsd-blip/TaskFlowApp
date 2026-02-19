@@ -20,23 +20,33 @@ struct NewPasswordView: View {
     }
 
     var body: some View {
-        Form {
-            Section("Nouveau mot de passe") {
-
-                SecureField("Mot de passe", text: $vm.password)
-                SecureField("Confirmation", text: $vm.password2)
-            }
-
-            if let error = vm.errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-            }
-
-            Button("Réinitialiser") {
-                Task { await vm.resetPassword() }
+        ZStack {
+            BackgroundView(ecran: .general)
+                .ignoresSafeArea()
+            
+            Form {
+                Section {
+                    
+                    SecureField("Mot de passe", text: $vm.password)
+                    SecureField("Confirmation", text: $vm.password2)
+                } header : {
+                    Text("Nouveau mot de passe")
+                        .foregroundStyle(.black)
+                }
+                
+                if let error = vm.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                }
+                
+                Button("Réinitialiser") {
+                    Task { await vm.resetPassword() }
+                }
             }
         }
-        .navigationTitle("Nouveau mot de passe")
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
+        .appNavigationTitle("Nouveau mot de passe")
         .logLifecycle("NewPasswordView")
         .onChange(of: vm.isSuccess) { _, success in
             if success {

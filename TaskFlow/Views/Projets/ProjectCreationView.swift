@@ -28,64 +28,76 @@ struct ProjectCreationView: View {
     // Body
     var body: some View {
         NavigationStack {
-            Form {
-
-                // -----------------
-                // Titre
-                // -----------------
-                Section("Titre") {
-                    TextField("Titre du projet", text: $vm.titre)
-                        .textInputAutocapitalization(.sentences)
+            ZStack {
+                BackgroundView(ecran: .projets)
+                    .ignoresSafeArea()
+                
+                Form {
+                    
+                    // -----------------
+                    // Titre
+                    // -----------------
+                    Section {
+                        TextField("Titre du projet", text: $vm.titre)
+                            .textInputAutocapitalization(.sentences)
+                    } header : {
+                        Text("Titre")
+                            .foregroundStyle(.black)
+                    }
+                    
+                    // -----------------
+                    // Description
+                    // -----------------
+                    Section {
+                        TextEditor(text: $vm.description)
+                            .frame(minHeight: 120)
+                    } header : {
+                        Text("Description")
+                            .foregroundStyle(.black)
+                    }
+                    
+                    // -----------------
+                    // Action
+                    // -----------------
+                    Section {
+                        BoutonImageView(
+                            title: "Créer le projet",
+                            systemImage: "folder.badge.plus",
+                            style: .primary
+                        ) {
+                            Task {
+                                await vm.submit()
+                            }
+                        }
+                        .disabled(vm.isLoading)
+                    }
                 }
-
-                // -----------------
-                // Description
-                // -----------------
-                Section("Description") {
-                    TextEditor(text: $vm.description)
-                        .frame(minHeight: 120)
-                }
-
-                // -----------------
-                // Action
-                // -----------------
-                Section {
-                    BoutonImageView(
-                        title: "Créer le projet",
-                        systemImage: "folder.badge.plus",
-                        style: .primary
-                    ) {
-                        Task {
-                            await vm.submit()
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .appNavigationTitle("Création de projet")
+                .logLifecycle("ProjectCreationView")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
                         }
                     }
-                    .disabled(vm.isLoading)
                 }
-            }
-            .navigationTitle("Création de projet")
-            .logLifecycle("ProjectCreationView")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
+                .onChange(of: vm.isSuccess) {
+                    if vm.isSuccess {
+                        onCreated()
                         dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
                     }
                 }
-            }
-            .onChange(of: vm.isSuccess) {
-                if vm.isSuccess {
-                    onCreated()
-                    dismiss()
+                .alert("Erreur", isPresented: .constant(vm.errorMessage != nil)) {
+                    Button("OK", role: .cancel) {
+                        vm.errorMessage = nil
+                    }
+                } message: {
+                    Text(vm.errorMessage ?? "")
                 }
-            }
-            .alert("Erreur", isPresented: .constant(vm.errorMessage != nil)) {
-                Button("OK", role: .cancel) {
-                    vm.errorMessage = nil
-                }
-            } message: {
-                Text(vm.errorMessage ?? "")
             }
         }
     }

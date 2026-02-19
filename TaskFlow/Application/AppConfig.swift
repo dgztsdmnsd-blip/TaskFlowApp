@@ -100,15 +100,6 @@ extension Color {
 }
 
 
-extension String {
-    func toDateOnly() -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = .current
-        return formatter.date(from: self)
-    }
-}
-
 enum UserStoryDetailMode {
     case readOnly
     case edit
@@ -136,4 +127,55 @@ extension Notification.Name {
     static let projectListShouldRefresh = Notification.Name("projectListShouldRefresh")
     static let taskDidChange = Notification.Name("taskDidChange")
     static let tagsDidChange = Notification.Name("tagsDidChange")
+}
+
+extension String {
+
+    func toDateOnly() -> Date? {
+
+        // ISO8601 complet
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        if let date = isoFormatter.date(from: self) {
+            return date
+        }
+
+        isoFormatter.formatOptions = [.withInternetDateTime]
+
+        if let date = isoFormatter.date(from: self) {
+            return date
+        }
+
+        // yyyy-MM-dd
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+
+        return formatter.date(from: self)
+    }
+}
+
+extension View {
+    func appNavigationTitle(_ title: String) -> some View {
+        modifier(AppNavigationTitle(title: title))
+    }
+}
+
+enum UIConstants {
+
+    static let cardHeight: CGFloat = 160
+    
+    static let cardWidthCompact: CGFloat = 180   // iPhone
+    static let cardWidthRegular: CGFloat = 240   // iPad
+
+    static func cardSize(for sizeClass: UserInterfaceSizeClass?) -> CGSize {
+
+        return CGSize(
+            width: sizeClass == .regular
+                ? cardWidthRegular
+                : cardWidthCompact,
+            height: cardHeight
+        )
+    }
 }

@@ -34,93 +34,109 @@ struct TaskFormView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-
-                // Infos principales
-                Section(header: Text("Tâche")) {
-
-                    TextField("Titre", text: $vm.titre)
-                        .textInputAutocapitalization(.sentences)
-
-                    ZStack(alignment: .topLeading) {
-                        if vm.description.isEmpty {
-                            Text("Description de la tâche")
-                                .foregroundColor(.secondary)
-                                .padding(.top, 8)
-                                .padding(.leading, 5)
-                        }
-
-                        TextEditor(text: $vm.description)
-                            .frame(minHeight: 100)
-                    }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.3))
-                    )
-                    .padding(.vertical, 4)
-                }
-
-                // Planification
-                Section(header: Text("Planification")) {
-
-                    Stepper(
-                        value: Binding(
-                            get: { vm.storyPoint ?? 0 },
-                            set: { vm.storyPoint = $0 }
-                        ),
-                        in: 0...10
-                    ) {
-                        Text("Story points : \(vm.storyPoint ?? 0)")
-                    }
-                }
-
-                // Type
-                Section(header: Text("Type")) {
-
-                    ZStack(alignment: .topLeading) {
-                        if vm.type.isEmpty {
-                            Text("Type de la tâche")
-                                .foregroundColor(.secondary)
-                                .padding(.top, 8)
-                                .padding(.leading, 5)
-                        }
-
-                        TextEditor(text: $vm.type)
-                            .frame(minHeight: 80)
-                    }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.3))
-                    )
-                    .padding(.vertical, 4)
-                }
-
-                // Erreur
-                if let error = vm.errorMessage {
+            ZStack {
+                BackgroundView(ecran: .tasks)
+                    .ignoresSafeArea()
+                
+                Form {
+                    
+                    // Infos principales
                     Section {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
+                        
+                        TextField("Titre", text: $vm.titre)
+                            .textInputAutocapitalization(.sentences)
+                        
+                        ZStack(alignment: .topLeading) {
+                            if vm.description.isEmpty {
+                                Text("Description de la tâche")
+                                    .foregroundColor(.secondary)
+                                    .padding(.top, 8)
+                                    .padding(.leading, 5)
+                            }
+                            
+                            TextEditor(text: $vm.description)
+                                .frame(minHeight: 100)
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.secondary.opacity(0.3))
+                        )
+                        .padding(.vertical, 4)
+                    } header : {
+                        Text("Tâche")
+                            .foregroundStyle(.black)
                     }
-                }
-
-                // Bouton Save
-                HStack {
-                    Spacer()
-
-                    BoutonImageView(
-                        title: "Enregistrer",
-                        systemImage: "checkmark.circle.fill",
-                        style: .secondary
-                    ) {
-                        submit()
+                    
+                    // Planification
+                    Section {
+                        
+                        Stepper(
+                            value: Binding(
+                                get: { vm.storyPoint ?? 0 },
+                                set: { vm.storyPoint = $0 }
+                            ),
+                            in: 0...10
+                        ) {
+                            Text("Story points : \(vm.storyPoint ?? 0)")
+                        }
+                    } header : {
+                        Text("Planification")
+                            .foregroundStyle(.black)
                     }
-                    .disabled(!vm.isFormValid)
-
-                    Spacer()
+                    
+                    // Type
+                    Section {
+                        
+                        ZStack(alignment: .topLeading) {
+                            if vm.type.isEmpty {
+                                Text("Type de la tâche")
+                                    .foregroundColor(.secondary)
+                                    .padding(.top, 8)
+                                    .padding(.leading, 5)
+                            }
+                            
+                            TextEditor(text: $vm.type)
+                                .frame(minHeight: 80)
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.secondary.opacity(0.3))
+                        )
+                        .padding(.vertical, 4)
+                    } header : {
+                        Text("Type")
+                            .foregroundStyle(.black)
+                    }
+                    
+                    // Erreur
+                    if let error = vm.errorMessage {
+                        Section {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        }
+                    }
+                    
+                    // Bouton Save
+                    HStack {
+                        Spacer()
+                        
+                        BoutonImageView(
+                            title: "Enregistrer",
+                            systemImage: "checkmark.circle.fill",
+                            style: .secondary
+                        ) {
+                            submit()
+                        }
+                        .disabled(!vm.isFormValid)
+                        
+                        Spacer()
+                    }
                 }
             }
-            .navigationTitle(vm.isEditing ? "Modifier la tâche" : "Nouvelle tâche")
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .appNavigationTitle(vm.isEditing ? "Modifier la tâche" : "Nouvelle tâche")
             .logLifecycle("TaskFormView")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

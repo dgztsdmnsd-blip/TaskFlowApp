@@ -76,8 +76,7 @@ struct ProjectUserSelectionView: View {
                 .scrollContentBackground(.hidden)
             }
         }
-        .navigationTitle("Ajouter un membre")
-        .navigationBarTitleDisplayMode(.inline)
+        .appNavigationTitle("Ajouter un membre")
         .logLifecycle("ProjectUserSelectionView")
         .task {
             guard !ProcessInfo.isRunningPreviews else { return }
