@@ -2,46 +2,60 @@
 //  TaskDetailView.swift
 //  TaskFlow
 //
-//  Created by luc banchetti on 11/02/2026.
+//  Détail d’une tâche
 //
 
 import SwiftUI
 
 struct TaskDetailView: View {
 
+    // Identifiant tâche
     let taskId: Int
 
+    // Données tâche
     @State private var task: TaskResponse?
+    
+    // États UI
     @State private var isLoading = false
-
     @State private var showDeleteAlert = false
     @State private var showEditTask = false
     @State private var isUpdatingStatus = false
 
+    // Session utilisateur
     @EnvironmentObject private var session: SessionViewModel
+    
+    // Fermeture vue
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         Group {
+
+            // Chargement
             if isLoading {
                 ProgressView()
+
+            // Contenu tâche
             } else if let task {
                 content(task)
+
+            // Erreur chargement
             } else {
                 Text("Impossible de charger la tâche.")
                     .foregroundColor(.secondary)
             }
         }
         .appNavigationTitle("Tâche")
+        
+        // Bouton fermeture
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    dismiss()
-                } label: {
+                Button { dismiss() } label: {
                     Image(systemName: "xmark")
                 }
             }
         }
+        
+        // Alerte suppression
         .alert("Supprimer la tâche ?", isPresented: $showDeleteAlert) {
             Button("Supprimer", role: .destructive) {
                 deleteTask()
@@ -50,27 +64,21 @@ struct TaskDetailView: View {
         } message: {
             Text("Cette action est définitive.")
         }
-
         // Édition tâche
         .fullScreenCover(isPresented: $showEditTask, onDismiss: {
             Task { await refreshTask() }
         }) {
             if let task {
-                TaskFormView(
-                    task: task
-                )
+                TaskFormView(task: task)
             }
         }
-
-        // Refresh parent (UserStory)
+        // Notification refresh parent
         .onDisappear {
             NotificationCenter.default.post(
                 name: .taskDidChange,
                 object: nil
             )
         }
-
-
         // Chargement initial
         .task {
             await refreshTask()
@@ -81,6 +89,7 @@ struct TaskDetailView: View {
 
 private extension TaskDetailView {
 
+    // Contenu principal
     @ViewBuilder
     func content(_ task: TaskResponse) -> some View {
         ScrollView {
@@ -101,6 +110,7 @@ private extension TaskDetailView {
         .background(BackgroundView(ecran: .tasks))
     }
 
+    // Header tâche
     func header(_ task: TaskResponse) -> some View {
         VStack(alignment: .leading) {
             HStack {
@@ -113,6 +123,7 @@ private extension TaskDetailView {
         .cardStyleView()
     }
 
+    // Statut tâche
     func statusSection(_ task: TaskResponse) -> some View {
         VStack(alignment: .leading, spacing: 6) {
 
@@ -132,6 +143,7 @@ private extension TaskDetailView {
         .cardStyleView()
     }
 
+    // Meta infos
     func metaSection(_ task: TaskResponse) -> some View {
         HStack {
             if let points = task.storyPoint {
@@ -144,6 +156,7 @@ private extension TaskDetailView {
         .cardStyleView()
     }
 
+    // Type tâche
     func typeSection(_ task: TaskResponse) -> some View {
         VStack(alignment: .leading, spacing: 6) {
 
@@ -158,6 +171,7 @@ private extension TaskDetailView {
         .cardStyleView()
     }
 
+    // Description tâche
     func descriptionSection(_ task: TaskResponse) -> some View {
         VStack(alignment: .leading, spacing: 6) {
 
@@ -172,13 +186,19 @@ private extension TaskDetailView {
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyleView()
     }
+}
 
+
+private extension TaskDetailView {
+
+    // Boutons d’action (owner uniquement)
     func actionsSection(_ task: TaskResponse) -> some View {
         Group {
             if task.userStory.owner.id == session.currentUser?.id {
 
                 VStack(spacing: 12) {
 
+                    // Avancement statut
                     if task.status != .finished {
                         BoutonImageView(
                             title: buttonTitle(for: task.status),
@@ -190,6 +210,7 @@ private extension TaskDetailView {
                         .disabled(isUpdatingStatus)
                     }
 
+                    // Édition
                     BoutonImageView(
                         title: "Modifier",
                         systemImage: "pencil",
@@ -198,6 +219,7 @@ private extension TaskDetailView {
                         showEditTask = true
                     }
 
+                    // Suppression
                     BoutonImageView(
                         title: "Supprimer",
                         systemImage: "trash",
@@ -217,19 +239,24 @@ private extension TaskDetailView {
 
 private extension TaskDetailView {
 
+    // Chargement tâche
     func refreshTask() async {
         isLoading = true
         defer { isLoading = false }
 
         do {
             task = try await TaskService.shared.fetchTask(taskId: taskId)
-            print("Task chargée:", task?.title ?? "")
+            if AppConfig.version == .dev {
+                print("Task chargée:", task?.title ?? "")
+            }
         } catch {
-            print("Erreur chargement tâche:", error)
+            if AppConfig.version == .dev {
+                print("Erreur chargement tâche:", error)
+            }
         }
     }
 
-
+    // Suppression tâche
     func deleteTask() {
         guard let task else { return }
 
@@ -245,11 +272,14 @@ private extension TaskDetailView {
                 dismiss()
 
             } catch {
-                print("Erreur suppression tâche:", error)
+                if AppConfig.version == .dev {
+                    print("Erreur suppression tâche:", error)
+                }
             }
         }
     }
 
+    // Mise à jour statut
     func updateStatus(_ task: TaskResponse) {
         guard task.status != .finished else { return }
 
@@ -274,11 +304,14 @@ private extension TaskDetailView {
                 )
 
             } catch {
-                print("Erreur update status:", error)
+                if AppConfig.version == .dev {
+                    print("Erreur update status:", error)
+                }
             }
         }
     }
 
+    // Titre bouton statut
     func buttonTitle(for status: TaskStatus) -> String {
         switch status {
         case .notStarted: return "Démarrer"
@@ -287,6 +320,7 @@ private extension TaskDetailView {
         }
     }
 
+    // Icône bouton statut
     func buttonIcon(for status: TaskStatus) -> String {
         switch status {
         case .notStarted: return "play.fill"
@@ -295,4 +329,3 @@ private extension TaskDetailView {
         }
     }
 }
-

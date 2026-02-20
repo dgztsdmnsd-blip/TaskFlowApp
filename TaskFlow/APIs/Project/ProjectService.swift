@@ -4,6 +4,15 @@
 //
 //  Created by luc banchetti on 02/02/2026.
 //
+//  Service réseau responsable de la gestion des projets :
+//  - Création
+//  - Modification
+//  - Changement de statut
+//  - Listes
+//  - Détail
+//  - Suppression
+//  - Gestion des membres
+//
 
 import Foundation
 
@@ -20,7 +29,9 @@ final class ProjectService {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/projects/create")
 
-        print("Create Project → URL:", url)
+        if AppConfig.version == .dev {
+            print("Create Project → URL:", url)
+        }
 
         struct Body: Encodable {
             let title: String
@@ -37,7 +48,10 @@ final class ProjectService {
             requiresAuth: true
         )
 
-        print("Create Project succès → id:", response.id)
+        if AppConfig.version == .dev {
+            print("Create Project succès → id:", response.id)
+        }
+        
         return response
     }
     
@@ -64,7 +78,9 @@ final class ProjectService {
             requiresAuth: true
         )
 
-        print("Update Project succès → id:", response.id)
+        if AppConfig.version == .dev {
+            print("Update Project succès → id:", response.id)
+        }
         return response
     }
     
@@ -88,7 +104,10 @@ final class ProjectService {
             requiresAuth: true
         )
 
-        print("Update Project succès → id:", response.id)
+        if AppConfig.version == .dev {
+            print("Update Project succès → id:", response.id)
+        }
+        
         return response
     }
     
@@ -99,7 +118,9 @@ final class ProjectService {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/projects/liste")
 
-        print("Projects List → URL:", url)
+        if AppConfig.version == .dev {
+            print("Projects List → URL:", url)
+        }
 
         let projects: [ProjectResponse] = try await APIClient.shared.request(
             url: url,
@@ -107,7 +128,9 @@ final class ProjectService {
             requiresAuth: true
         )
 
-        print("Projects List succès → count:", projects.count)
+        if AppConfig.version == .dev {
+            print("Projects List succès → count:", projects.count)
+        }
         return projects
     }
   
@@ -118,7 +141,9 @@ final class ProjectService {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/projects/activeprojects")
 
-        print("Projects active List → URL:", url)
+        if AppConfig.version == .dev {
+            print("Projects active List → URL:", url)
+        }
 
         let projects: [ProjectResponse] = try await APIClient.shared.request(
             url: url,
@@ -126,7 +151,10 @@ final class ProjectService {
             requiresAuth: true
         )
 
-        print("Projects active List succès → count:", projects.count)
+        if AppConfig.version == .dev {
+            print("Projects active List succès → count:", projects.count)
+        }
+        
         return projects
     }
     
@@ -138,7 +166,9 @@ final class ProjectService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/projects/\(projectId)/members")
         
-        print("Members List → URL:", url)
+        if AppConfig.version == .dev {
+            print("Members List → URL:", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -154,7 +184,9 @@ final class ProjectService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/projects/detail/\(id)")
 
-        print("Project Detail → URL:", url)
+        if AppConfig.version == .dev {
+            print("Project Detail → URL:", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -169,7 +201,9 @@ final class ProjectService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/projects/delete/\(id)")
 
-        print("Delete Project → URL:", url)
+        if AppConfig.version == .dev {
+            print("Delete Project → URL:", url)
+        }
 
         _ = try await APIClient.shared.request(
             url: url,
@@ -177,7 +211,9 @@ final class ProjectService {
             requiresAuth: true
         ) as EmptyResponse
 
-        print("Delete Project succès → id:", id)
+        if AppConfig.version == .dev {
+            print("Delete Project succès → id:", id)
+        }
     }
     
     
@@ -190,7 +226,9 @@ final class ProjectService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/projects/projet/\(projectId)/member/\(userId)")
 
-        print("Add Member → URL:", url)
+        if AppConfig.version == .dev {
+            print("Add Member → URL:", url)
+        }
 
         _ = try await APIClient.shared.request(
             url: url,
@@ -209,7 +247,9 @@ final class ProjectService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/projects/projet/\(projectId)/member/\(userId)")
 
-        print("Remove Member → URL:", url)
+        if AppConfig.version == .dev {
+            print("Remove Member → URL:", url)
+        }
 
         _ = try await APIClient.shared.request(
             url: url,
@@ -227,7 +267,9 @@ final class ProjectService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/projects/user/\(userId)")
 
-        print("User Projects → URL:", url)
+        if AppConfig.version == .dev {
+            print("User Projects → URL:", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -243,7 +285,9 @@ final class ProjectService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/projects/owner")
 
-        print("User Projects → URL:", url)
+        if AppConfig.version == .dev {
+            print("User Projects → URL:", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,

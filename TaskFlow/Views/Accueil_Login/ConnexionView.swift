@@ -4,25 +4,32 @@
 //
 //  Created by luc banchetti on 22/01/2026.
 //
-//  Écran intermédiaire entre le Welcome et le Login.
-//  Il sert de point d’entrée pour :
-//  - la connexion
-//  - (plus tard) l’inscription
+//  Écran intermédiaire entre Welcome et Login.
+//  Sert de point d’entrée pour :
+//  - Connexion
+//  - Inscription
 //
 
 import SwiftUI
 
 struct ConnexionView: View {
 
+    // ViewModel de session injecté globalement
     @EnvironmentObject var sessionVM: SessionViewModel
 
     var body: some View {
+
+        // Navigation Container
         NavigationStack {
+
             ZStack {
+
+                // Background
                 BackgroundView(ecran: .general)
 
                 VStack(spacing: 20) {
 
+                    // Header
                     TitreView(
                         texte: "Bienvenue sur TaskFlow"
                     )
@@ -33,8 +40,10 @@ struct ConnexionView: View {
 
                     Spacer()
 
+                    // Actions
                     VStack(spacing: 16) {
 
+                        // Bouton Connexion
                         NavigationLink {
                             LoginView(sessionVM: sessionVM)
                         } label: {
@@ -42,6 +51,7 @@ struct ConnexionView: View {
                         }
                         .buttonStyle(.plain)
 
+                        // Bouton Inscription
                         NavigationLink {
                             RegisterView(mode: .create)
                         } label: {
@@ -52,11 +62,12 @@ struct ConnexionView: View {
                 }
                 .padding(32)
             }
+
+            // Debug Lifecycle
             .logLifecycle("ConnexionView")
         }
     }
 }
-
 
 #Preview {
     ConnexionView()

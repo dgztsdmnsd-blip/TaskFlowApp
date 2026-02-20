@@ -80,8 +80,8 @@ final class KeychainService {
 
     
     // Lecture du refresh token (déclenche Face ID)
-    /// Lit le refresh token depuis le Keychain.
-    /// Comme l’item est protégé par biométrie, cette lecture déclenche l’UI Face ID/Touch ID.
+    // Lit le refresh token depuis le Keychain.
+    // Comme l’item est protégé par biométrie, cette lecture déclenche l’UI Face ID/Touch ID.
     func loadRefreshToken(account: String) throws -> String {
 
         // LAContext permet de contrôler l’authentification biométrique
@@ -122,8 +122,8 @@ final class KeychainService {
     }
 
     // Suppression (logout / nettoyage)
-    /// Supprime le refresh token du Keychain pour un utilisateur donné.
-    /// À appeler lors d’une déconnexion volontaire.
+    // Supprime le refresh token du Keychain pour un utilisateur donné.
+    // À appeler lors d’une déconnexion volontaire.
     func clear(account: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

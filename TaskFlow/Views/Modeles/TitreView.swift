@@ -11,12 +11,16 @@
 import SwiftUI
 
 struct TitreView: View {
+
+    // Texte du titre
     let texte: String
     
     var body: some View {
         Text(texte)
+            // Style typographique principal
             .font(.largeTitle.bold())
-            .foregroundStyle(.black)
+            // Couleur adaptative (Light / Dark)
+            .adaptiveTextColor()
     }
 }
 

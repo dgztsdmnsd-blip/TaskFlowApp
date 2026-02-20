@@ -4,57 +4,57 @@
 //
 //  Created by luc banchetti on 22/01/2026.
 //
-//  Écran d’accueil (splash screen) affiché au lancement
-//  de l’application avant la navigation vers l’écran de connexion.
+//  Écran d’accueil
+//  Affiché au lancement avant la navigation.
 //
 
 import SwiftUI
 
 struct WelcomeView: View {
 
-    // Permet de changer le flow (welcome → login)
+    // Permet de piloter la navigation globale
     @EnvironmentObject var appState: AppState
 
     var body: some View {
         ZStack {
 
-            // Fond général de l’application
+            // Background
             BackgroundView(ecran: .general)
-
-            // Image d’accueil
-            Image("Accueil")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
 
             VStack(spacing: 20) {
 
-                // Titre principal
+                // Header
                 TitreView(
                     texte: "Bienvenue sur TaskFlow"
                 )
 
-                // Sous-titre descriptif
                 SousTitreView(
                     texte: "L'application de gestion de vos projets en mode Agile"
                 )
 
-                // Pousse le contenu vers le haut
-                Spacer()
+                // Illustration
+                Image("Accueil")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
             }
             .padding(32)
         }
+
+        // Debug Lifecycle
         .logLifecycle("WelcomeView")
-        // Transition automatique
+
+        // Auto Navigation
         .onAppear {
-            // Après 2,5 secondes, on quitte l’écran d’accueil
-            // pour afficher l’écran de connexion.
+
+            // Petit délai type splash screen
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+
+                // Transition vers écran de connexion
                 appState.flow = .loginHome
             }
         }
     }
 }
-
 
 #Preview {
     WelcomeView()

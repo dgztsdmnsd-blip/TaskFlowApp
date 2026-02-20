@@ -20,8 +20,8 @@ struct LoginRequest: Codable {
 }
 
 // Réponse de login
-/// - un access token JWT
-/// - un refresh token longue durée
+// - un access token JWT
+// - un refresh token longue durée
 struct LoginResponse: Codable {
 
     // Access token JWT (utilisé pour les appels API)

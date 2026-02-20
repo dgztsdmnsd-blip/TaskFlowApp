@@ -4,20 +4,26 @@
 //
 //  Created by luc banchetti on 05/02/2026.
 //
+//  Écran Backlog.
+//  Affiche les projets actifs et permet le filtrage par tags.
+//
 
 import SwiftUI
 
 struct BacklogView: View {
 
-    // State
+    // ViewModel principal de la liste projets
     @StateObject private var vm: ProjectListViewModel
+
+    // Session utilisateur globale
     @EnvironmentObject private var sessionVM: SessionViewModel
 
+    // State (UI)
     @State private var tags: [TagResponse] = []
     @State private var selectedTag: TagResponse? = nil
     @State private var isFiltering = false
 
-    // Init
+    // Initialisation
     init(etatUS: StoryStatus = .inProgress) {
         _vm = StateObject(wrappedValue: ProjectListViewModel())
     }
@@ -30,28 +36,34 @@ struct BacklogView: View {
     var body: some View {
         VStack {
 
-            // Filtre actif info
+            // Info filtre actif
             tagsFilterInfo
 
             // Barre des tags
             tagsFilterBar
 
+            // Indicateur filtrage
             if isFiltering {
                 ProgressView("Filtrage…")
                     .padding(.top, 8)
             }
 
+            // Contenu principal
             content
         }
         .background(BackgroundView(ecran: .general))
+
+        // Chargement initial
         .task {
-            guard !ProcessInfo.isRunningPreviews else { return }
             await vm.fetchActiveProjects()
             await loadTags()
         }
+        // Notifications
+        // Rafraîchissement projets
         .onReceive(NotificationCenter.default.publisher(for: .projectListShouldRefresh)) { _ in
             Task { await vm.fetchActiveProjects() }
         }
+        // Mise à jour User Stories
         .onReceive(NotificationCenter.default.publisher(for: .userStoryDidChange)) { _ in
             Task {
                 if let selectedTag {
@@ -61,28 +73,33 @@ struct BacklogView: View {
                 }
             }
         }
+        // Mise à jour Tags
         .onReceive(NotificationCenter.default.publisher(for: .tagsDidChange)) { _ in
-            Task {
-                await loadTags()
-            }
+            Task { await loadTags() }
         }
     }
-
+    
     // Content
     @ViewBuilder
     private var content: some View {
 
         if vm.isLoading {
+
+            // Chargement API
             ProgressView()
 
         } else if let error = vm.errorMessage {
+
+            // Message d’erreur
             Text(error)
                 .foregroundColor(.red)
                 .font(.caption)
 
         } else {
+
             ZStack {
 
+                // Liste projets
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(vm.projects) { project in
@@ -96,8 +113,10 @@ struct BacklogView: View {
                     }
                 }
 
+                // État vide après filtrage
                 if vm.projects.isEmpty {
                     VStack(spacing: 12) {
+
                         Image(systemName: "line.3.horizontal.decrease.circle")
                             .font(.largeTitle)
                             .foregroundColor(.secondary)
@@ -116,12 +135,14 @@ struct BacklogView: View {
         }
     }
 
-    // API
+    // Chargement des tags disponibles
     private func loadTags() async {
         do {
             tags = try await TagsService.shared.listTags()
         } catch {
-            print("Erreur chargement tags:", error)
+            if AppConfig.version == .dev {
+                print("Erreur chargement tags:", error)
+            }
         }
     }
 
@@ -149,7 +170,7 @@ struct BacklogView: View {
                     }
                 }
 
-                // Tags API
+                // Tags dynamiques API
                 ForEach(tags) { tag in
                     TagFilterChip(
                         title: tag.tagName,
@@ -169,6 +190,7 @@ struct BacklogView: View {
     private var tagsFilterInfo: some View {
         Group {
             if let activeTag = selectedTag {
+
                 HStack(spacing: 8) {
 
                     Image(systemName: "line.3.horizontal.decrease.circle.fill")
@@ -182,6 +204,7 @@ struct BacklogView: View {
 
                     Spacer()
 
+                    // Bouton reset filtre
                     Button {
                         selectedTag = nil
                         Task {
@@ -206,7 +229,7 @@ struct BacklogView: View {
         }
     }
 
-    // Filter Logic
+    // Filtrage projets / stories par tag
     private func filterByTag(_ tag: TagResponse) {
         Task {
             isFiltering = true
@@ -219,16 +242,20 @@ struct BacklogView: View {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         vm.isTagFilterActive = true
                         vm.projects = impact.projects
-                        vm.filteredStories = impact.userStories   
+                        vm.filteredStories = impact.userStories
                     }
                 }
 
-                print("TAG FILTER RESULT")
-                print("projects:", impact.projects.map(\.id))
-                print("stories:", impact.userStories.map(\.id))
+                if AppConfig.version == .dev {
+                    print("TAG FILTER RESULT")
+                    print("projects:", impact.projects.map(\.id))
+                    print("stories:", impact.userStories.map(\.id))
+                }
 
             } catch {
-                print("Erreur filtrage tag:", error)
+                if AppConfig.version == .dev {
+                    print("Erreur filtrage tag:", error)
+                }
             }
         }
     }

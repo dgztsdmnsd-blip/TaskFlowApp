@@ -4,57 +4,71 @@
 //
 //  Created by luc banchetti on 09/02/2026.
 //
+//  Carte projet dans le Backlog.
+//  Affiche :
+//  - Infos projet
+//  - Membres
+//  - Colonnes User Stories
+//  - Action création US
+//
 
 import SwiftUI
 
 struct BacklogProjetsView: View {
 
-    // Inputs
+    // Projet affiché
     let project: ProjectResponse
+
+    // Indique si l’utilisateur est owner
     let isOwner: Bool
+
+    // Stories filtrées par tag (optionnel)
     let filteredStories: [StoryResponse]?
-    
-    // Session
+
+    // Session utilisateur globale
     @EnvironmentObject private var sessionVM: SessionViewModel
-    
-    // Création US
+
+    // Présentation écran création User Story
     @State private var showCreateStory = false
 
     var body: some View {
 
         VStack(alignment: .leading, spacing: 12) {
 
-            // Projet
+            // Header Projet
             Text(project.title)
                 .font(.headline)
-                .foregroundStyle(.black)
+                .adaptiveTextColor()
 
+            // Badge Owner
             if isOwner {
                 Label("Owner", systemImage: "crown.fill")
                     .font(.caption.bold())
                     .foregroundColor(.orange)
             }
 
+            // Section Membres
             VStack(alignment: .leading, spacing: 6) {
-                
+
+                // Nombre de membres
                 Text(
                     project.membersCount == 1
                     ? "1 membre"
                     : "\(project.membersCount) membres"
                 )
                 .font(.footnote)
-                .foregroundColor(.black)
-                
+                .adaptiveTextColor()
+
+                // Liste horizontale des membres
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack (spacing: 6) {
-                        // OWNER
+                    HStack(spacing: 6) {
+
+                        // Owner
                         ownerBadge(project.owner)
-                        
-                        if !project.members.isEmpty {
-                            // MEMBERS
-                            ForEach(project.members) { member in
-                                memberBadge(member)
-                            }
+
+                        // Members
+                        ForEach(project.members) { member in
+                            memberBadge(member)
                         }
                     }
                 }
@@ -62,7 +76,7 @@ struct BacklogProjetsView: View {
 
             Spacer()
 
-            // User Stories
+            // Colonnes User Stories
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 12) {
 
@@ -93,11 +107,8 @@ struct BacklogProjetsView: View {
                 .padding(.horizontal, 4)
             }
 
-
-
-            // Bouton création
+            // Action Création US
             HStack {
-                
                 BoutonImageView(
                     title: "Ajouter une user story",
                     systemImage: "list.bullet.rectangle",
@@ -105,21 +116,25 @@ struct BacklogProjetsView: View {
                 ) {
                     showCreateStory = true
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity)
             }
         }
         .padding()
+        // Debug Lifecycle
         .logLifecycle("BacklogProjetsView")
-        .background(
-            BackgroundView(ecran: .projets)
-        )
+        // Background Carte
+        .background(BackgroundView(ecran: .projets))
+        // Style Carte
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.red.opacity(0.5), lineWidth: 0.5)
         )
+        // Création User Story
         .fullScreenCover(isPresented: $showCreateStory) {
+
             if let user = sessionVM.currentUser {
+
                 UserStoryFormView(
                     project: project,
                     owner: ProfileLiteResponse(
@@ -129,6 +144,8 @@ struct BacklogProjetsView: View {
                         lastName: user.lastName
                     ),
                     onCreated: {
+
+                        // Notifie le backlog
                         NotificationCenter.default.post(
                             name: .userStoryDidChange,
                             object: nil
@@ -137,10 +154,9 @@ struct BacklogProjetsView: View {
                 )
             }
         }
-
     }
-    
-    
+
+    // Badges Membres
     private func memberBadge(_ member: ProfileLiteResponse) -> some View {
         Text(member.firstName)
             .font(.caption2)
@@ -149,12 +165,12 @@ struct BacklogProjetsView: View {
             .background(Color.blue.opacity(0.25))
             .clipShape(Capsule())
     }
-    
+
     private func ownerBadge(_ member: ProfileLiteResponse) -> some View {
         HStack(spacing: 4) {
             Image(systemName: "crown.fill")
                 .font(.system(size: 10))
-            
+
             Text(member.firstName)
                 .font(.caption2.bold())
         }
@@ -164,6 +180,4 @@ struct BacklogProjetsView: View {
         .foregroundColor(.orange)
         .clipShape(Capsule())
     }
-
-
 }

@@ -16,19 +16,21 @@ final class LoginService {
     static let shared = LoginService()
     private init() {}
 
-    /// Authentifie un utilisateur via l’API.
-    ///
-    /// Cette méthode :
-    /// - appelle l’endpoint  /api/login_check
-    /// - envoie les identifiants utilisateur
-    /// - récupère les tokens d’authentification
+    // Authentifie un utilisateur via l’API.
+    //
+    // Cette méthode :
+    // - appelle l’endpoint  /api/login_check
+    // - envoie les identifiants utilisateur
+    // - récupère les tokens d’authentification
     func login(email: String, password: String) async throws -> LoginResponse {
 
         // Construction de l’URL de l’endpoint de login
         let url = AppConfig.baseURL.appendingPathComponent("/api/login_check")
 
         // Log
-        print("url: \(url)")
+        if AppConfig.version == .dev {
+            print("url: \(url)")
+        }
 
         // Corps de la requête attendu par l’API
         struct Body: Encodable {

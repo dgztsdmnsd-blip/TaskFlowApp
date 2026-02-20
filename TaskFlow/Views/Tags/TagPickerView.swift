@@ -4,49 +4,71 @@
 //
 //  Created by luc banchetti on 13/02/2026.
 //
+//  Écran de sélection d’un tag.
+//  Permet :
+//  - Choix d’un tag existant
+//  - Création rapide d’un nouveau tag
+//
 
 import SwiftUI
 
 struct TagPickerView: View {
 
+    // Permet de fermer la vue
     @Environment(\.dismiss) private var dismiss
+
+    // ViewModel de chargement des tags
     @StateObject private var viewModel = TagPickerViewModel()
 
+    // Callback
+    // Action déclenchée lors de la sélection d’un tag
     var onTagSelected: (TagResponse) -> Void
 
+    // Présentation sheet création tag
     @State private var showCreateTag = false
 
     var body: some View {
         NavigationStack {
             ZStack {
+
+                // Background
                 BackgroundView(ecran: .tags)
                     .ignoresSafeArea()
-                
+
                 Group {
+
+                    // Loading State
                     if viewModel.isLoading {
                         ProgressView("Chargement des tags...")
-                    }
-                    else if let error = viewModel.errorMessage {
+
+                    // Error State
+                    } else if let error = viewModel.errorMessage {
+
                         VStack(spacing: 12) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.largeTitle)
                                 .foregroundColor(.orange)
-                            
+
                             Text(error)
                                 .foregroundColor(.red)
                         }
-                    }
-                    else {
+
+                    // Tags List
+                    } else {
+
                         List {
-                            
-                            // Bouton création inline (UX ++)
+
+                            // Création
                             Button {
                                 showCreateTag = true
                             } label: {
-                                Label("Créer un nouveau tag", systemImage: "plus.circle.fill")
-                                    .foregroundColor(.accentColor)
+                                Label(
+                                    "Créer un nouveau tag",
+                                    systemImage: "plus.circle.fill"
+                                )
+                                .foregroundColor(.accentColor)
                             }
-                            
+
                             // Liste des tags existants
                             ForEach(viewModel.tags) { tag in
                                 Button {
@@ -59,11 +81,14 @@ struct TagPickerView: View {
                         }
                     }
                 }
+                // Style List
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
+                // Navigation Title
                 .appNavigationTitle("Sélectionner un tag")
+                // Toolbar
                 .toolbar {
-                    
+
                     // Bouton fermeture
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -72,7 +97,7 @@ struct TagPickerView: View {
                             Image(systemName: "xmark")
                         }
                     }
-                    
+
                     // Bouton nouveau tag
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -82,25 +107,26 @@ struct TagPickerView: View {
                         }
                     }
                 }
-                
                 // Chargement initial
                 .task {
                     await viewModel.loadTags()
                 }
+                // Debug Lifecycle
                 .logLifecycle("TagPickerView")
-                // Sheet création
+                // Sheet Création Tag
                 .sheet(isPresented: $showCreateTag) {
                     NavigationStack {
                         TagFormView(mode: .create) {
-                            
-                            // Fermer la sheet
+
+                            // Ferme la sheet
                             showCreateTag = false
-                            
-                            // Recharger les tags
+
+                            // Recharge les tags
                             Task {
                                 await viewModel.loadTags()
                             }
-                            
+
+                            // Notifie le reste de l’app
                             NotificationCenter.default.post(
                                 name: .tagsDidChange,
                                 object: nil

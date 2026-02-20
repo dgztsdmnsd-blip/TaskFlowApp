@@ -2,53 +2,82 @@
 //  UserStoryDetailView.swift
 //  TaskFlow
 //
-//  Created by luc banchetti on 10/02/2026.
+//  Écran de détail d’une User Story.
+//  Permet :
+//  - Visualisation complète
+//  - Édition (si owner)
+//  - Gestion des tâches
+//  - Gestion des tags
 //
 
 import SwiftUI
 
 struct UserStoryDetailView: View {
 
+    // Story d’origine
     let story: StoryResponse
+    
+    // Mode (readOnly / edit)
     let mode: UserStoryDetailMode
 
+    // Story affichée (rafraîchie depuis API)
     @State private var currentStory: StoryResponse
+    
+    // Affichage édition story
     @State private var showEditStory = false
+    
+    // Affichage création tâche
     @State private var showCreateTask = false
+    
+    // Alert suppression
     @State private var showDeleteAlert = false
+    
+    // Sélecteur tags
     @State private var showTagPicker = false
 
+    // Session utilisateur
     @EnvironmentObject private var session: SessionViewModel
+    
+    // ViewModel tâches
     @StateObject private var tasksVM: UserStoryTasksViewModel
+    
+    // Dismiss view
     @Environment(\.dismiss) private var dismiss
+    
+    // Adaptation iPad / iPhone
     @Environment(\.horizontalSizeClass) private var sizeClass
 
+    // Init
     init(
         story: StoryResponse,
         mode: UserStoryDetailMode
     ) {
         self.story = story
         self.mode = mode
+        
+        // Initialise la story locale
         _currentStory = State(initialValue: story)
 
+        // Initialise VM tâches
         _tasksVM = StateObject(
             wrappedValue: UserStoryTasksViewModel(userStoryId: story.id)
         )
     }
 
+    // Body
     var body: some View {
         NavigationStack {
             ScrollView {
 
                 VStack(spacing: 20) {
 
-                    header
-                    tagsSection
-                    statusSection
-                    metaSection
-                    descriptionSection
-                    tasksSection
-                    actionsSection
+                    header              // Titre + owner
+                    tagsSection         // Tags associés
+                    statusSection       // Statut + progression
+                    metaSection         // Priorité / points / date
+                    descriptionSection  // Description
+                    tasksSection        // Tâches
+                    actionsSection      // Actions owner
 
                     Spacer()
                 }
@@ -56,6 +85,7 @@ struct UserStoryDetailView: View {
             }
             .background(BackgroundView(ecran: .stories))
             .appNavigationTitle("User Story")
+            // Bouton fermeture
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -65,6 +95,7 @@ struct UserStoryDetailView: View {
                     }
                 }
             }
+            // Alert suppression
             .alert("Supprimer la user story ?", isPresented: $showDeleteAlert) {
                 Button("Supprimer", role: .destructive) {
                     deleteStory()
@@ -74,54 +105,45 @@ struct UserStoryDetailView: View {
                 Text("Cette action est définitive.")
             }
         }
-
         // Création tâche
         .fullScreenCover(
             isPresented: $showCreateTask,
             onDismiss: {
-                Task {
-                    await refreshAll()
-                }
+                Task { await refreshAll() }
             }
         ) {
-            TaskFormView(
-                story: currentStory
-            )
+            TaskFormView(story: currentStory)
         }
-
-
-        // Édition story
-        .fullScreenCover(isPresented: $showEditStory, onDismiss: {
-            Task { await refreshAll() }
-        }) {
+        // Edition story
+        .fullScreenCover(
+            isPresented: $showEditStory,
+            onDismiss: {
+                Task { await refreshAll() }
+            }
+        ) {
             UserStoryFormView(
                 story: currentStory,
                 onCreated: { }
             )
         }
-        
-        .onReceive(NotificationCenter.default.publisher(for: .taskDidChange)) { _ in
-            Task {
-                await refreshAll()
-            }
-        }
-        
-        // Tags
+        // Sélecteur tags
         .sheet(isPresented: $showTagPicker) {
             TagPickerView { selectedTag in
                 showTagPicker = false
                 attachTag(selectedTag)
             }
         }
-
-        // Refresh backlog au retour
+        // Refresh après modif tâche
+        .onReceive(NotificationCenter.default.publisher(for: .taskDidChange)) { _ in
+            Task { await refreshAll() }
+        }
+        // Notifie backlog au retour
         .onDisappear {
             NotificationCenter.default.post(
                 name: .userStoryDidChange,
                 object: nil
             )
         }
-
         // Chargement initial
         .task {
             await refreshAll()
@@ -131,19 +153,23 @@ struct UserStoryDetailView: View {
 
 
 private extension UserStoryDetailView {
-
+    // HEADER
     var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
 
+                // Barre colorée liée à la story
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color(hex: currentStory.couleur))
                     .frame(width: 6)
 
                 VStack(alignment: .leading, spacing: 6) {
+                    
+                    // Titre de la User Story
                     Text(currentStory.title)
                         .font(.title3.bold())
 
+                    // Nom du propriétaire
                     Text("\(currentStory.owner.lastName.capitalized) \(currentStory.owner.firstName.capitalized)")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -156,15 +182,19 @@ private extension UserStoryDetailView {
         .cardStyleView()
     }
     
+    // TAGS
     var tagsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
 
             HStack {
+                
+                // Titre section
                 Label("Tags", systemImage: "tag.fill")
                     .font(.headline)
 
                 Spacer()
 
+                // Bouton ajout tag
                 Button {
                     showTagPicker = true
                 } label: {
@@ -173,13 +203,18 @@ private extension UserStoryDetailView {
                 }
             }
 
+            // Aucun tag
             if currentStory.tags.isEmpty {
                 Text("Aucun tag associé")
                     .font(.caption)
                     .foregroundColor(.secondary)
-            } else {
+            }
+            // Liste des tags
+            else {
                 FlowLayout(spacing: 8) {
                     ForEach(currentStory.tags) { tag in
+                        
+                        // Badge tag + suppression
                         TagBadgeView(tag: tag) {
                             removeTag(tag)
                         }
@@ -192,14 +227,16 @@ private extension UserStoryDetailView {
         .cardStyleView()
     }
 
-
+    // STATUT & PROGRESSION
     var statusSection: some View {
         VStack(alignment: .leading, spacing: 6) {
 
+            // Label statut
             Label("Statut", systemImage: "flag")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
+            // Badge statut
             Text(currentStory.status.label)
                 .font(.subheadline.bold())
                 .padding(.horizontal, 10)
@@ -208,29 +245,35 @@ private extension UserStoryDetailView {
                 .foregroundColor(currentStory.status.color)
                 .clipShape(Capsule())
 
+            // Label progression
             Label("Progression", systemImage: "chart.bar.fill")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
+            // Barre de progression
             ProgressTaskView(progression: currentStory.progress)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyleView()
     }
 
+    // MÉTADONNÉES
     var metaSection: some View {
         HStack(spacing: 20) {
 
+            // Priorité
             if let priority = currentStory.priority {
                 Label("P\(priority)", systemImage: "exclamationmark.circle.fill")
                     .foregroundColor(.orange)
             }
 
+            // Story points
             if let points = currentStory.storyPoint {
                 Label("\(points)", systemImage: "speedometer")
                     .foregroundColor(.blue)
             }
 
+            // Date échéance formatée
             if let dueAtString = currentStory.dueAt,
                let dueDate = dueAtString.toDateOnly() {
 
@@ -239,13 +282,13 @@ private extension UserStoryDetailView {
                 } icon: {
                     Image(systemName: "calendar")
                 }
-
-            } else if currentStory.dueAt != nil {
+            }
+            // Calendrier pour la date d'échéance
+            else if currentStory.dueAt != nil {
 
                 Label(currentStory.dueAt!, systemImage: "calendar")
                     .foregroundColor(.secondary)
             }
-
 
             Spacer()
         }
@@ -253,12 +296,15 @@ private extension UserStoryDetailView {
         .cardStyleView()
     }
 
+    // DESCRIPTION
     var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
 
+            // Titre section
             Label("Description", systemImage: "text.alignleft")
                 .font(.headline)
 
+            // Texte description
             Text(currentStory.description)
                 .font(.body)
                 .foregroundColor(.secondary)
@@ -267,22 +313,29 @@ private extension UserStoryDetailView {
         .cardStyleView()
     }
 
+    // TACHES
     var tasksSection: some View {
         TasksSectionView(
             story: currentStory,
             tasksVM: tasksVM,
+            
+            // Action ajout tâche
             onAddTask: { showCreateTask = true },
+            
+            // Action suppression tâche
             onDeleteTask: { taskId in
                 tasksVM.removeTask(id: taskId)
             }
         )
     }
 
+    // ACTIONS OWNER
     var actionsSection: some View {
         Group {
             if currentStory.owner.id == session.currentUser?.id {
                 VStack(spacing: 12) {
 
+                    // Bouton édition
                     BoutonImageView(
                         title: "Modifier",
                         systemImage: "pencil",
@@ -291,6 +344,7 @@ private extension UserStoryDetailView {
                         showEditStory = true
                     }
 
+                    // Bouton suppression
                     BoutonImageView(
                         title: "Supprimer",
                         systemImage: "trash",
@@ -305,6 +359,8 @@ private extension UserStoryDetailView {
         }
     }
     
+    // TAGS LOGIQUE
+    // Attache un tag à la story
     func attachTag(_ tag: TagResponse) {
         Task {
             do {
@@ -313,14 +369,18 @@ private extension UserStoryDetailView {
                     toStory: currentStory.id
                 )
 
+                // Refresh UI
                 await refreshAll()
 
             } catch {
-                print("Attach tag error:", error)
+                if AppConfig.version == .dev {
+                    print("Attach tag error:", error)
+                }
             }
         }
     }
     
+    // Détache un tag de la story
     func removeTag(_ tag: TagResponse) {
         Task {
             do {
@@ -329,48 +389,62 @@ private extension UserStoryDetailView {
                     fromStory: currentStory.id
                 )
 
+                // Refresh UI
                 await refreshAll()
 
             } catch {
-                print("Detach tag error:", error)
+                if AppConfig.version == .dev {
+                    print("Detach tag error:", error)
+                }
             }
         }
     }
-
-
 }
 
+
 private extension UserStoryDetailView {
-    
+    // Recharge complètement la User Story + ses tâches
     func refreshAll() async {
         do {
+            // Récupération de la story à jour depuis l’API
             currentStory = try await StoriesService.shared.fetchUserStory(
                 userStoryId: story.id
             )
             
+            // Rechargement des tâches par statut
             await tasksVM.loadTasksByStatus()
             
         } catch {
-            print("Refresh error:", error)
+            // Log erreur réseau / backend
+            if AppConfig.version == .dev {
+                print("Refresh error:", error)
+            }
         }
     }
     
+    // Supprime la User Story courante
     func deleteStory() {
         Task {
             do {
+                // Appel API suppression
                 try await StoriesService.shared.deleteStory(
                     userStoryId: currentStory.id
                 )
                 
+                // Notifie le backlog / listes
                 NotificationCenter.default.post(
                     name: .userStoryDidChange,
                     object: nil
                 )
                 
+                // Ferme l’écran détail
                 dismiss()
                 
             } catch {
-                print("Delete story error:", error)
+                // Log erreur suppression
+                if AppConfig.version == .dev {
+                    print("Delete story error:", error)
+                }
             }
         }
     }

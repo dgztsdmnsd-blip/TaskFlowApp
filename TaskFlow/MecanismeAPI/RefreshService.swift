@@ -18,7 +18,7 @@ final class RefreshService {
     static let shared = RefreshService()
     private init() {}
 
-    /// Renouvelle l’access token JWT à partir d’un refresh token valide.
+    // Renouvelle l’access token JWT à partir d’un refresh token valide.
     func refreshToken(using refreshToken: String) async throws -> String {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/token/refresh")

@@ -4,23 +4,31 @@
 //
 //  Created by luc banchetti on 09/02/2026.
 //
+//  Vue gérant la création et modification d'utilisateur
+//
 
 import SwiftUI
 
 struct UserStoryFormView: View {
 
+    // Permet de fermer l’écran (sheet / fullScreenCover)
     @Environment(\.dismiss) private var dismiss
+    
+    // ViewModel du formulaire
     @StateObject private var vm: UserStoryFormViewModel
 
+    // Callback après création / édition réussie
     let onCreated: () -> Void
 
-    // CREATE
+    // INIT – MODE CREATE
     init(
         project: ProjectResponse,
         owner: ProfileLiteResponse,
         onCreated: @escaping () -> Void
     ) {
         self.onCreated = onCreated
+        
+        // Initialisation du VM en mode création
         _vm = StateObject(
             wrappedValue: UserStoryFormViewModel(
                 mode: .create,
@@ -30,12 +38,14 @@ struct UserStoryFormView: View {
         )
     }
 
-    // EDIT
+    // INIT – MODE EDIT
     init(
         story: StoryResponse,
         onCreated: @escaping () -> Void
     ) {
         self.onCreated = onCreated
+        
+        // Initialisation du VM en mode édition
         _vm = StateObject(
             wrappedValue: UserStoryFormViewModel(
                 mode: .edit(story: story),
@@ -48,40 +58,46 @@ struct UserStoryFormView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                
+                // Fond dégradé de l’écran Story
                 BackgroundView(ecran: .stories)
                     .ignoresSafeArea()
 
                 Form {
 
-                    // -------------------------
-                    // User Story
-                    // -------------------------
+                    // SECTION – Infos Story
                     Section {
 
+                        // Champ titre
                         TextField("Titre", text: $vm.titre)
 
+                        // Champ description
                         TextEditor(text: $vm.description)
                             .frame(minHeight: 100)
+                            
                     } header : {
                         Text("User story")
-                            .foregroundStyle(.black)
+                            .adaptiveTextColor()
                     }
 
-                    // -------------------------
-                    // Planification
-                    // -------------------------
+                    // SECTION – Planification
                     Section {
 
+                        // Toggle échéance ON/OFF
                         Toggle(
                             "Définir une échéance",
                             isOn: Binding(
                                 get: { vm.dueDate != nil },
                                 set: { isOn in
-                                    vm.dueDate = isOn ? (vm.dueDate ?? Date()) : nil
+                                    // Active ou retire la date
+                                    vm.dueDate = isOn
+                                        ? (vm.dueDate ?? Date())
+                                        : nil
                                 }
                             )
                         )
 
+                        // Sélecteur date si échéance active
                         if vm.dueDate != nil {
                             DatePicker(
                                 "Date d’échéance",
@@ -89,12 +105,13 @@ struct UserStoryFormView: View {
                                     get: { vm.dueDate ?? Date() },
                                     set: { vm.dueDate = $0 }
                                 ),
-                                in: Date()..., // empêche dates passées
+                                in: Date()..., // Empêche dates passées
                                 displayedComponents: .date
                             )
                             .datePickerStyle(.graphical)
                         }
 
+                        // Sélecteur priorité
                         Stepper(
                             value: Binding(
                                 get: { vm.priority ?? 1 },
@@ -105,6 +122,7 @@ struct UserStoryFormView: View {
                             Text("Priorité : \(vm.priority ?? 1)")
                         }
 
+                        // Sélecteur story points
                         Stepper(
                             value: Binding(
                                 get: { vm.storyPoint ?? 0 },
@@ -114,16 +132,16 @@ struct UserStoryFormView: View {
                         ) {
                             Text("Story points : \(vm.storyPoint ?? 0)")
                         }
+                        
                     } header : {
                         Text("Planification")
-                            .foregroundStyle(.black)
+                            .adaptiveTextColor()
                     }
 
-                    // -------------------------
-                    // Couleur
-                    // -------------------------
+                    // SECTION – Couleur
                     Section {
 
+                        // Sélecteur couleur Story
                         ColorPicker(
                             "Couleur",
                             selection: Binding(
@@ -131,22 +149,21 @@ struct UserStoryFormView: View {
                                 set: { vm.couleur = $0.toHex() ?? "#FF5733" }
                             )
                         )
+                        
                     } header : {
                         Text("Couleur")
-                            .foregroundStyle(.black)
+                            .adaptiveTextColor()
                     }
 
-                    // -------------------------
-                    // Erreur
-                    // -------------------------
+                    // SECTION – Erreurs
                     if let error = vm.errorMessage {
+                        
+                        // Message d’erreur VM / API
                         Text(error)
                             .foregroundColor(.red)
                     }
 
-                    // -------------------------
-                    // Action
-                    // -------------------------
+                    // ACTION – Save
                     BoutonImageView(
                         title: "Enregistrer",
                         systemImage: vm.isEditMode
@@ -155,21 +172,30 @@ struct UserStoryFormView: View {
                         style: .secondary
                     ) {
                         Task {
+                            // Soumission formulaire
                             await vm.submit()
 
+                            // Succès → callback + fermeture
                             if vm.isSuccess {
                                 onCreated()
                                 dismiss()
                             }
                         }
                     }
+                    // Désactive bouton si formulaire invalide
                     .disabled(!vm.isFormValid)
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
             }
+            
+            // Titre dynamique Create / Edit
             .appNavigationTitle(vm.isEditMode ? "Modification" : "Création")
+            
+            // Debug lifecycle view
             .logLifecycle("UserStoryFormView")
+            
+            // Bouton Annuler
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Annuler") {

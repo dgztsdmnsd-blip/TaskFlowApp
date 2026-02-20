@@ -31,7 +31,7 @@ final class SessionManager {
         set { UserDefaults.standard.setValue(newValue, forKey: accountKey) }
     }
 
-    /// Démarrage de session (login classique)
+    // Démarrage de session (login classique)
     func startSession(email: String, accessToken: String, refreshToken: String) throws {
         currentAccount = email
         saveAccessToken(accessToken)
@@ -50,17 +50,17 @@ final class SessionManager {
         set { UserDefaults.standard.setValue(newValue, forKey: accessTokenKey) }
     }
 
-    /// Enregistre un nouvel access token (login ou refresh).
+    // Enregistre un nouvel access token (login ou refresh).
     func saveAccessToken(_ token: String) {
         accessToken = token
     }
 
-    /// Retourne l’access token courant s’il existe.
+    // Retourne l’access token courant s’il existe.
     func getAccessToken() -> String? {
         accessToken
     }
 
-    /// Refresh token (Keychain + biométrie)
+    // Refresh token (Keychain + biométrie)
     func getRefreshToken() throws -> String {
         guard let account = currentAccount else {
             throw APIError.unauthorized(message: "Utilisateur inconnu")
@@ -68,7 +68,7 @@ final class SessionManager {
         return try KeychainService.shared.loadRefreshToken(account: account)
     }
 
-    /// Refresh token (Keychain + biométrie)
+    // Refresh token (Keychain + biométrie)
     func clear() {
         accessToken = nil
     }

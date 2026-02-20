@@ -2,24 +2,34 @@
 //  ProjectDetailView.swift
 //  TaskFlow
 //
+//  Écran affichant les détails d’un projet.
+//  Permet de consulter les informations, le statut,
+//  et les membres. Le propriétaire peut modifier,
+//  gérer ou supprimer le projet.
+//
 //  Created by luc banchetti on 02/02/2026.
 //
 
 import SwiftUI
 
+// Vue de détail d’un projet
 struct ProjectDetailView: View {
 
+    // Session utilisateur (utilisateur courant)
     @EnvironmentObject private var sessionVM: SessionViewModel
     
-    // ViewModel
+    // ViewModel contenant les données du projet
     @StateObject var vm: ProjectDetailViewModel
 
-    // UI State
+    // Permet de fermer la vue
     @Environment(\.dismiss) private var dismiss
+    
+    // États d’affichage UI
     @State private var showEdit = false
     @State private var showMembers = false
     @State private var showDeleteAlert = false
     
+    // Titre du bouton de changement de statut
     private var nextStatusTitle: String {
         switch vm.project.status {
         case .notStarted: return "Démarrer"
@@ -28,6 +38,7 @@ struct ProjectDetailView: View {
         }
     }
 
+    // Statut cible après action
     private var nextStatus: ProjectStatus {
         switch vm.project.status {
         case .notStarted: return .inProgress
@@ -36,6 +47,7 @@ struct ProjectDetailView: View {
         }
     }
 
+    // Icône du bouton de statut
     private var statusActionIcon: String {
         switch vm.project.status {
         case .notStarted: return "play.circle.fill"
@@ -44,18 +56,19 @@ struct ProjectDetailView: View {
         }
     }
 
-
-
-    // Body
     var body: some View {
         ZStack {
+            
+            // Fond personnalisé
             BackgroundView(ecran: .projets)
                 .ignoresSafeArea()
 
             Form {
                 
+                // Informations principales du projet
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
+                        
                         Text(vm.project.title)
                             .font(.title2.bold())
                         
@@ -64,9 +77,10 @@ struct ProjectDetailView: View {
                     }
                 } header : {
                     Text("Projet")
-                        .foregroundStyle(.black)
+                        .adaptiveTextColor()
                 }
 
+                // Statut et membres
                 Section {
                     VStack(spacing: 16) {
                         statusBadge
@@ -74,14 +88,16 @@ struct ProjectDetailView: View {
                     }
                 } header : {
                     Text("Statut")
-                        .foregroundStyle(.black)
+                        .adaptiveTextColor()
                 }
 
+                // Actions visibles uniquement pour le propriétaire
                 if vm.project.owner.id == sessionVM.currentUser?.id {
 
                     Section {
                         VStack(spacing: 12) {
 
+                            // Changer le statut du projet
                             BoutonImageView(
                                 title: nextStatusTitle,
                                 systemImage: statusActionIcon,
@@ -90,6 +106,7 @@ struct ProjectDetailView: View {
                                 Task { await vm.updateStatus(to: nextStatus) }
                             }
 
+                            // Gérer les membres
                             BoutonImageView(
                                 title: "Membres",
                                 systemImage: "person.3.fill",
@@ -103,6 +120,7 @@ struct ProjectDetailView: View {
                     Section {
                         VStack(spacing: 12) {
 
+                            // Modifier le projet
                             BoutonImageView(
                                 title: "Modifier",
                                 systemImage: "pencil",
@@ -111,6 +129,7 @@ struct ProjectDetailView: View {
                                 showEdit = true
                             }
 
+                            // Supprimer uniquement si non démarré
                             if vm.project.status == .notStarted {
                                 BoutonImageView(
                                     title: "Supprimer",
@@ -124,22 +143,26 @@ struct ProjectDetailView: View {
                     }
                 }
             }
-            .scrollContentBackground(.hidden)  
+            .scrollContentBackground(.hidden)
             .background(Color.clear)
         }
         .appNavigationTitle("Détail du projet")
         .logLifecycle("ProjectDetailView")
+        // Sheet édition
         .sheet(isPresented: $showEdit) {
             ProjectEditView(
                 project: vm.project,
                 onSaved: { Task { await vm.reload() } }
             )
         }
+        // Sheet membres
         .sheet(isPresented: $showMembers) {
             NavigationStack {
                 ProjectUsersView(project: vm.project)
             }
         }
+        
+        // Alerte suppression
         .alert("Supprimer le projet ?", isPresented: $showDeleteAlert) {
             Button("Supprimer", role: .destructive) {
                 Task {
@@ -152,9 +175,8 @@ struct ProjectDetailView: View {
             Text("Cette action est définitive.")
         }
     }
-
-
-    // Badges
+    
+    // Badge affichant le statut du projet
     private var statusBadge: some View {
         HStack {
             Text(vm.project.status.label)
@@ -168,7 +190,8 @@ struct ProjectDetailView: View {
             Spacer()
         }
     }
-
+    
+    // Badge affichant le nombre de membres et le rôle owner
     private var membersBadge: some View {
         HStack {
             Label(

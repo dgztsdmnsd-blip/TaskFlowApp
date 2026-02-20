@@ -4,6 +4,12 @@
 //
 //  Created by luc banchetti on 09/02/2026.
 //
+//  Colonne Kanban des User Stories.
+//  Affiche les stories selon :
+//  - Projet
+//  - Statut
+//  - Mode filtré ou API
+//
 
 import SwiftUI
 
@@ -14,21 +20,23 @@ struct UserStoryColumnView: View {
     let title: String
     let statut: StoryStatus
     let owner: Bool
-    
-    // State
+
+    // nil → chargement API normal
+    // non-nil → mode filtré (tags / recherche)
+    let filteredStories: [StoryResponse]?
+
     @StateObject private var vm = UserStoryListViewModel()
     @State private var isTargeted = false
+
     @Environment(\.horizontalSizeClass) private var sizeClass
-    
-    /// nil → fonctionnement normal (API)
-    /// non-nil → mode filtré
-    let filteredStories: [StoryResponse]?
-    
-    // Computed
+
+
+    // Indique si la colonne est en mode filtré
     private var isFiltering: Bool {
         filteredStories != nil
     }
 
+    // Stories réellement affichées dans la colonne
     private var displayedStories: [StoryResponse] {
 
         if let filteredStories {
@@ -36,14 +44,19 @@ struct UserStoryColumnView: View {
                 $0.project.id == projectId && $0.status == statut
             }
 
-            print("Column \(title) [FILTERED] →", result.map(\.id))
+            if AppConfig.version == .dev {
+                print("Column \(title) [FILTERED] →", result.map(\.id))
+            }
+            
             return result
         }
 
-        print("Column \(title) [VM] →", vm.stories.map(\.id))
+        if AppConfig.version == .dev {
+            print("Column \(title) [VM] →", vm.stories.map(\.id))
+        }
+        
         return vm.stories
     }
-
 
     // Body
     var body: some View {
@@ -53,25 +66,31 @@ struct UserStoryColumnView: View {
 
         return VStack(alignment: .leading, spacing: 8) {
 
+            // Column Title
             Text(title)
                 .font(.caption.bold())
                 .foregroundColor(.secondary)
 
             VStack(spacing: 8) {
 
+                // Loading State
                 if vm.isLoading && !isFiltering {
                     ProgressView()
 
+                // Error State
                 } else if let error = vm.errorMessage, !isFiltering {
                     Text(error)
                         .font(.caption2)
                         .foregroundColor(.red)
 
+                // Empty State
                 } else if stories.isEmpty {
                     Text(isFiltering ? "Aucune user story" : "Déposer ici")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .frame(width: cardSize.width, height: cardSize.height)
+
+                // Stories List
                 } else {
                     ForEach(stories) { story in
                         BacklogUSView(
@@ -82,6 +101,7 @@ struct UserStoryColumnView: View {
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 120)
+            // Column Background
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(
@@ -91,6 +111,7 @@ struct UserStoryColumnView: View {
                     )
             )
             .animation(.easeInOut, value: isTargeted)
+            // Drag & Drop
             .dropDestination(
                 for: DraggableStory.self,
                 action: handleDrop,
@@ -100,42 +121,47 @@ struct UserStoryColumnView: View {
             )
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
+        // Debug Lifecycle
         .logLifecycle("UserStoryColumnView")
+        // Chargement initial
         .task {
             await loadStoriesIfNeeded()
         }
+        // Notifications
         .onReceive(NotificationCenter.default.publisher(for: .userStoryStatusDidChange)) { _ in
             Task { await refreshIfNeeded() }
         }
         .onReceive(NotificationCenter.default.publisher(for: .userStoryDidChange)) { _ in
             Task { await refreshIfNeeded() }
         }
+        // Debug Info
         .onAppear {
-            print("Column \(title)")
-            print("isFiltering:", filteredStories != nil)
-            print("filteredStories:", filteredStories?.map(\.id) ?? [])
-            print("vm.stories:", vm.stories.map(\.id))
+            if AppConfig.version == .dev {
+                print("Column \(title)")
+                print("isFiltering:", isFiltering)
+                print("filteredStories:", filteredStories?.map(\.id) ?? [])
+                print("vm.stories:", vm.stories.map(\.id))
+            }
         }
-
     }
-
 }
 
+// Private Helpers
 private extension UserStoryColumnView {
-
-    // Data Loading
+    // Charge les stories uniquement si nécessaire
     func loadStoriesIfNeeded() async {
-        guard !ProcessInfo.isRunningPreviews else { return }
         guard !isFiltering else { return }
 
         await fetchStories()
     }
 
+    // Rafraîchit si la colonne n’est pas filtrée
     func refreshIfNeeded() async {
         guard !isFiltering else { return }
         await fetchStories()
     }
 
+    // Chargement API selon rôle owner / membre
     func fetchStories() async {
         if owner {
             await vm.fetchAllStories(projectId: projectId, statut: statut)
@@ -144,9 +170,9 @@ private extension UserStoryColumnView {
         }
     }
 
-    // Drop
-
+    // Gère le drop d’une User Story dans la colonne
     func handleDrop(_ items: [DraggableStory], _ location: CGPoint) -> Bool {
+
         guard let item = items.first else { return false }
 
         Task {
@@ -156,13 +182,16 @@ private extension UserStoryColumnView {
                     status: statut
                 )
 
+                // Notifie les autres colonnes
                 NotificationCenter.default.post(
                     name: .userStoryStatusDidChange,
                     object: nil
                 )
 
             } catch {
-                print("Erreur changement de statut:", error)
+                if AppConfig.version == .dev {
+                    print("Erreur changement de statut:", error)
+                }
             }
         }
 

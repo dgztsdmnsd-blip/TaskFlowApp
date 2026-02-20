@@ -4,74 +4,100 @@
 //
 //  Created by luc banchetti on 28/01/2026.
 //
+//  Vue affichant les détails d’un utilisateur
+//  (identité, rôle, statut, projets, actions admin).
+//
 
 import SwiftUI
 
 struct UserDetailView: View {
 
-    // Inputs
+    // Utilisateur actuellement connecté
     let currentUser: ProfileResponse
 
-    // State
+
+    // ViewModel admin utilisateur
     @StateObject private var vm: UserAdminViewModel
+    
+    // Dialogues de confirmation
     @State private var showConfirmStatus = false
     @State private var showConfirmRole = false
+    
+    // Sheet projets utilisateur
     @State private var showUserProjects = false
-
 
     // Init
     init(currentUser: ProfileResponse, user: ProfileResponse) {
         self.currentUser = currentUser
-        _vm = StateObject(wrappedValue: UserAdminViewModel(user: user))
+        
+        // Initialisation ViewModel avec user cible
+        _vm = StateObject(
+            wrappedValue: UserAdminViewModel(user: user)
+        )
     }
 
     // Body
     var body: some View {
         ZStack {
+
+            // Fond dégradé écran Users
             BackgroundView(ecran: .users)
                 .ignoresSafeArea()
+
             Form {
-                // Identité
+
+                // Section Identité
                 Section {
                     VStack(alignment: .leading, spacing: 6) {
-                        
+
+                        // Nom complet
                         Text("\(vm.user.firstName.capitalized) \(vm.user.lastName.capitalized)")
                             .font(.title3.bold())
-                        
+
+                        // Email
                         Text(vm.user.email)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
-                
-                // Rôle & statut
+
+                // Section Rôle / Statut
                 Section {
                     HStack(spacing: 12) {
                         roleBadge
                         statusBadge
                     }
                     .padding(.vertical, 4)
+
                 } header : {
                     Text("Profil")
-                        .foregroundStyle(.black)
+                        .adaptiveTextColor()
                 }
-                
-                // Dates
+
+                // Section Dates
                 Section {
-                    infoRow(label: "Création", value: vm.user.creationDateFormatted)
-                    //infoRow(label: "Sortie", value: vm.user.exitDateFormatted)
+                    infoRow(
+                        label: "Création",
+                        value: vm.user.creationDateFormatted
+                    )
+
                 } header : {
                     Text("Dates")
-                        .foregroundStyle(.black)
+                        .adaptiveTextColor()
                 }
-                
+
+                // Section Projets
                 Section {
+
+                    // Nombre de projets
                     projectsBadge
-                    
+
+                    // Actions visibles seulement pour managers
                     if vm.user.id != currentUser.id {
                         if currentUser.profil == "MGR" {
-                            // Attribuer un projet
+
+                            // Attribution projet
                             BoutonImageView(
                                 title: "Attribuer un projet",
                                 systemImage: "folder.badge.plus",
@@ -81,41 +107,52 @@ struct UserDetailView: View {
                             }
                         }
                     }
+
                 } header : {
                     Text("Projets")
-                        .foregroundStyle(.black)
+                        .adaptiveTextColor()
                 }
-                
-                // Actions (Manager uniquement)
+
+                // Section Actions Admin
                 if vm.user.id != currentUser.id {
                     if currentUser.profil == "MGR" {
+
                         Section {
-                            
-                            // Activer / Désactiver
+
+                            // Activer / Désactiver compte
                             BoutonImageView(
-                                title: vm.isActive ? "Désactiver le compte" : "Réactiver le compte",
-                                systemImage: vm.isActive ? "person.slash" : "person.check",
+                                title: vm.isActive
+                                    ? "Désactiver le compte"
+                                    : "Réactiver le compte",
+                                systemImage: vm.isActive
+                                    ? "person.slash"
+                                    : "person.check",
                                 style: vm.isActive ? .danger : .primary
                             ) {
                                 showConfirmStatus = true
                             }
                             .confirmationDialog(
-                                vm.isActive ? "Désactiver ce compte ?" : "Réactiver ce compte ?",
+                                vm.isActive
+                                    ? "Désactiver ce compte ?"
+                                    : "Réactiver ce compte ?",
                                 isPresented: $showConfirmStatus
                             ) {
+
                                 Button(
                                     vm.isActive ? "Désactiver" : "Réactiver",
                                     role: vm.isActive ? .destructive : .none
                                 ) {
                                     Task { await vm.toggleStatus() }
                                 }
-                                
+
                                 Button("Annuler", role: .cancel) {}
                             }
-                            
-                            // Changer le rôle
+
+                            // Changement rôle user
                             BoutonImageView(
-                                title: vm.isManager ? "Passer en utilisateur" : "Passer en manager",
+                                title: vm.isManager
+                                    ? "Passer en utilisateur"
+                                    : "Passer en manager",
                                 systemImage: "arrow.triangle.2.circlepath",
                                 style: .primary
                             ) {
@@ -124,29 +161,35 @@ struct UserDetailView: View {
                             .disabled(vm.isLoading)
                             .confirmationDialog(
                                 vm.isManager
-                                ? "Passer cet utilisateur en utilisateur ?"
-                                : "Passer cet utilisateur en manager ?",
+                                    ? "Passer cet utilisateur en utilisateur ?"
+                                    : "Passer cet utilisateur en manager ?",
                                 isPresented: $showConfirmRole
                             ) {
+
                                 Button("Confirmer") {
                                     Task { await vm.toggleRole() }
                                 }
-                                
+
                                 Button("Annuler", role: .cancel) {}
                             }
-                            
+
                         } header : {
                             Text("Action")
-                                .foregroundStyle(.black)
+                                .adaptiveTextColor()
                         }
                     }
                 }
             }
+
+            // Nettoyage fond Form
             .scrollContentBackground(.hidden)
             .background(Color.clear)
         }
+        // Titre navigation custom
         .appNavigationTitle("Utilisateur")
+        // Debug lifecycle
         .logLifecycle("UserDetailView")
+        // Sheet gestion projets
         .sheet(isPresented: $showUserProjects) {
             NavigationStack {
                 UserProjectsView(userId: vm.user.id)
@@ -179,7 +222,7 @@ struct UserDetailView: View {
             .clipShape(Capsule())
     }
 
-    // Info row
+    // Info Row
     private func infoRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
@@ -188,7 +231,8 @@ struct UserDetailView: View {
             Text(value)
         }
     }
-    
+
+    // Projects Badge
     private var projectsBadge: some View {
         HStack {
             Label(

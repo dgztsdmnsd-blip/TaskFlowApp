@@ -4,25 +4,39 @@
 //
 //  Created by luc banchetti on 17/02/2026.
 //
+//  Service gérant les opérations d’authentification liées
+//  à la réinitialisation du mot de passe :
+//  - Demande de code
+//  - Vérification du code
+//  - Mise à jour du mot de passe
+//
 
 import Foundation
 
+// Service d’authentification
 final class AuthService {
 
+    // Instance partagée (Singleton)
     static let shared = AuthService()
+    
+    // Empêche l’instanciation externe
     private init() {}
 
-    // Request reset code
+    // Demande d’envoi d’un code de réinitialisation
     func requestResetCode(email: String) async throws -> APIMessageResponse {
 
+        // URL API
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/auth/request-reset-code")
 
+        // Body envoyé au backend
         struct Body: Encodable {
             let email: String
         }
 
-        print("RequestResetCode →", url)
+        if AppConfig.version == .dev {
+            print("RequestResetCode →", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -32,7 +46,7 @@ final class AuthService {
         )
     }
 
-    // Verify reset code
+    // Vérifie le code de réinitialisation
     func verifyResetCode(email: String, code: String) async throws -> APIMessageResponse {
 
         let url = AppConfig.baseURL
@@ -43,7 +57,9 @@ final class AuthService {
             let code: String
         }
 
-        print("🔎 VerifyResetCode →", url)
+        if AppConfig.version == .dev {
+            print("VerifyResetCode →", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -53,7 +69,7 @@ final class AuthService {
         )
     }
 
-    // Update password
+    // Met à jour le mot de passe via email + code
     func updatePasswordWithCode(
         email: String,
         code: String,
@@ -69,7 +85,9 @@ final class AuthService {
             let password: String
         }
 
-        print("ResetPassword →", url)
+        if AppConfig.version == .dev {
+            print("ResetPassword (code) →", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -79,6 +97,7 @@ final class AuthService {
         )
     }
     
+    // Met à jour le mot de passe via token
     func updatePasswordWithToken(
         token: String,
         password: String
@@ -91,8 +110,9 @@ final class AuthService {
             let token: String
             let password: String
         }
-
-        print("Reset password with token → URL:", url)
+        if AppConfig.version == .dev {
+            print("ResetPassword (token) →", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -102,7 +122,7 @@ final class AuthService {
         )
     }
     
-    
+    // Valide un code sans changer le mot de passe
     func validateResetCode(
         email: String,
         code: String
@@ -116,7 +136,9 @@ final class AuthService {
             let code: String
         }
 
-        print("Validate reset code → URL:", url)
+        if AppConfig.version == .dev {
+            print("ValidateResetCode →", url)
+        }
 
         let _: EmptyResponse = try await APIClient.shared.request(
             url: url,
@@ -124,6 +146,5 @@ final class AuthService {
             body: Body(email: email, code: code),
             requiresAuth: false
         )
-
     }
 }

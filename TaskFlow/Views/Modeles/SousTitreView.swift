@@ -11,13 +11,21 @@
 import SwiftUI
 
 struct SousTitreView: View {
+
+    // Texte affiché
     let texte: String
     
     var body: some View {
         Text(texte)
+        
+            // Style typographique sous-titre
             .font(.title3)
             .fontWeight(.medium)
-            .foregroundStyle(.black.opacity(0.9))
+            
+            // Couleur adaptative (Light / Dark)
+            .adaptiveTextColor()
+            
+            // Alignement centré (multi-lignes)
             .multilineTextAlignment(.center)
     }
 }

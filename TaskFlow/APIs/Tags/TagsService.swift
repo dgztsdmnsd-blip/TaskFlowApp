@@ -4,6 +4,15 @@
 //
 //  Created by luc banchetti on 12/02/2026.
 //
+//  Service réseau responsable de la gestion des tags :
+//  - Création
+//  - Modification
+//  - Liste
+//  - Détail
+//  - Suppression
+//  - Affectation aux user stories
+//  - Consultation des impacts
+//
 
 import Foundation
 
@@ -19,7 +28,9 @@ final class TagsService {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/tag/create")
 
-        print("Create Tag → URL:", url)
+        if AppConfig.version == .dev {
+            print("Create Tag → URL:", url)
+        }
 
         struct Body: Encodable {
             let tagName: String
@@ -33,7 +44,9 @@ final class TagsService {
 
         if let data = try? JSONEncoder().encode(body),
            let json = String(data: data, encoding: .utf8) {
-            print("CREATE TAG BODY →", json)
+            if AppConfig.version == .dev {
+                print("CREATE TAG BODY →", json)
+            }
         }
 
         let response: TagResponse = try await APIClient.shared.request(
@@ -43,7 +56,10 @@ final class TagsService {
             requiresAuth: true
         )
 
-        print("Create Tag succès → id:", response.id)
+        if AppConfig.version == .dev {
+            print("Create Tag succès → id:", response.id)
+        }
+        
         return response
     }
     
@@ -73,7 +89,10 @@ final class TagsService {
             requiresAuth: true
         )
 
-        print("Update Tag réussie succès → id:", response.id)
+        if AppConfig.version == .dev {
+            print("Update Tag réussie succès → id:", response.id)
+        }
+        
         return response
     }
     
@@ -84,7 +103,9 @@ final class TagsService {
 
         let url = AppConfig.baseURL.appendingPathComponent("/api/tag/liste")
 
-        print("Tags List → URL:", url)
+        if AppConfig.version == .dev {
+            print("Tags List → URL:", url)
+        }
 
         let tags: [TagResponse] = try await APIClient.shared.request(
             url: url,
@@ -92,7 +113,9 @@ final class TagsService {
             requiresAuth: true
         )
 
-        print("Tags List succès → count:", tags.count)
+        if AppConfig.version == .dev {
+            print("Tags List succès → count:", tags.count)
+        }
         return tags
     }
     
@@ -105,7 +128,9 @@ final class TagsService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/tag/detail/\(tagId)")
 
-        print("Tag Detail → URL:", url)
+        if AppConfig.version == .dev {
+            print("Tag Detail → URL:", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -123,7 +148,9 @@ final class TagsService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/tag/delete/\(tagId)")
 
-        print("Delete Tag → URL:", url)
+        if AppConfig.version == .dev {
+            print("Delete Tag → URL:", url)
+        }
 
         _ = try await APIClient.shared.request(
             url: url,
@@ -131,7 +158,9 @@ final class TagsService {
             requiresAuth: true
         ) as EmptyResponse
 
-        print("Delete Tag succès → id:", tagId)
+        if AppConfig.version == .dev {
+            print("Delete Tag succès → id:", tagId)
+        }
     }
     
     
@@ -144,8 +173,10 @@ final class TagsService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/tag/addtag/\(tagId)/userstory/\(userstoryId)")
 
-        print("Tag to User Story → URL:", url)
-        print("Attach Tag \(tagId) → Story \(userstoryId)")
+        if AppConfig.version == .dev {
+            print("Tag to User Story → URL:", url)
+            print("Attach Tag \(tagId) → Story \(userstoryId)")
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -165,8 +196,10 @@ final class TagsService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/tag/deltag/\(tagId)/userstory/\(userstoryId)")
 
-        print("Detach Tag from Story <- URL:", url)
-        print("Detach Tag \(tagId) <- Story \(userstoryId)")
+        if AppConfig.version == .dev {
+            print("Detach Tag from Story <- URL:", url)
+            print("Detach Tag \(tagId) <- Story \(userstoryId)")
+        }
 
         _ = try await APIClient.shared.request(
             url: url,
@@ -174,7 +207,9 @@ final class TagsService {
             requiresAuth: true
         ) as EmptyResponse
 
-        print("Detach Tag from Story succès → id:", tagId)
+        if AppConfig.version == .dev {
+            print("Detach Tag from Story succès → id:", tagId)
+        }
     }
     
     
@@ -186,7 +221,9 @@ final class TagsService {
          let url = AppConfig.baseURL
              .appendingPathComponent("/api/tag/impact/\(tagId)")
 
-         print("Tag Impact → URL:", url)
+         if AppConfig.version == .dev {
+             print("Tag Impact → URL:", url)
+         }
 
          return try await APIClient.shared.request(
              url: url,

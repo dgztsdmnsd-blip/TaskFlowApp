@@ -4,31 +4,50 @@
 //
 //  Created by luc banchetti on 13/02/2026.
 //
+//  Badge visuel d’un tag.
+//  Utilisé dans les cartes User Story et filtres.
+//
 
 import SwiftUI
 
 struct TagBadgeMiniView: View {
-
+    // Tag affiché
     let tag: TagResponse
+
+    // Action optionnelle de suppression
     var onDelete: (() -> Void)? = nil
 
     var body: some View {
+
+        // Badge
         Text(tag.tagName)
             .font(.caption2.bold())
+
+            // Espacement interne
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
+
+            // Background léger teinté
             .background(
                 Color(hex: tag.couleur).opacity(0.18)
             )
+
+            // Couleur principale
             .foregroundColor(Color(hex: tag.couleur))
+
+            // Forme capsule
             .clipShape(Capsule())
 
-            // Menu contextuel (long press)
+            // Context Menu (long press)
             .contextMenu {
-                Button(role: .destructive) {
-                    onDelete?()
-                } label: {
-                    Label("Supprimer", systemImage: "trash")
+
+                // Suppression si action fournie
+                if let onDelete {
+                    Button(role: .destructive) {
+                        onDelete()
+                    } label: {
+                        Label("Supprimer", systemImage: "trash")
+                    }
                 }
             }
     }

@@ -163,8 +163,10 @@ final class APIClient {
             return try decoder.decode(T.self, from: data)
 
         } catch {
-            print("DECODING ERROR:", error)
-            print("RAW JSON:", String(data: data, encoding: .utf8) ?? "nil")
+            if AppConfig.version == .dev {
+                print("DECODING ERROR:", error)
+                print("RAW JSON:", String(data: data, encoding: .utf8) ?? "nil")
+            }
 
             throw APIError.decodingError(error)
         }
@@ -174,8 +176,8 @@ final class APIClient {
 }
 
 // AnyEncodable
-/// Wrapper permettant d’encoder dynamiquement
-/// un type Encodable sans connaître son type concret.
+// Wrapper permettant d’encoder dynamiquement
+// un type Encodable sans connaître son type concret.
 struct AnyEncodable: Encodable {
 
     private let encodeFunc: (Encoder) throws -> Void

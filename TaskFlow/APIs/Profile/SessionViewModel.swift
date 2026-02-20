@@ -21,7 +21,7 @@ final class SessionViewModel: ObservableObject {
     }
 
     // Session lifecycle
-    /// Tente de restaurer une session existante si un compte est connu
+    // Tente de restaurer une session existante si un compte est connu
     func restoreSessionIfPossible() {
         guard SessionManager.shared.hasStoredSession else {
             clearSession()
@@ -33,8 +33,8 @@ final class SessionViewModel: ObservableObject {
         }
     }
 
-    /// Charge le profil utilisateur depuis le backend
-    /// La présence d'une session stockée est obligatoire
+    // Charge le profil utilisateur depuis le backend
+    // La présence d'une session stockée est obligatoire
     func loadCurrentUser() async {
         guard SessionManager.shared.hasStoredSession else {
             clearSession()
@@ -52,18 +52,20 @@ final class SessionViewModel: ObservableObject {
         }
     }
 
-    /// Rafraîchit uniquement les données du profil
+    // Rafraîchit uniquement les données du profil
     func refreshCurrentUser() async {
         guard isAuthenticated else { return }
 
         do {
             currentUser = try await ProfileService.shared.fetchProfile()
         } catch {
-            print("Impossible de rafraîchir le profil")
+            if AppConfig.version == .dev {
+                print("Impossible de rafraîchir le profil")
+            }
         }
     }
 
-    /// Déconnexion complète
+    // Déconnexion complète
     func logout() {
         SessionManager.shared.logout()
         clearSession()

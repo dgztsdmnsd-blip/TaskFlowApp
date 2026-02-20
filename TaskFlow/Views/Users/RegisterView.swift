@@ -4,11 +4,7 @@
 //
 //  Created by luc banchetti on 26/01/2026.
 //
-//  Vue d'enregistrement à l’application.
-//  Elle permet :
-//  - de s'inscrire avec redirection vers la connexion
-//  - consulter les messages d'erreur de l'inscription
-//  - vider la mémoire
+//  Vue d'enregistrement / édition profil utilisateur.
 //
 
 import SwiftUI
@@ -16,31 +12,38 @@ import SwiftUI
 @MainActor
 struct RegisterView: View {
 
-    // Environment
+    // Permet de fermer la vue
     @Environment(\.dismiss) private var dismiss
+    
+    // État global de navigation
     @EnvironmentObject private var appState: AppState
+    
+    // Session utilisateur
     @EnvironmentObject private var session: SessionViewModel
 
-    // State
+    // Contrôle l’alerte succès
     @State private var showAlert = false
+    
+    // ViewModel formulaire
     @StateObject private var vm: RegisterViewModel
 
     // Init
     init(mode: RegisterMode) {
-        _vm = StateObject(wrappedValue: RegisterViewModel(mode: mode))
+        _vm = StateObject(
+            wrappedValue: RegisterViewModel(mode: mode)
+        )
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
+                // Fond dégradé écran Users
                 BackgroundView(ecran: .users)
                     .ignoresSafeArea()
 
                 Form {
 
-                    // --------------------
-                    // Identité
-                    // --------------------
+                    // Section Identité
                     Section {
                         LabeledTextField(label: "Nom", text: $vm.lastName)
                         LabeledTextField(label: "Prénom", text: $vm.firstName)
@@ -51,12 +54,10 @@ struct RegisterView: View {
                         )
                     } header : {
                         Text("Identité")
-                            .foregroundStyle(.black)
+                            .adaptiveTextColor()
                     }
 
-                    // --------------------
                     // Mot de passe (création)
-                    // --------------------
                     if vm.isCreateMode {
                         Section {
                             LabeledTextField(
@@ -72,13 +73,11 @@ struct RegisterView: View {
                             )
                         } header : {
                             Text("Mot de passe")
-                                .foregroundStyle(.black)
+                                .adaptiveTextColor()
                         }
                     }
 
-                    // --------------------
                     // Mot de passe (édition)
-                    // --------------------
                     if !vm.isCreateMode {
                         Section {
 
@@ -94,19 +93,18 @@ struct RegisterView: View {
                                 isSecure: true
                             )
 
+                            // Info UX
                             Text("Laissez vide pour conserver le mot de passe actuel.")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
+
                         } header : {
                             Text("Changer le mot de passe")
-                                .foregroundStyle(.black)
+                                .adaptiveTextColor()
                         }
                     }
 
-
-                    // --------------------
-                    // Erreur
-                    // --------------------
+                    // Message d’erreur
                     if let error = vm.errorMessage {
                         Text(error)
                             .foregroundColor(.red)
@@ -114,12 +112,12 @@ struct RegisterView: View {
                             .padding(.vertical, 4)
                     }
 
-                    // --------------------
-                    // Action
-                    // --------------------
+                    // Bouton Action
                     Button {
                         Task {
                             await vm.submit()
+                            
+                            // Succès → affiche alerte
                             if vm.isSuccess {
                                 showAlert = true
                             }
@@ -127,18 +125,26 @@ struct RegisterView: View {
                     } label: {
                         BoutonView(
                             title: vm.isLoading
-                            ? "Traitement..."
-                            : (vm.isCreateMode ? "Créer le compte" : "Enregistrer")
+                                ? "Traitement..."
+                                : (vm.isCreateMode
+                                    ? "Créer le compte"
+                                    : "Enregistrer")
                         )
                     }
                     .disabled(vm.isLoading)
                 }
+                // Supprime le fond gris Form
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
+                // Titre navigation dynamique
                 .appNavigationTitle(
-                    vm.isCreateMode ? "Inscription" : "Modifier le profil"
+                    vm.isCreateMode
+                        ? "Inscription"
+                        : "Modifier le profil"
                 )
+                // Debug lifecycle
                 .logLifecycle("RegisterView")
+                // Bouton fermeture (mode édition)
                 .toolbar {
                     if !vm.isCreateMode {
                         ToolbarItem(placement: .navigationBarTrailing) {
@@ -150,6 +156,7 @@ struct RegisterView: View {
                         }
                     }
                 }
+                // Alerte succès
                 .alert(
                     vm.isCreateMode ? "Compte créé" : "Profil mis à jour",
                     isPresented: $showAlert
@@ -157,10 +164,15 @@ struct RegisterView: View {
                     Button("OK") {
                         Task {
                             if vm.isCreateMode {
+                                
+                                // Redirection login
                                 appState.flow = .loginForm
+                                
                             } else {
-                                // REFRESH SESSION
+                                
+                                // Refresh session
                                 await session.refreshCurrentUser()
+                                
                                 dismiss()
                             }
                         }

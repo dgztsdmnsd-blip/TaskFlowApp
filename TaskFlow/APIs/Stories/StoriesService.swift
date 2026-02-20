@@ -4,16 +4,29 @@
 //
 //  Created by luc banchetti on 09/02/2026.
 //
+//  Service réseau responsable de la gestion des user stories :
+//  - Création
+//  - Modification
+//  - Changement de statut
+//  - Listes (toutes / owner)
+//  - Détail
+//  - Suppression
+//
 
 import Foundation
 
+// Service de gestion des user stories
 final class StoriesService {
+
+    // Instance partagée (Singleton)
     static let shared = StoriesService()
+    
+    // Empêche l’instanciation externe
     private init() {}
 
-    // Creation
+    // Création d’une nouvelle user story
     func createUserStory(
-        projectId : Int,
+        projectId: Int,
         title: String,
         description: String,
         dueAt: String? = nil,
@@ -22,9 +35,12 @@ final class StoriesService {
         couleur: String
     ) async throws -> StoryResponse {
 
-        let url = AppConfig.baseURL.appendingPathComponent("/api/projects/\(projectId)/userstories/create")
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/\(projectId)/userstories/create")
 
-        print("Create User Story → URL:", url)
+        if AppConfig.version == .dev {
+            print("Create User Story → URL:", url)
+        }
 
         struct Body: Encodable {
             let title: String
@@ -44,11 +60,12 @@ final class StoriesService {
             couleur: couleur
         )
 
+        // Log debug JSON
         if let data = try? JSONEncoder().encode(body),
-           let json = String(data: data, encoding: .utf8) {
-            print("CREATE USER STORY BODY →", json)
+           let json = String(data: data, encoding: .utf8),
+           AppConfig.version == .dev {
+            print("Create User Story → Body:", json)
         }
-
 
         let response: StoryResponse = try await APIClient.shared.request(
             url: url,
@@ -57,12 +74,14 @@ final class StoriesService {
             requiresAuth: true
         )
 
-        print("Create User Story succès → id:", response.id)
+        if AppConfig.version == .dev {
+            print("Create User Story succès → id:", response.id)
+        }
+        
         return response
     }
     
-    
-    // Modification
+    // Mise à jour d’une user story
     func updateUserStory(
         userStoryId: Int,
         title: String? = nil,
@@ -76,6 +95,10 @@ final class StoriesService {
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/userstories/\(userStoryId)")
 
+        if AppConfig.version == .dev {
+            print("Update User Story → URL:", url)
+        }
+
         struct Body: Encodable {
             let title: String?
             let description: String?
@@ -88,16 +111,25 @@ final class StoriesService {
         let response: StoryResponse = try await APIClient.shared.request(
             url: url,
             method: "PATCH",
-            body: Body(title: title, description: description, dueAt: dueAt, priority: priority, storyPoint: storyPoint, couleur: couleur),
+            body: Body(
+                title: title,
+                description: description,
+                dueAt: dueAt,
+                priority: priority,
+                storyPoint: storyPoint,
+                couleur: couleur
+            ),
             requiresAuth: true
         )
 
-        print("Update User Story succès → id:", response.id)
+        if AppConfig.version == .dev {
+            print("Update User Story succès → id:", response.id)
+        }
+        
         return response
     }
     
-    
-    // Modification statut
+    // Mise à jour du statut d’une user story
     func updateStoryStatus(
         userStoryId: Int,
         status: StoryStatus
@@ -112,10 +144,11 @@ final class StoriesService {
 
         let body = Body(status: status.rawValue)
 
-        print("Update Story Status")
-        print("URL:", url)
-        print("Story ID:", userStoryId)
-        print("Status envoyé:", status.rawValue)
+        if AppConfig.version == .dev {
+            print("Update Story Status → URL:", url)
+            print("Story ID:", userStoryId)
+            print("Status:", status.rawValue)
+        }
 
         do {
             let response: StoryResponse = try await APIClient.shared.request(
@@ -125,33 +158,32 @@ final class StoriesService {
                 requiresAuth: true
             )
 
-            print("Update User Story succès")
-            print("ID:", response.id)
-            print("Nouveau statut:", response.status)
+            if AppConfig.version == .dev {
+                print("Update Story Status succès →", response.status)
+            }
 
             return response
 
         } catch {
-            print("Erreur Update Story Status")
-            print("Story ID:", userStoryId)
-            print("Status tenté:", status.rawValue)
-            print("Erreur:", error.localizedDescription)
-
+            if AppConfig.version == .dev {
+                print("Update Story Status erreur →", error.localizedDescription)
+            }
             throw error
         }
     }
 
-
-    // Liste toutes les user stories
+    // Liste toutes les user stories d’un projet
     func listAllUserStories(
         projectId: Int,
         statut: StoryStatus
-    )
-    async throws -> [StoryResponse] {
+    ) async throws -> [StoryResponse] {
 
-        let url = AppConfig.baseURL.appendingPathComponent("/api/projects/\(projectId)/userstories/list/statut/\(statut.rawValue)")
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/\(projectId)/userstories/list/statut/\(statut.rawValue)")
 
-        print("User stories List → URL:", url)
+        if AppConfig.version == .dev {
+            print("All User Stories → URL:", url)
+        }
 
         let stories: [StoryResponse] = try await APIClient.shared.request(
             url: url,
@@ -159,20 +191,25 @@ final class StoriesService {
             requiresAuth: true
         )
 
-        print("All user stories List succès → count:", stories.count)
+        if AppConfig.version == .dev {
+            print("All User Stories succès → count:", stories.count)
+        }
+        
         return stories
     }
   
-    
-    // Liste des user stories par l'utilisateur connecté (owner)
+    // Liste des user stories de l’utilisateur connecté (owner)
     func listOwnerUserStory(
         projectId: Int,
         statut: StoryStatus
     ) async throws -> [StoryResponse] {
 
-        let url = AppConfig.baseURL.appendingPathComponent("/api/projects/\(projectId)/userstories/list/owner/statut/\(statut.rawValue)")
+        let url = AppConfig.baseURL
+            .appendingPathComponent("/api/projects/\(projectId)/userstories/list/owner/statut/\(statut.rawValue)")
 
-        print("User story owner List → URL:", url)
+        if AppConfig.version == .dev {
+            print("Owner User Stories → URL:", url)
+        }
 
         let stories: [StoryResponse] = try await APIClient.shared.request(
             url: url,
@@ -180,18 +217,22 @@ final class StoriesService {
             requiresAuth: true
         )
 
-        print("User Stories owner List succès → count:", stories.count)
+        if AppConfig.version == .dev {
+            print("Owner User Stories succès → count:", stories.count)
+        }
+        
         return stories
     }
     
-    
-    // Detail d'une user story
+    // Récupère le détail d’une user story
     func fetchUserStory(userStoryId: Int) async throws -> StoryResponse {
 
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/userstories/\(userStoryId)")
 
-        print("User Story Detail → URL:", url)
+        if AppConfig.version == .dev {
+            print("User Story Detail → URL:", url)
+        }
 
         return try await APIClient.shared.request(
             url: url,
@@ -200,16 +241,15 @@ final class StoriesService {
         )
     }
 
-    
-    // Suppression d'une user story
-    func deleteStory(
-        userStoryId: Int
-    ) async throws {
+    // Supprime une user story
+    func deleteStory(userStoryId: Int) async throws {
 
         let url = AppConfig.baseURL
             .appendingPathComponent("/api/userstories/\(userStoryId)")
 
-        print("Delete User Story → URL:", url)
+        if AppConfig.version == .dev {
+            print("Delete User Story → URL:", url)
+        }
 
         _ = try await APIClient.shared.request(
             url: url,
@@ -217,6 +257,8 @@ final class StoriesService {
             requiresAuth: true
         ) as EmptyResponse
 
-        print("Delete User Story succès → id:", userStoryId)
+        if AppConfig.version == .dev {
+            print("Delete User Story succès → id:", userStoryId)
+        }
     }
 }

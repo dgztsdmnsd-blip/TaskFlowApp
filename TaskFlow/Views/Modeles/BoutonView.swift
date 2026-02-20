@@ -11,12 +11,20 @@
 import SwiftUI
 
 struct BoutonView: View {
+
+    // Texte affiché dans le bouton
     let title: String
 
     var body: some View {
         Text(title)
+
+            // Largeur maximale
             .frame(maxWidth: .infinity)
+            
+            // Hauteur du bouton
             .frame(height: 52)
+            
+            // Background dégradé
             .background(
                 LinearGradient(
                     colors: [
@@ -27,9 +35,19 @@ struct BoutonView: View {
                     endPoint: .trailing
                 )
             )
+            
+            // Couleur du texte
             .foregroundColor(.white)
+            
+            // Coins arrondis
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+            
+            // Ombre
+            .shadow(
+                color: .black.opacity(0.2),
+                radius: 10,
+                y: 5
+            )
     }
 }
 

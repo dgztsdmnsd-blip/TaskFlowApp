@@ -4,19 +4,25 @@
 //
 //  Created by luc banchetti on 03/02/2026.
 //
+//  Bouton stylisé avec icône SF Symbol
+//
 
 import SwiftUI
 
 struct BoutonImageView: View {
 
+    // Styles visuels disponibles
     enum Style {
         case primary
         case secondary
         case success
         case danger
 
+        // Gradient associé au style
         var gradient: LinearGradient {
             switch self {
+
+            // Style principal (actions importantes)
             case .primary:
                 return LinearGradient(
                     colors: [
@@ -27,6 +33,7 @@ struct BoutonImageView: View {
                     endPoint: .trailing
                 )
                 
+            // Style secondaire (actions neutres)
             case .secondary:
                 return LinearGradient(
                     colors: [
@@ -37,6 +44,7 @@ struct BoutonImageView: View {
                     endPoint: .trailing
                 )
 
+            // Style succès (création / validation)
             case .success:
                 return LinearGradient(
                     colors: [
@@ -47,6 +55,7 @@ struct BoutonImageView: View {
                     endPoint: .trailing
                 )
 
+            // Style danger (suppression / actions critiques)
             case .danger:
                 return LinearGradient(
                     colors: [
@@ -60,26 +69,48 @@ struct BoutonImageView: View {
         }
     }
 
+    // Texte du bouton
     let title: String
+    
+    // Icône SF Symbol
     let systemImage: String
+    
+    // Style visuel
     let style: Style
+    
+    // Action au tap
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
+
+            // Label texte + icône
             Label(title, systemImage: systemImage)
                 .font(.headline)
+                
+                // Largeur max
                 .frame(maxWidth: .infinity)
+                
+                // Hauteur fixe
                 .frame(height: 40)
+                
+                // Background gradient
                 .background(style.gradient)
+                
+                // Couleur texte
                 .foregroundColor(.white)
+                
+                // Coins arrondis
                 .cornerRadius(14)
+                
+                // Ombre légère
                 .shadow(
                     color: .black.opacity(0.15),
                     radius: 6,
                     y: 3
                 )
         }
+        // Supprime le style bouton par défaut
         .buttonStyle(.plain)
     }
 }
@@ -87,18 +118,22 @@ struct BoutonImageView: View {
 
 #Preview {
     VStack(spacing: 16) {
+
+        // Bouton primary
         BoutonImageView(
             title: "Action standard",
             systemImage: "arrow.right",
             style: .primary
         ) {}
 
+        // Bouton success
         BoutonImageView(
             title: "Créer le projet",
             systemImage: "folder.badge.plus",
             style: .success
         ) {}
 
+        // Bouton danger
         BoutonImageView(
             title: "Supprimer",
             systemImage: "trash",

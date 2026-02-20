@@ -18,7 +18,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var profile: ProfileResponse?
 
-    /// Chargement initial du profil
+    // Chargement initial du profil
     func fetchProfile() async {
         guard SessionManager.shared.getAccessToken() != nil else {
             errorMessage = "Session non prête"
@@ -39,12 +39,12 @@ final class ProfileViewModel: ObservableObject {
         isLoading = false
     }
 
-    /// Rechargement explicite après modification
+    // Rechargement explicite après modification
     func reloadProfile() async {
         await fetchProfile()
     }
 
-    /// Droits admin
+    // Droits admin
     var isAdmin: Bool {
         profile?.profil == "MGR"
     }

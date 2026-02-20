@@ -2,14 +2,17 @@
 //  TaskFormView.swift
 //  TaskFlow
 //
-//  Created by luc banchetti on 10/02/2026.
+//  Formulaire création / modification tâche
 //
 
 import SwiftUI
 
 struct TaskFormView: View {
 
+    // Fermeture de la vue
     @Environment(\.dismiss) private var dismiss
+    
+    // ViewModel du formulaire
     @StateObject private var vm: TaskFormViewModel
 
     // INIT CREATION
@@ -35,6 +38,8 @@ struct TaskFormView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+
+                // Background global
                 BackgroundView(ecran: .tasks)
                     .ignoresSafeArea()
                 
@@ -43,10 +48,13 @@ struct TaskFormView: View {
                     // Infos principales
                     Section {
                         
+                        // Champ titre
                         TextField("Titre", text: $vm.titre)
                             .textInputAutocapitalization(.sentences)
                         
+                        // Champ description avec placeholder
                         ZStack(alignment: .topLeading) {
+                            
                             if vm.description.isEmpty {
                                 Text("Description de la tâche")
                                     .foregroundColor(.secondary)
@@ -62,14 +70,16 @@ struct TaskFormView: View {
                                 .stroke(Color.secondary.opacity(0.3))
                         )
                         .padding(.vertical, 4)
+
                     } header : {
                         Text("Tâche")
-                            .foregroundStyle(.black)
+                            .adaptiveTextColor()
                     }
                     
                     // Planification
                     Section {
                         
+                        // Story points
                         Stepper(
                             value: Binding(
                                 get: { vm.storyPoint ?? 0 },
@@ -79,15 +89,18 @@ struct TaskFormView: View {
                         ) {
                             Text("Story points : \(vm.storyPoint ?? 0)")
                         }
+
                     } header : {
                         Text("Planification")
-                            .foregroundStyle(.black)
+                            .adaptiveTextColor()
                     }
                     
                     // Type
                     Section {
                         
+                        // Champ type avec placeholder
                         ZStack(alignment: .topLeading) {
+                            
                             if vm.type.isEmpty {
                                 Text("Type de la tâche")
                                     .foregroundColor(.secondary)
@@ -103,9 +116,10 @@ struct TaskFormView: View {
                                 .stroke(Color.secondary.opacity(0.3))
                         )
                         .padding(.vertical, 4)
+
                     } header : {
                         Text("Type")
-                            .foregroundStyle(.black)
+                            .adaptiveTextColor()
                     }
                     
                     // Erreur
@@ -136,8 +150,15 @@ struct TaskFormView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.clear)
-            .appNavigationTitle(vm.isEditing ? "Modifier la tâche" : "Nouvelle tâche")
+            // Titre navigation adaptatif
+            .appNavigationTitle(
+                vm.isEditing
+                ? "Modifier la tâche"
+                : "Nouvelle tâche"
+            )
+            // Debug lifecycle
             .logLifecycle("TaskFormView")
+            // Bouton fermeture
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -154,6 +175,7 @@ struct TaskFormView: View {
 
 private extension TaskFormView {
 
+    // Soumission formulaire
     func submit() {
         Task {
             await vm.submit()
@@ -166,6 +188,7 @@ private extension TaskFormView {
                     object: nil
                 )
 
+                // Fermeture vue
                 dismiss()
             }
         }

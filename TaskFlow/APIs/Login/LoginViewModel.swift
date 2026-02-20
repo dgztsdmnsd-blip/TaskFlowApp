@@ -42,12 +42,12 @@ final class LoginViewModel: ObservableObject {
 
 
     // Login classique (email / mot de passe)
-    /// Authentification classique via l’API.
-    /// Cette méthode :
-    /// - valide les champs
-    /// - appelle l’endpoint de login
-    /// - démarre une session complète (tokens)
-    /// - met à jour l’état observé par la vue
+    // Authentification classique via l’API.
+    // Cette méthode :
+    // - valide les champs
+    // - appelle l’endpoint de login
+    // - démarre une session complète (tokens)
+    // - met à jour l’état observé par la vue
     func login() async {
 
         // Début du chargement
@@ -109,12 +109,12 @@ final class LoginViewModel: ObservableObject {
     }
 
     // Login biométrique (Face ID / Touch ID)
-    /// Reconnexion sécurisée via Face ID.
-    /// Cette méthode :
-    /// - déverrouille le refresh token (Keychain)
-    /// - appelle l’API de refresh
-    /// - restaure l’access token
-    /// - reconstruit la session sans login manuel
+    // Reconnexion sécurisée via Face ID.
+    // Cette méthode :
+    // - déverrouille le refresh token (Keychain)
+    // - appelle l’API de refresh
+    // - restaure l’access token
+    // - reconstruit la session sans login manuel
     func loginWithBiometrics() async {
         guard !isAuthenticatingWithBiometrics else { return }
         isAuthenticatingWithBiometrics = true
@@ -124,24 +124,36 @@ final class LoginViewModel: ObservableObject {
         isAuthenticated = false
 
         do {
-            print("Tentative Face ID")
+            if AppConfig.version == .dev {
+                print("Tentative Face ID")
+            }
 
             let refreshToken = try SessionManager.shared.getRefreshToken()
-            print("Refresh token récupéré")
+            if AppConfig.version == .dev {
+                print("Refresh token récupéré")
+            }
 
             let newAccessToken = try await RefreshService.shared
                 .refreshToken(using: refreshToken)
 
-            print("Access token reçu:", newAccessToken)
+            if AppConfig.version == .dev {
+                print("Access token reçu:", newAccessToken)
+            }
 
             SessionManager.shared.saveAccessToken(newAccessToken)
-            print("Access token sauvegardé")
+            if AppConfig.version == .dev {
+                print("Access token sauvegardé")
+            }
 
             isAuthenticated = true
-            print("Authentification OK")
+            if AppConfig.version == .dev {
+                print("Authentification OK")
+            }
 
         } catch {
-            print("Erreur biométrique:", error)
+            if AppConfig.version == .dev {
+                print("Erreur biométrique:", error)
+            }
             errorMessage = "Session invalide, reconnectez-vous"
         }
     }
