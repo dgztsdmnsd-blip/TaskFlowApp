@@ -76,6 +76,14 @@ struct ProjectUsersView: View {
                                         Button(role: .destructive) {
                                             Task {
                                                 await vm.removeMember(userId: member.id)
+                                                
+                                                // Notification detail projet
+                                                if vm.errorMessage == nil {
+                                                    NotificationCenter.default.post(
+                                                        name: .projectDidChange,
+                                                        object: vm.projectId
+                                                    )
+                                                }
                                             }
                                         } label: {
                                             Label("Supprimer", systemImage: "trash")
@@ -112,6 +120,15 @@ struct ProjectUsersView: View {
                     onAddMember: { userId in
                         Task {
                             await vm.addMember(userId: userId)
+                            
+                            // Notification detail projet
+                            if vm.errorMessage == nil {
+                                NotificationCenter.default.post(
+                                    name: .projectDidChange,
+                                    object: vm.projectId
+                                )
+                            }
+                            
                             showAddMember = false
                         }
                     }

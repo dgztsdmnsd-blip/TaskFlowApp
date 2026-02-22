@@ -118,10 +118,6 @@ struct TagFormView: View {
                                 Spacer()
                             }
                         }
-                        .disabled(
-                            !viewModel.isFormValid ||
-                            viewModel.isLoading
-                        )
                     }
                 }
                 // Style Form

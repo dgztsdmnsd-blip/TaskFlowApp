@@ -142,7 +142,6 @@ struct TaskFormView: View {
                         ) {
                             submit()
                         }
-                        .disabled(!vm.isFormValid)
                         
                         Spacer()
                     }

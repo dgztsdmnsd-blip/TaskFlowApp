@@ -85,6 +85,18 @@ struct ProjectDetailView: View {
                     VStack(spacing: 16) {
                         statusBadge
                         membersBadge
+                        
+                        // Liste horizontale des membres
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 6) {
+                                OwnerBadgeView(member: vm.project.owner)
+
+                                ForEach(vm.project.members) { member in
+                                    MemberBadgeView(member: member)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
                     }
                 } header : {
                     Text("Statut")
@@ -161,7 +173,12 @@ struct ProjectDetailView: View {
                 ProjectUsersView(project: vm.project)
             }
         }
-        
+        // Mise à jour Projet
+        .onReceive(NotificationCenter.default.publisher(for: .projectDidChange)) { _ in
+            Task {
+                await vm.reload()
+            }
+        }
         // Alerte suppression
         .alert("Supprimer le projet ?", isPresented: $showDeleteAlert) {
             Button("Supprimer", role: .destructive) {

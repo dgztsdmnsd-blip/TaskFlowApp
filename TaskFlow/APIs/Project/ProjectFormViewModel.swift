@@ -56,7 +56,7 @@ final class ProjectFormViewModel: ObservableObject {
 
         // Validation locale
         guard isFormValid else {
-            errorMessage = "Veuillez remplir tous les champs."
+            errorMessage = "Veuillez remplir le titre et la description."
             isLoading = false
             return
         }

@@ -40,6 +40,18 @@ struct ProjectsRowView: View {
                 )
                 .font(.footnote)
                 .foregroundColor(.secondary)
+                
+                // Liste horizontale des membres
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        OwnerBadgeView(member: project.owner)
+
+                        ForEach(project.members) { member in
+                            MemberBadgeView(member: member)
+                        }
+                    }
+                    .padding(.vertical, 2)  
+                }
             }
 
             Spacer()

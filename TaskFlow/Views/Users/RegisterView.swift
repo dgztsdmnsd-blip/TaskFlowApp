@@ -75,6 +75,15 @@ struct RegisterView: View {
                             Text("Mot de passe")
                                 .adaptiveTextColor()
                         }
+                        
+                        Section {
+                            PasswordRulesView()
+                                .padding(.vertical, 4)
+
+                        } header: {
+                            Text("Sécurité")
+                                .adaptiveTextColor()
+                        }
                     }
 
                     // Mot de passe (édition)
@@ -97,6 +106,15 @@ struct RegisterView: View {
                             Text("Laissez vide pour conserver le mot de passe actuel.")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
+                            
+                            Section {
+                                PasswordRulesView()
+                                    .padding(.vertical, 4)
+
+                            } header: {
+                                Text("Sécurité")
+                                    .adaptiveTextColor()
+                            }
 
                         } header : {
                             Text("Changer le mot de passe")

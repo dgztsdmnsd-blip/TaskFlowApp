@@ -158,6 +158,9 @@ extension Notification.Name {
 
     static let projectListShouldRefresh =
         Notification.Name("projectListShouldRefresh")
+    
+    static let projectDidChange =
+        Notification.Name("projectDidChange")
 
     static let taskDidChange =
         Notification.Name("taskDidChange")

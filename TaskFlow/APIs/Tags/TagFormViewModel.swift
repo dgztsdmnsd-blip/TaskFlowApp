@@ -27,7 +27,7 @@ final class TagFormViewModel: ObservableObject {
 
     // Champs du formulaire
     @Published var tagName = ""
-    @Published var couleur = ""
+    @Published var couleur = "#000000"
 
     // États UI
     @Published var isLoading = false
@@ -68,7 +68,7 @@ final class TagFormViewModel: ObservableObject {
 
         // Validation locale
         guard isFormValid else {
-            errorMessage = "Veuillez remplir tous les champs obligatoires."
+            errorMessage = "Veuillez remplir le nom du tag."
             return
         }
 

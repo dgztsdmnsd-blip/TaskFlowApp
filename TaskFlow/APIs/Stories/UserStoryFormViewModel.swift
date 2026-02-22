@@ -132,7 +132,7 @@ final class UserStoryFormViewModel: ObservableObject {
 
         // Validation locale
         guard isFormValid else {
-            errorMessage = "Veuillez remplir tous les champs obligatoires."
+            errorMessage = "Veuillez remplir le titre et la description."
             return
         }
 

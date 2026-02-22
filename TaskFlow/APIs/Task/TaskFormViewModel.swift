@@ -72,7 +72,7 @@ final class TaskFormViewModel: ObservableObject {
 
         // Validation locale
         guard isFormValid else {
-            errorMessage = "Veuillez remplir tous les champs obligatoires."
+            errorMessage = "Veuillez remplir le titre, la description et le type de tâche."
             return
         }
 

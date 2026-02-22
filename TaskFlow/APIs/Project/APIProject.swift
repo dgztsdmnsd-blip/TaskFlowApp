@@ -47,7 +47,7 @@ enum ProjectStatus: String, Codable {
 }
 
 // Réponse API complète d’un projet
-struct ProjectResponse: Codable, Identifiable {
+struct ProjectResponse: Codable, Identifiable, Hashable {
     
     // Identifiant unique
     let id: Int

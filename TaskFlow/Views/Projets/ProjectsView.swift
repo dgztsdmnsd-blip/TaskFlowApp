@@ -15,81 +15,87 @@ import SwiftUI
 // Vue affichant la liste des projets
 struct ProjectsView: View {
 
-    // Session utilisateur (utilisateur courant)
+    // Session utilisateur (utilisateur connecté)
     @EnvironmentObject private var sessionVM: SessionViewModel
     
-    // ViewModel contenant la liste des projets
+    // ViewModel contenant les projets
     @StateObject private var vm: ProjectListViewModel
 
-    // Initialisation en production
+    // Projet sélectionné (navigation vers détail)
+    @State private var selectedProject: ProjectResponse?
+
+    // Initialisation standard (production)
     init() {
         _vm = StateObject(wrappedValue: ProjectListViewModel())
     }
 
-    // Initialisation pour preview / test
+    // Initialisation avec injection VM (preview / tests)
     init(vm: ProjectListViewModel) {
         _vm = StateObject(wrappedValue: vm)
     }
 
     var body: some View {
-        VStack {
-            
-            // Affichage pendant le chargement
-            if vm.isLoading {
-                ProgressView()
+        ZStack {
 
-            // Affichage en cas d’erreur
-            } else if let error = vm.errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-                    .font(.caption)
+            // Fond personnalisé écran Projets
+            BackgroundView(ecran: .projets)
 
-            // Affichage si aucun projet
-            } else if vm.projects.isEmpty {
-                Text("Aucun projet trouvé")
-                    .foregroundColor(.secondary)
-                    .font(.caption)
+            VStack {
 
-            // Liste des projets
-            } else {
-                List(vm.projects) { project in
-                    
-                    // Navigation vers le détail
-                    NavigationLink {
-                        ProjectDetailView(
-                            vm: ProjectDetailViewModel(project: project)
-                        )
-                    } label: {
-                        
-                        // Ligne projet
-                        ProjectsRowView(
-                            project: project,
-                            isOwner: project.owner.id == sessionVM.currentUser?.id
-                        )
+                // Affichage pendant le chargement
+                if vm.isLoading {
+                    ProgressView()
+
+                // Affichage en cas d’erreur
+                } else if let error = vm.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .font(.caption)
+
+                // Affichage si aucun projet
+                } else if vm.projects.isEmpty {
+                    Text("Aucun projet trouvé")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+
+                // Liste des projets
+                } else {
+                    List(vm.projects) { project in
+
+                        // Sélection du projet → navigation
+                        Button {
+                            selectedProject = project
+                        } label: {
+
+                            // Ligne projet
+                            ProjectsRowView(
+                                project: project,
+                                isOwner: project.owner.id == sessionVM.currentUser?.id
+                            )
+                        }
                     }
+                    // Cache le fond gris natif
+                    .scrollContentBackground(.hidden)
                 }
-                .scrollContentBackground(.hidden)
             }
         }
-        // Fond personnalisé
-        .background(
-            BackgroundView(ecran: .projets)
-        )
-        // Log cycle de vie (debug)
+        // Navigation vers l’écran détail projet
+        .navigationDestination(item: $selectedProject) { project in
+            ProjectDetailView(
+                vm: ProjectDetailViewModel(project: project)
+            )
+        }
+        // Debug cycle de vie
         .logLifecycle("ProjectsView")
-        // Chargement initial
+        // Chargement initial des projets
         .task {
-            // Évite les appels réseau en preview
             await vm.fetchProjects()
         }
         // Rafraîchissement via notification
         .onReceive(
-            NotificationCenter.default.publisher(
-                for: .projectListShouldRefresh
-            )
+            NotificationCenter.default.publisher(for: .projectListShouldRefresh)
         ) { _ in
             Task { await vm.fetchProjects() }
         }
     }
 }
-

@@ -182,8 +182,6 @@ struct UserStoryFormView: View {
                             }
                         }
                     }
-                    // Désactive bouton si formulaire invalide
-                    .disabled(!vm.isFormValid)
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)

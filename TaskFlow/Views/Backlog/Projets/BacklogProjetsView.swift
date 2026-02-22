@@ -62,15 +62,13 @@ struct BacklogProjetsView: View {
                 // Liste horizontale des membres
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
+                        OwnerBadgeView(member: project.owner)
 
-                        // Owner
-                        ownerBadge(project.owner)
-
-                        // Members
                         ForEach(project.members) { member in
-                            memberBadge(member)
+                            MemberBadgeView(member: member)
                         }
                     }
+                    .padding(.vertical, 2)
                 }
             }
 
@@ -157,7 +155,7 @@ struct BacklogProjetsView: View {
     }
 
     // Badges Membres
-    private func memberBadge(_ member: ProfileLiteResponse) -> some View {
+    /*private func memberBadge(_ member: ProfileLiteResponse) -> some View {
         Text(member.firstName)
             .font(.caption2)
             .padding(.horizontal, 8)
@@ -179,5 +177,5 @@ struct BacklogProjetsView: View {
         .background(Color.orange.opacity(0.2))
         .foregroundColor(.orange)
         .clipShape(Capsule())
-    }
+    }*/
 }
