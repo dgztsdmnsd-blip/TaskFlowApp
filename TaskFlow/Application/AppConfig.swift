@@ -69,7 +69,7 @@ enum UserStoriesStatus: String {
 enum AppConfig {
 
     // Version active de l’application
-    static let version: Version = .dev
+    static let version: Version = .prod
 
     // URL de base selon l’environnement
     static var baseURL: URL {

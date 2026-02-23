@@ -124,7 +124,7 @@ struct BacklogView: View {
 
                 // Liste projets
                 ScrollView {
-                    VStack(spacing: 12) {
+                    LazyVStack(spacing: 12) {
                         ForEach(vm.projects) { project in
                             BacklogProjetsView(
                                 project: project,
