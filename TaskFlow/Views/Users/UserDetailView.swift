@@ -122,7 +122,7 @@ struct UserDetailView: View {
                             // Activer / Désactiver compte
                             BoutonImageView(
                                 title: vm.isActive
-                                    ? "Désactiver le compte"
+                                    ? "Désactiver le compte (Ferme les projets)"
                                     : "Réactiver le compte",
                                 systemImage: vm.isActive
                                     ? "person.slash"
