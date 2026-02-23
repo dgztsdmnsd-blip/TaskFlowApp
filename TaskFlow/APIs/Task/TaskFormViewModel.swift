@@ -107,9 +107,20 @@ final class TaskFormViewModel: ObservableObject {
             // Succès
             isSuccess = true
 
+        } catch APIError.httpError(_, let message) {
+
+            // Message Symfony / backend
+            errorMessage = message ?? "Erreur serveur"
+
+        } catch APIError.decodingError {
+
+            // Backend réponse invalide
+            errorMessage = "Réponse serveur invalide"
+
         } catch {
-            // Erreur générique (réseau / validation backend)
-            errorMessage = "Erreur réseau ou validation."
+
+            // Réseau pur (offline / timeout)
+            errorMessage = "Erreur réseau"
         }
     }
 }

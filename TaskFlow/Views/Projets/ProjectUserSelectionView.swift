@@ -93,6 +93,10 @@ struct ProjectUserSelectionView: View {
                             }
                             .tint(.green)
                         }
+                        .onTapGesture {
+                            onAddMember(user.id)
+                            dismiss()
+                        }
                 }
                 .scrollContentBackground(.hidden)
             }

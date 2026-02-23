@@ -66,6 +66,7 @@ final class ProjectListViewModel: ObservableObject {
     
     // Charge uniquement les projets actifs
     func fetchActiveProjects() async {
+
         isLoading = true
         errorMessage = nil
         filteredStories = nil

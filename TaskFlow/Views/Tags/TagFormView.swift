@@ -67,13 +67,6 @@ struct TagFormView: View {
                                     }
                                 )
                             )
-
-                            Spacer()
-
-                            // Preview couleur
-                            Circle()
-                                .fill(Color(hex: viewModel.couleur))
-                                .frame(width: 26, height: 26)
                         }
                     } header: {
                         Text("Couleur")

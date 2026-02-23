@@ -22,6 +22,7 @@ struct BacklogView: View {
     @State private var tags: [TagResponse] = []
     @State private var selectedTag: TagResponse? = nil
     @State private var isFiltering = false
+    @State private var isRefreshing = false
 
     // Initialisation
     init(etatUS: StoryStatus = .inProgress) {
@@ -55,27 +56,49 @@ struct BacklogView: View {
 
         // Chargement initial
         .task {
+            guard !isRefreshing else { return }
+            
+            isRefreshing = true
             await vm.fetchActiveProjects()
             await loadTags()
+            isRefreshing = false
         }
         // Notifications
         // Rafraîchissement projets
         .onReceive(NotificationCenter.default.publisher(for: .projectListShouldRefresh)) { _ in
-            Task { await vm.fetchActiveProjects() }
+            guard !isRefreshing else { return }
+            guard !isFiltering else { return }
+            
+            Task {
+                isRefreshing = true
+                await vm.fetchActiveProjects()
+                isRefreshing = false
+            }
         }
         // Mise à jour User Stories
         .onReceive(NotificationCenter.default.publisher(for: .userStoryDidChange)) { _ in
+            guard !isRefreshing else { return }
+            guard !isFiltering else { return }
+            
             Task {
                 if let selectedTag {
-                    filterByTag(selectedTag)   // conserve filtre
+                    filterByTag(selectedTag)
                 } else {
+                    isRefreshing = true
                     await vm.fetchActiveProjects()
+                    isRefreshing = false
                 }
             }
         }
         // Mise à jour Tags
         .onReceive(NotificationCenter.default.publisher(for: .tagsDidChange)) { _ in
-            Task { await loadTags() }
+            guard !isRefreshing else { return }
+            
+            Task {
+                isRefreshing = true
+                await loadTags()
+                isRefreshing = false
+            }
         }
     }
     
@@ -101,7 +124,7 @@ struct BacklogView: View {
 
                 // Liste projets
                 ScrollView {
-                    LazyVStack(spacing: 12) {
+                    VStack(spacing: 12) {
                         ForEach(vm.projects) { project in
                             BacklogProjetsView(
                                 project: project,

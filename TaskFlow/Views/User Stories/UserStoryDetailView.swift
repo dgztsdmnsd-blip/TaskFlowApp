@@ -46,6 +46,33 @@ struct UserStoryDetailView: View {
     
     // Adaptation iPad / iPhone
     @Environment(\.horizontalSizeClass) private var sizeClass
+    
+    // Titre du bouton de changement de statut
+    private var nextStatusTitle: String {
+        switch currentStory.status {
+        case .notStarted: return "Démarrer"
+        case .inProgress: return "Terminer"
+        case .finished:   return "Réouvrir"
+        }
+    }
+
+    // Statut cible après action
+    private var nextStatus: StoryStatus {
+        switch currentStory.status {
+        case .notStarted: return .inProgress
+        case .inProgress: return .finished
+        case .finished:   return .inProgress
+        }
+    }
+
+    // Icône du bouton de statut
+    private var statusActionIcon: String {
+        switch currentStory.status {
+        case .notStarted: return "play.circle.fill"
+        case .inProgress: return "checkmark.circle.fill"
+        case .finished:   return "arrow.counterclockwise.circle"
+        }
+    }
 
     // Init
     init(
@@ -335,6 +362,15 @@ private extension UserStoryDetailView {
             if currentStory.owner.id == session.currentUser?.id {
                 VStack(spacing: 12) {
 
+                    // Changer le statut
+                    BoutonImageView(
+                        title: nextStatusTitle,
+                        systemImage: statusActionIcon,
+                        style: .primary
+                    ) {
+                        updateUserStoryStatus(to: nextStatus)
+                    }
+                    
                     // Bouton édition
                     BoutonImageView(
                         title: "Modifier",
@@ -444,6 +480,26 @@ private extension UserStoryDetailView {
                 // Log erreur suppression
                 if AppConfig.version == .dev {
                     print("Delete story error:", error)
+                }
+            }
+        }
+    }
+    
+    // Mise à jour du statut de la user story
+    func updateUserStoryStatus (to statut: StoryStatus) {
+
+        Task {
+            do {
+                _ = try await StoriesService.shared.updateStoryStatus(
+                    userStoryId: currentStory.id,
+                    status: statut
+                )
+                
+                await refreshAll()
+
+            } catch {
+                if AppConfig.version == .dev {
+                    print("Erreur changement de statut:", error)
                 }
             }
         }
