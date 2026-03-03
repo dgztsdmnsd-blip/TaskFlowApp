@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "B9A3B460-16AC-4602-B08A-04DA1A077526",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:TaskFlow.xcodeproj",
+      "identifier" : "8D773E542F221B0A00D36EB8",
+      "name" : "TaskFlow"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:TaskFlow.xcodeproj",
+        "identifier" : "8D6FA2922F51F37E00DA386B",
+        "name" : "TaskFlowTests"
+      }
+    }
+  ],
+  "version" : 1
+}
