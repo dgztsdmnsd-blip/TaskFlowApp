@@ -9,6 +9,7 @@ import Testing
 import Foundation
 @testable import TaskFlow
 
+@Suite(.serialized)
 @MainActor
 struct ForgotPasswordTests {
 

@@ -45,6 +45,7 @@ struct UsersListView: View {
 
             // Fond dégradé écran Users
             BackgroundView(ecran: .users)
+                .ignoresSafeArea()
 
             VStack {
 

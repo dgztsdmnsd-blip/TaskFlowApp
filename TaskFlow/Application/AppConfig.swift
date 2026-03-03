@@ -214,7 +214,7 @@ extension View {
 //  Taille adaptative des cards
 enum UIConstants {
 
-    static let cardHeight: CGFloat = 160
+    static let cardHeight: CGFloat = 180
 
     static let cardWidthCompact: CGFloat = 180   // iPhone
     static let cardWidthRegular: CGFloat = 240   // iPad

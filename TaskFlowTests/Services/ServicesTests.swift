@@ -11,10 +11,10 @@ import Foundation
 
 @Suite(.serialized)
 @MainActor
-struct HappyFlowTests {
+struct ServicesTests {
     
     @Test
-    func admin_promotes_existing_user_to_manager() async throws {
+    func admin_promotes() async throws {
         SessionManager.shared.clear()
         #expect(SessionManager.shared.getAccessToken() == nil)
       
@@ -70,7 +70,7 @@ struct HappyFlowTests {
     }
 
     @Test
-    func happy_flow() async throws {
+    func whole_flow() async throws {
 
         // Deconnexion
         SessionManager.shared.clear()
@@ -101,6 +101,15 @@ struct HappyFlowTests {
         )
         
         #expect(projectmaj.status == .inProgress)
+        
+        // Maj desc projet
+        let projectmajdesc = try await ProjectService.shared.updateProject(
+            id: project.id,
+            title: "Projet \(unique)",
+            description: "Description mise à jour"
+        )
+        
+        #expect(projectmajdesc.description == "Description mise à jour")
             
 
         // Création de user story
@@ -120,6 +129,14 @@ struct HappyFlowTests {
         )
         
         #expect(userStorymaj.status == .inProgress)
+        
+        // Maj desc user story
+        let userStorymajdesc = try await StoriesService.shared.updateUserStory(
+            userStoryId: userStory.id,
+            description: "Description mise à jour"
+        )
+        
+        #expect(userStorymajdesc.description == "Description mise à jour")
             
 
         // Création d'une tâche
@@ -136,6 +153,15 @@ struct HappyFlowTests {
         let taskmaj = try await TaskService.shared.updateTaskStatus(taskId: task.id, status: .inProgress)
         
         #expect(taskmaj.status == .inProgress)
+        
+        
+        // Maj desc tâche
+        let taskmajdesc = try await TaskService.shared.updateTask(
+            taskId: task.id,
+            description: "Description mise à jour"
+        )
+        
+        #expect(taskmajdesc.description == "Description mise à jour")
 
         // Création d'un tag
         let tag = try await TagsService.shared.createTag(

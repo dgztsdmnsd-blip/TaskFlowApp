@@ -117,9 +117,8 @@ final class APIClient {
 
         case 401 where retry && requiresAuth:
             throw APIError.unauthorized(message: apiMessage)
-
+            
         case 401:
-            SessionManager.shared.clear()
             throw APIError.unauthorized(message: apiMessage)
 
         default:

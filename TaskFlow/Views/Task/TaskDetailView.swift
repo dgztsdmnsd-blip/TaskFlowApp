@@ -145,12 +145,18 @@ private extension TaskDetailView {
 
     // Meta infos
     func metaSection(_ task: TaskResponse) -> some View {
-        HStack {
-            if let points = task.storyPoint {
-                Label("\(points)", systemImage: "speedometer")
-                    .foregroundColor(.blue)
+        VStack(alignment: .leading, spacing: 6) {
+            Label("Planification", systemImage: "timer")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+            
+            HStack {
+                if let points = task.storyPoint {
+                    Label("\(points)", systemImage: "speedometer")
+                        .foregroundColor(.blue)
+                }
+                Spacer()
             }
-            Spacer()
         }
         .font(.caption)
         .cardStyleView()

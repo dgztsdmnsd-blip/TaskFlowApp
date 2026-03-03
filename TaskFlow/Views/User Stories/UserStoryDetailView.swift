@@ -286,38 +286,44 @@ private extension UserStoryDetailView {
 
     // MÉTADONNÉES
     var metaSection: some View {
-        HStack(spacing: 20) {
-
-            // Priorité
-            if let priority = currentStory.priority {
-                Label("P\(priority)", systemImage: "exclamationmark.circle.fill")
-                    .foregroundColor(.orange)
-            }
-
-            // Story points
-            if let points = currentStory.storyPoint {
-                Label("\(points)", systemImage: "speedometer")
-                    .foregroundColor(.blue)
-            }
-
-            // Date échéance formatée
-            if let dueAtString = currentStory.dueAt,
-               let dueDate = dueAtString.toDateOnly() {
-
-                Label {
-                    Text(dueDate, style: .date)
-                } icon: {
-                    Image(systemName: "calendar")
+        VStack(alignment: .leading, spacing: 6) {
+            Label("Planification", systemImage: "timer")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            HStack(spacing: 20) {
+                
+                // Priorité
+                if let priority = currentStory.priority {
+                    Label("P\(priority)", systemImage: "exclamationmark.circle.fill")
+                        .foregroundColor(.orange)
                 }
+                
+                // Story points
+                if let points = currentStory.storyPoint {
+                    Label("\(points)", systemImage: "speedometer")
+                        .foregroundColor(.blue)
+                }
+                
+                // Date échéance formatée
+                if let dueAtString = currentStory.dueAt,
+                   let dueDate = dueAtString.toDateOnly() {
+                    
+                    Label {
+                        Text(dueDate, style: .date)
+                    } icon: {
+                        Image(systemName: "calendar")
+                    }
+                }
+                // Calendrier pour la date d'échéance
+                else if currentStory.dueAt != nil {
+                    
+                    Label(currentStory.dueAt!, systemImage: "calendar")
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
             }
-            // Calendrier pour la date d'échéance
-            else if currentStory.dueAt != nil {
-
-                Label(currentStory.dueAt!, systemImage: "calendar")
-                    .foregroundColor(.secondary)
-            }
-
-            Spacer()
         }
         .font(.caption)
         .cardStyleView()
@@ -395,7 +401,7 @@ private extension UserStoryDetailView {
         }
     }
     
-    // TAGS LOGIQUE
+    // TAGS
     // Attache un tag à la story
     func attachTag(_ tag: TagResponse) {
         Task {

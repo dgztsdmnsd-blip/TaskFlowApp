@@ -43,7 +43,7 @@ final class NewPasswordViewModel: ObservableObject {
         !password.isEmpty &&
         !password2.isEmpty &&
         password == password2 &&
-        password.count >= 6
+        password.count >= 8
     }
 
     // Lance la réinitialisation du mot de passe
@@ -58,7 +58,7 @@ final class NewPasswordViewModel: ObservableObject {
         }
 
         // Validation : longueur minimale
-        guard password.count >= 6 else {
+        guard password.count >= 8 else {
             errorMessage = "Le mot de passe doit contenir au moins 6 caractères."
             return
         }
