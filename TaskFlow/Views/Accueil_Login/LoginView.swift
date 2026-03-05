@@ -51,13 +51,15 @@ struct LoginView: View {
                     LabeledTextField(
                         label: "Email",
                         text: $vm.email,
-                        keyboard: .emailAddress
+                        keyboard: .emailAddress,
+                        fieldId: "login.email"
                     )
 
                     LabeledTextField(
                         label: "Mot de passe",
                         text: $vm.password,
-                        isSecure: true
+                        isSecure: true,
+                        fieldId: "login.password"
                     )
 
                     // Message d’erreur
@@ -78,7 +80,8 @@ struct LoginView: View {
                         BoutonView(
                             title: vm.isLoading
                                 ? "Connexion..."
-                                : "Connexion"
+                                : "Connexion",
+                            accessibilityId: "login.connexion"
                         )
                     }
                     .disabled(vm.isLoading)

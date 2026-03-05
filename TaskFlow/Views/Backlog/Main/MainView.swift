@@ -18,6 +18,9 @@ struct MainView: View {
     // State (UI)
     @State private var showProfile = false
     @State private var showProject = false
+    
+    // Reconnaitre le champ dans les tests UI
+    var accessibilityId: String? = nil
 
     var body: some View {
         Group {
@@ -45,6 +48,7 @@ struct MainView: View {
                     }
                     .tabItem {
                         Label("Backlog", systemImage: "checkmark.circle.fill")
+                            .accessibilityIdentifier("mainview.backlog")
                     }
 
                     // --------------------------------------------------
@@ -65,6 +69,7 @@ struct MainView: View {
                         }
                         .tabItem {
                             Label("Utilisateurs", systemImage: "person.3.fill")
+                                .accessibilityIdentifier("mainview.users")
                         }
 
                         // Projets
@@ -89,6 +94,7 @@ struct MainView: View {
                         }
                         .tabItem {
                             Label("Projets", systemImage: "folder.fill")
+                                .accessibilityIdentifier("mainview.projects")
                         }
                     }
                 }
@@ -112,6 +118,7 @@ struct MainView: View {
             } label: {
                 Image(systemName: "person.fill")
             }
+            .accessibilityIdentifier("mainview.profile")
         }
     }
     // Bouton Création Projet
@@ -122,6 +129,7 @@ struct MainView: View {
             } label: {
                 Image(systemName: "folder.badge.plus")
             }
+            .accessibilityIdentifier("project.create")
         }
     }
 }

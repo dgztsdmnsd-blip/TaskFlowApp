@@ -113,10 +113,12 @@ struct ProjectDetailView: View {
                             BoutonImageView(
                                 title: nextStatusTitle,
                                 systemImage: statusActionIcon,
-                                style: .primary
-                            ) {
-                                Task { await vm.updateStatus(to: nextStatus) }
-                            }
+                                style: .primary,
+                                action: {
+                                    Task { await vm.updateStatus(to: nextStatus)}
+                                },
+                                accessibilityId: "project.status"
+                            )
 
                             // Gérer les membres
                             BoutonImageView(
@@ -136,10 +138,12 @@ struct ProjectDetailView: View {
                             BoutonImageView(
                                 title: "Modifier",
                                 systemImage: "pencil",
-                                style: .secondary
-                            ) {
-                                showEdit = true
-                            }
+                                style: .secondary,
+                                action: {
+                                    showEdit = true
+                                },
+                                accessibilityId: "project.modifier"
+                            )
 
                             // Supprimer uniquement si non démarré
                             if vm.project.status == .notStarted {

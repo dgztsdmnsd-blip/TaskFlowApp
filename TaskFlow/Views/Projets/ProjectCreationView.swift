@@ -50,6 +50,7 @@ struct ProjectCreationView: View {
                         // Champ de saisie du titre du projet
                         TextField("Titre du projet", text: $vm.titre)
                             .textInputAutocapitalization(.sentences)
+                            .accessibilityIdentifier("project.titre")
                     } header : {
                         Text("Titre")
                             .adaptiveTextColor()
@@ -60,6 +61,7 @@ struct ProjectCreationView: View {
                         // Zone de texte multi-lignes pour la description
                         TextEditor(text: $vm.description)
                             .frame(minHeight: 120)
+                            .accessibilityIdentifier("project.texte")
                     } header : {
                         Text("Description")
                             .adaptiveTextColor()
@@ -71,13 +73,15 @@ struct ProjectCreationView: View {
                         BoutonImageView(
                             title: "Créer le projet",
                             systemImage: "folder.badge.plus",
-                            style: .primary
-                        ) {
-                            Task {
-                                // Appel asynchrone de création
-                                await vm.submit()
-                            }
-                        }
+                            style: .primary,
+                            action: {
+                                Task {
+                                    // Appel asynchrone de création
+                                    await vm.submit()
+                                }
+                            },
+                            accessibilityId: "project.creation"
+                        )
                         // Désactivé pendant le chargement
                         .disabled(vm.isLoading)
                     }
@@ -98,6 +102,7 @@ struct ProjectCreationView: View {
                         } label: {
                             Image(systemName: "xmark")
                         }
+                        .accessibilityIdentifier("project.close")
                     }
                 }
                 // Réagit au succès de création

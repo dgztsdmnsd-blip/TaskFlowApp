@@ -17,6 +17,9 @@ struct ForgotPasswordView: View {
 
     // ViewModel local + état UI
     @StateObject private var vm = ForgotPasswordViewModel()
+    
+    // Reconnaitre le champ dans les tests UI
+    var accessibilityId: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -39,6 +42,7 @@ struct ForgotPasswordView: View {
                         TextField("Email", text: $vm.email)
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
+                            .accessibilityIdentifier("password.email")
 
                     } header: {
                         Text("Récupération du mot de passe")
@@ -64,6 +68,7 @@ struct ForgotPasswordView: View {
                             } else {
                                 Text("Envoyer le code")
                                     .bold()
+                                    .accessibilityIdentifier("password.forgot.button")
                             }
                         }
                         .disabled(vm.email.isEmpty || vm.isLoading)

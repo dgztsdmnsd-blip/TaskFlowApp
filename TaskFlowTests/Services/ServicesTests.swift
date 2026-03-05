@@ -13,6 +13,7 @@ import Foundation
 @MainActor
 struct ServicesTests {
     
+    // Promotion via Admin
     @Test
     func admin_promotes() async throws {
         SessionManager.shared.clear()
@@ -37,12 +38,20 @@ struct ServicesTests {
             return
         }
 
+        if SessionManager.shared.getAccessToken()?.isEmpty ?? true {
+            SessionManager.shared.saveAccessToken(adminLogin.token)
+        }
+        
         // Promotion -> MGR
         let promoted = try await UserAdminService.shared.updateUser(
             id: target.id,
             profil: .mgr
         )
         #expect(promoted.profil == AdminUserProfil.mgr.rawValue)
+        
+        if SessionManager.shared.getAccessToken()?.isEmpty ?? true {
+            SessionManager.shared.saveAccessToken(adminLogin.token)
+        }
         
         // Retour -> UTIL
         let retour = try await UserAdminService.shared.updateUser(
@@ -51,12 +60,20 @@ struct ServicesTests {
         )
         #expect(retour.profil == AdminUserProfil.util.rawValue)
 
+        if SessionManager.shared.getAccessToken()?.isEmpty ?? true {
+            SessionManager.shared.saveAccessToken(adminLogin.token)
+        }
+        
         // Disable
         let disabled = try await UserAdminService.shared.updateUser(
             id: target.id,
             status: .inactive
         )
         #expect(disabled.status == AdminUserStatus.inactive.rawValue)
+        
+        if SessionManager.shared.getAccessToken()?.isEmpty ?? true {
+            SessionManager.shared.saveAccessToken(adminLogin.token)
+        }
         
         // Enable
         let enabled = try await UserAdminService.shared.updateUser(
@@ -69,6 +86,7 @@ struct ServicesTests {
         #expect(SessionManager.shared.getAccessToken() == nil)
     }
 
+    // Création d'un projet complet
     @Test
     func whole_flow() async throws {
 
@@ -101,6 +119,24 @@ struct ServicesTests {
         )
         
         #expect(projectmaj.status == .inProgress)
+        
+        // Ajout d'un membre
+        let users = try await UsersListService.shared.fetchUsers()
+
+        guard let target = users.first(where: { $0.email == "testuser@taskflow.com" }) else {
+            Issue.record("Utilisateur testuser@taskflow.com introuvable dans /api/users/liste")
+            return
+        }
+        
+        
+        let projectUsersVM = ProjectUsersViewModel(projectId: project.id)
+        await projectUsersVM.addMember(
+            userId: target.id
+        )
+        
+        await projectUsersVM.fetchMembers()
+
+        #expect(projectUsersVM.members.contains(where: { $0.id == target.id }))
         
         // Maj desc projet
         let projectmajdesc = try await ProjectService.shared.updateProject(
@@ -223,6 +259,15 @@ struct ServicesTests {
             statut: .notStarted)
         
         #expect(!uslist.contains(where: { $0.id == userStory.id }))
+        
+        // Retrait du membre
+        await projectUsersVM.removeMember(
+            userId: target.id
+        )
+        
+        await projectUsersVM.fetchMembers()
+
+        #expect(!projectUsersVM.members.contains(where: { $0.id == target.id }))
         
         // suppression du projet
         try await ProjectService.shared.deleteProject(id: project.id)

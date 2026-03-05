@@ -80,6 +80,9 @@ struct BoutonImageView: View {
     
     // Action au tap
     let action: () -> Void
+    
+    // Reconnaitre le champ dans les tests UI
+    var accessibilityId: String? = nil
 
     var body: some View {
         Button(action: action) {
@@ -112,6 +115,7 @@ struct BoutonImageView: View {
         }
         // Supprime le style bouton par défaut
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityId ?? "")
     }
 }
 

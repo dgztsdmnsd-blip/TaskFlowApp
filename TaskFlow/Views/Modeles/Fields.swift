@@ -27,6 +27,8 @@ struct LabeledTextField: View {
     
     // Gestion de la capitalisation automatique
     var autocapitalization: TextInputAutocapitalization = .never
+    
+    var fieldId: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -38,20 +40,32 @@ struct LabeledTextField: View {
 
             // Champ sécurisé ou standard
             if isSecure {
-                
-                SecureField(label, text: $text)
-                    .formFieldStyle()
-                
+                if let fieldId {
+                    SecureField(label, text: $text)
+                        .formFieldStyle()
+                        .accessibilityIdentifier(fieldId)
+                } else {
+                    SecureField(label, text: $text)
+                        .formFieldStyle()
+                }
             } else {
-                
-                TextField(label, text: $text)
-                    .keyboardType(keyboard)
-                    .textInputAutocapitalization(autocapitalization)
-                    .formFieldStyle()
+                if let fieldId {
+                    TextField(label, text: $text)
+                        .keyboardType(keyboard)
+                        .textInputAutocapitalization(autocapitalization)
+                        .formFieldStyle()
+                        .accessibilityIdentifier(fieldId)
+                } else {
+                    TextField(label, text: $text)
+                        .keyboardType(keyboard)
+                        .textInputAutocapitalization(autocapitalization)
+                        .formFieldStyle()
+                }
             }
         }
         // Petit espacement vertical
         .padding(.vertical, 2)
+        .accessibilityElement(children: .contain)
     }
 }
 

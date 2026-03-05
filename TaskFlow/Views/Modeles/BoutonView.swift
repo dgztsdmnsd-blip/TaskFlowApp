@@ -14,6 +14,9 @@ struct BoutonView: View {
 
     // Texte affiché dans le bouton
     let title: String
+    
+    // Reconnaitre le champ dans les tests UI
+    var accessibilityId: String? = nil
 
     var body: some View {
         Text(title)
@@ -48,6 +51,8 @@ struct BoutonView: View {
                 radius: 10,
                 y: 5
             )
+        
+            .accessibilityIdentifier(accessibilityId ?? "")
     }
 }
 

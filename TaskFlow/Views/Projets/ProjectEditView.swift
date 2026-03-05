@@ -85,6 +85,7 @@ struct ProjectEditView: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Fermer") { dismiss() }
+                            .accessibilityIdentifier("project.mod.close")
                     }
                 }
                 // Réagit au succès de sauvegarde

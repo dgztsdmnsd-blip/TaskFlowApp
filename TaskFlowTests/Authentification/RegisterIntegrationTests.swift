@@ -30,4 +30,20 @@ struct RegisterIntegrationTests {
         #expect(vm.errorMessage == nil)
         #expect(vm.isLoading == false)
     }
+    
+    @Test
+    func testSubmitFailsIfLastNameEmpty() async {
+
+        let vm = RegisterViewModel(mode: .create)
+
+        vm.firstName = "Luc"
+        vm.lastName = ""
+        vm.email = "luc@test.com"
+        vm.password = "123456"
+        vm.password2 = "123456"
+
+        await vm.submit()
+
+        #expect(vm.errorMessage != nil)
+    }
 }

@@ -108,6 +108,7 @@ struct UserProjectsView: View {
                 } label: {
                     Image(systemName: "xmark.app.fill")
                 }
+                .accessibilityIdentifier("attribuer.close")
             }
         }
         .task {

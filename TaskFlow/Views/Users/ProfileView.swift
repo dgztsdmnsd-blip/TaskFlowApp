@@ -81,19 +81,23 @@ struct ProfileView: View {
                             BoutonImageView(
                                 title: "Modifier mon profil",
                                 systemImage: "pencil",
-                                style: .primary
-                            ) {
-                                showEditProfile = true
-                            }
+                                style: .primary,
+                                action: {
+                                    showEditProfile = true
+                                },
+                                accessibilityId: "profile.modifier"
+                            )
                             
                             // Bouton logout
                             BoutonImageView(
                                 title: "Se déconnecter",
                                 systemImage: "arrow.backward.square",
-                                style: .danger
-                            ) {
-                                handleLogout()
-                            }
+                                style: .danger,
+                                action: {
+                                    handleLogout()
+                                },
+                                accessibilityId: "profile.deconnexion"
+                            )
                         } header : {
                             Text("Actions")
                                 .adaptiveTextColor()

@@ -24,6 +24,13 @@
         "identifier" : "8D6FA2922F51F37E00DA386B",
         "name" : "TaskFlowTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:TaskFlow.xcodeproj",
+        "identifier" : "8D85102E2F5831EA00A4B3BB",
+        "name" : "TaskFlowUITests"
+      }
     }
   ],
   "version" : 1

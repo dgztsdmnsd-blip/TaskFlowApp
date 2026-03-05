@@ -73,9 +73,11 @@ struct ProjectsView: View {
                                 isOwner: project.owner.id == sessionVM.currentUser?.id
                             )
                         }
+                        .accessibilityIdentifier("project.row.\(project.id)")
                     }
                     // Cache le fond gris natif
                     .scrollContentBackground(.hidden)
+                    .accessibilityIdentifier("projects.list")
                 }
             }
         }

@@ -79,8 +79,10 @@ struct UsersListView: View {
                                 isOwner: false
                             )
                         }
+                        .accessibilityIdentifier("users.row.\(user.id)")
                     }
                     .scrollContentBackground(.hidden)
+                    .accessibilityIdentifier("users.list")
                 }
             }
         }

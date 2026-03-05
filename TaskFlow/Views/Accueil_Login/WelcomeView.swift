@@ -25,12 +25,12 @@ struct WelcomeView: View {
 
                 // Header
                 TitreView(
-                    texte: "Bienvenue sur TaskFlow"
+                    texte: "TaskFlow"
                 )
-
+/*
                 SousTitreView(
                     texte: "L'application de gestion de vos projets en mode Agile"
-                )
+                )*/
 
                 // Illustration
                 Image("Accueil")

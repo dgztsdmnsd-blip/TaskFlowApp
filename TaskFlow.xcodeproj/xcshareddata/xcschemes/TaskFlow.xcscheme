@@ -46,6 +46,17 @@
                ReferencedContainer = "container:TaskFlow.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8D85102E2F5831EA00A4B3BB"
+               BuildableName = "TaskFlowUITests.xctest"
+               BlueprintName = "TaskFlowUITests"
+               ReferencedContainer = "container:TaskFlow.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

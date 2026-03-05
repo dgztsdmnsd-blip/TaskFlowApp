@@ -101,10 +101,12 @@ struct UserDetailView: View {
                             BoutonImageView(
                                 title: "Attribuer un projet",
                                 systemImage: "folder.badge.plus",
-                                style: .primary
-                            ) {
-                                showUserProjects = true
-                            }
+                                style: .primary,
+                                action: {
+                                    showUserProjects = true
+                                },
+                                accessibilityId: "user.attribuer"
+                            )
                         }
                     }
 

@@ -158,7 +158,7 @@ struct RegisterView: View {
                 .appNavigationTitle(
                     vm.isCreateMode
                         ? "Inscription"
-                        : "Modifier le profil"
+                        : "Modifier mon profil"
                 )
                 // Debug lifecycle
                 .logLifecycle("RegisterView")
@@ -171,6 +171,7 @@ struct RegisterView: View {
                             } label: {
                                 Image(systemName: "xmark.app.fill")
                             }
+                            .accessibilityIdentifier("register.close")
                         }
                     }
                 }
