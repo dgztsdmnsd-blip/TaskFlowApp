@@ -70,10 +70,12 @@ struct UserStoryFormView: View {
 
                         // Champ titre
                         TextField("Titre", text: $vm.titre)
+                            .accessibilityIdentifier("us.titre")
 
                         // Champ description
                         TextEditor(text: $vm.description)
                             .frame(minHeight: 100)
+                            .accessibilityIdentifier("us.desc")
                             
                     } header : {
                         Text("User story")
@@ -169,19 +171,21 @@ struct UserStoryFormView: View {
                         systemImage: vm.isEditMode
                         ? "square.and.pencil"
                         : "folder.badge.plus",
-                        style: .secondary
-                    ) {
-                        Task {
-                            // Soumission formulaire
-                            await vm.submit()
-
-                            // Succès → callback + fermeture
-                            if vm.isSuccess {
-                                onCreated()
-                                dismiss()
+                        style: .secondary,
+                        action: {
+                            Task {
+                                // Soumission formulaire
+                                await vm.submit()
+                                
+                                // Succès → callback + fermeture
+                                if vm.isSuccess {
+                                    onCreated()
+                                    dismiss()
+                                }
                             }
-                        }
-                    }
+                        },
+                        accessibilityId: "us.enregistrer"
+                    )
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)

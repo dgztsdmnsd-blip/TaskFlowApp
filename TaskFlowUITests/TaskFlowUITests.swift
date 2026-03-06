@@ -25,10 +25,10 @@ final class TaskFlowUITests: XCTestCase {
     
      @MainActor
      func testLaunchPerformance() throws {
-     // This measures how long it takes to launch your application.
-     measure(metrics: [XCTApplicationLaunchMetric()]) {
-     XCUIApplication().launch()
-     }
+         // This measures how long it takes to launch your application.
+         measure(metrics: [XCTApplicationLaunchMetric()]) {
+         XCUIApplication().launch()
+         }
      }
      
      @MainActor
@@ -86,6 +86,7 @@ final class TaskFlowUITests: XCTestCase {
          XCTAssertTrue(sectionIdentite.waitForExistence(timeout: 10))
      }
     
+     
     @MainActor
     func testHappyFlow() throws {
         
@@ -112,6 +113,8 @@ final class TaskFlowUITests: XCTestCase {
         profileTests(app: app)
     }
     
+    
+    // Connexion
     func loginTest(app: XCUIApplication) {
         // attente login
         let loginTitle = app.staticTexts["Bienvenue sur TaskFlow"]
@@ -143,6 +146,8 @@ final class TaskFlowUITests: XCTestCase {
         XCTAssertTrue(backlogTitle.waitForExistence(timeout: 5))
     }
     
+    
+    // Tab Utilisateurs
     func usersTests (app: XCUIApplication) {
         // Attendre que la tab bar existe
         let tabBar = app.tabBars.firstMatch
@@ -193,6 +198,7 @@ final class TaskFlowUITests: XCTestCase {
     }
     
     
+    // Tab projets
     func projectsTests(app: XCUIApplication) {
         // Attendre que la tab bar existe
         let tabBar2 = app.tabBars.firstMatch
@@ -279,6 +285,8 @@ final class TaskFlowUITests: XCTestCase {
         projModCloseButton.tap()
     }
     
+    
+    // Tab Backlog
     func backlogTests(app: XCUIApplication) {
         // Attendre que la tab bar existe
         let tabBar3 = app.tabBars.firstMatch
@@ -288,10 +296,157 @@ final class TaskFlowUITests: XCTestCase {
         let backlogTab = app.tabBars.buttons["mainview.backlog"].firstMatch
         XCTAssertTrue(backlogTab.waitForExistence(timeout: 10), app.debugDescription)
         backlogTab.tap()
+        
+        userStoryCreationTest(app: app)
+        
+        taskCreationTest(app: app)
+        
+        tagCreationTest(app: app)
+        
+        // Fermeture de l'écran
+        let projModCloseButton = app.buttons["us.detail.close"].firstMatch
+        XCTAssertTrue(projModCloseButton.waitForExistence(timeout: 10), app.debugDescription)
+        projModCloseButton.tap()
     }
     
     
+    // Création et sélection de la User Story
+    func userStoryCreationTest(app: XCUIApplication) {
+        // Tap Modifier
+        let newUSButton = app.buttons["add.userstory"].firstMatch
+        XCTAssertTrue(newUSButton.waitForExistence(timeout: 10), app.debugDescription)
+        newUSButton.tap()
+        
+        let unique = UUID().uuidString.prefix(5)
+        
+        // titre US
+        let titreUS = app.textFields["us.titre"]
+        XCTAssertTrue(titreUS.waitForExistence(timeout: 10), app.debugDescription)
+        titreUS.tap()
+        let usTitle = "US \(unique)"
+        titreUS.typeText(usTitle)
+        
+        // description US
+        let descUS = app.textViews["us.desc"].firstMatch
+        XCTAssertTrue(descUS.waitForExistence(timeout: 10), app.debugDescription)
+        descUS.tap()
+        descUS.tap()
+        descUS.typeText("Description de la US")
+        
+        // Création de la US
+        let CloseButton = app.buttons["us.enregistrer"]
+        XCTAssertTrue(CloseButton.waitForExistence(timeout: 10))
+        CloseButton.tap()
+        
+        // Vérifie que la carte apparait dans le backlog
+        let createdStoryCard = app.otherElements["backlog.story.title.\(usTitle)"].firstMatch
+        XCTAssertTrue(createdStoryCard.waitForExistence(timeout: 10), app.debugDescription)
+        
+        // Ouvre la story
+        createdStoryCard.tap()
+        
+        // Detail de la US
+        let usDetTitle = app.staticTexts["User Story"]
+        XCTAssertTrue(usDetTitle.waitForExistence(timeout: 5))
+    }
+    
+    
+    // Création de la tâche
+    func taskCreationTest(app: XCUIApplication) {
+        let unique = UUID().uuidString.prefix(5)
+        
+        // Création de la tâche
+        let TaskaddButton = app.buttons["us.task.ajouter"]
+        XCTAssertTrue(TaskaddButton.waitForExistence(timeout: 10))
+        TaskaddButton.tap()
+        
+        // Test Titre de l'écran tâche
+        let taskaddTitle = app.staticTexts["Nouvelle tâche"]
+        XCTAssertTrue(taskaddTitle.waitForExistence(timeout: 5))
+        
+        // titre de la tâche
+        let titreTask = app.textFields["task.titre"]
+        XCTAssertTrue(titreTask.waitForExistence(timeout: 10), app.debugDescription)
+        titreTask.tap()
+        let taskTitle = "Task \(unique)"
+        titreTask.typeText(taskTitle)
+        
+        // description de la tâche
+        let descTask = app.textViews["task.desc"].firstMatch
+        XCTAssertTrue(descTask.waitForExistence(timeout: 10), app.debugDescription)
+        descTask.tap()
+        descTask.tap()
+        descTask.typeText("Description de la tâche")
+        
+        // type Task
+        let typeTask = app.textViews["task.type"].firstMatch
+        XCTAssertTrue(typeTask.waitForExistence(timeout: 10), app.debugDescription)
+        typeTask.tap()
+        typeTask.tap()
+        typeTask.typeText("Type de la tâche")
+        
+        // Enregistrement de la tâche
+        let TaskSaveButton = app.buttons["task.save"]
+        XCTAssertTrue(TaskSaveButton.waitForExistence(timeout: 10))
+        TaskSaveButton.tap()
+    }
+    
+    
+    // Création du Tag
+    func tagCreationTest(app: XCUIApplication) {
+        let unique = UUID().uuidString.prefix(5)
+        
+        // Ajout d'un tag à la US
+        let TagaddButton = app.buttons["us.tag.ajouter"]
+        XCTAssertTrue(TagaddButton.waitForExistence(timeout: 10))
+        TagaddButton.tap()
+        
+        // Test Titre de l'écran de sélection des tags
+        let tagSelTitle = app.staticTexts["Sélectionner un tag"]
+        XCTAssertTrue(tagSelTitle.waitForExistence(timeout: 5))
+        
+        // Création du tag
+        let TagNewButton = app.buttons["tag.nouveau"]
+        XCTAssertTrue(TagNewButton.waitForExistence(timeout: 10))
+        TagNewButton.tap()
+        
+        // Test Titre de création du tag
+        let tagNewTitle = app.staticTexts["Créer Tag"]
+        XCTAssertTrue(tagNewTitle.waitForExistence(timeout: 5))
+        
+        // titre de la tâche
+        let tagName = app.textFields["tag.name"]
+        XCTAssertTrue(tagName.waitForExistence(timeout: 10), app.debugDescription)
+        tagName.tap()
+        tagName.typeText("\(unique)")
+        
+        let TagCreationButton = app.buttons["tag.creer"]
+        XCTAssertTrue(TagCreationButton.waitForExistence(timeout: 10))
+        TagCreationButton.tap()
+        
+        // Fermeture du tag
+        let TagCloseButton = app.buttons["tag.close"]
+        XCTAssertTrue(TagCloseButton.waitForExistence(timeout: 10))
+        TagCloseButton.tap()
+    }
+    
+    
+    // Enlève l'écran d'enregistrement de password
+    func removePlusTardTest(app: XCUIApplication) {
+        // Attendre que la tab bar existe
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.waitForExistence(timeout: 10), app.debugDescription)
+        
+        // Tap Projects
+        let usersTab = tabBar.buttons["mainview.users"]
+        XCTAssertTrue(usersTab.waitForExistence(timeout: 10), tabBar.debugDescription)
+        usersTab.tap()
+    }
+    
+    
+    // Profil utilisateur
     func profileTests(app: XCUIApplication) {
+        
         // Tap Profile
         let profileButton = app.buttons["mainview.profile"]
         XCTAssertTrue(profileButton.waitForExistence(timeout: 10))
@@ -320,18 +475,6 @@ final class TaskFlowUITests: XCTestCase {
         let profileDecoButton = app.buttons["profile.deconnexion"]
         XCTAssertTrue(profileDecoButton.waitForExistence(timeout: 10))
         profileDecoButton.tap()
-    }
-    
-    
-    func removePlusTardTest(app: XCUIApplication) {
-        // Attendre que la tab bar existe
-        let tabBar = app.tabBars.firstMatch
-        XCTAssertTrue(tabBar.waitForExistence(timeout: 10), app.debugDescription)
-        
-        // Tap Projects
-        let usersTab = tabBar.buttons["mainview.users"]
-        XCTAssertTrue(usersTab.waitForExistence(timeout: 10), tabBar.debugDescription)
-        usersTab.tap()
     }
     
     

@@ -51,6 +51,7 @@ struct TaskFormView: View {
                         // Champ titre
                         TextField("Titre", text: $vm.titre)
                             .textInputAutocapitalization(.sentences)
+                            .accessibilityIdentifier("task.titre")
                         
                         // Champ description avec placeholder
                         ZStack(alignment: .topLeading) {
@@ -64,6 +65,7 @@ struct TaskFormView: View {
                             
                             TextEditor(text: $vm.description)
                                 .frame(minHeight: 100)
+                                .accessibilityIdentifier("task.desc")
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
@@ -110,6 +112,7 @@ struct TaskFormView: View {
                             
                             TextEditor(text: $vm.type)
                                 .frame(minHeight: 80)
+                                .accessibilityIdentifier("task.type")
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
@@ -138,10 +141,12 @@ struct TaskFormView: View {
                         BoutonImageView(
                             title: "Enregistrer",
                             systemImage: "checkmark.circle.fill",
-                            style: .secondary
-                        ) {
-                            submit()
-                        }
+                            style: .secondary,
+                            action: {
+                                submit()
+                            },
+                            accessibilityId: "task.save"
+                        )
                         
                         Spacer()
                     }

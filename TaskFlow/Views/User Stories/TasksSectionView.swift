@@ -108,10 +108,12 @@ struct TasksSectionView: View {
                 BoutonImageView(
                     title: "Ajouter une tâche",
                     systemImage: "checklist",
-                    style: .secondary
-                ) {
-                    onAddTask()
-                }
+                    style: .secondary,
+                    action: {
+                        onAddTask()
+                    },
+                    accessibilityId: "us.task.ajouter"
+                )
                 .frame(maxWidth: .infinity)
             }
         }

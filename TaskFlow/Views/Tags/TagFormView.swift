@@ -46,6 +46,7 @@ struct TagFormView: View {
                             "Ex: Urgent, Backend…",
                             text: $viewModel.tagName
                         )
+                        .accessibilityIdentifier("tag.name")
                     } header: {
                         Text("Nom du tag")
                             .adaptiveTextColor()
@@ -106,6 +107,7 @@ struct TagFormView: View {
                                         : "Créer le tag"
                                     )
                                     .bold()
+                                    .accessibilityIdentifier("tag.creer")
                                 }
 
                                 Spacer()

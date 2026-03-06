@@ -120,6 +120,7 @@ struct UserStoryDetailView: View {
                     } label: {
                         Image(systemName: "xmark")
                     }
+                    .accessibilityIdentifier("us.detail.close")
                 }
             }
             // Alert suppression
@@ -228,6 +229,7 @@ private extension UserStoryDetailView {
                     Image(systemName: "plus.circle.fill")
                         .font(.title3)
                 }
+                .accessibilityIdentifier("us.tag.ajouter")
             }
 
             // Aucun tag

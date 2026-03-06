@@ -96,6 +96,7 @@ struct TagPickerView: View {
                         } label: {
                             Image(systemName: "xmark")
                         }
+                        .accessibilityIdentifier("tag.close")
                     }
 
                     // Bouton nouveau tag
@@ -105,6 +106,7 @@ struct TagPickerView: View {
                         } label: {
                             Label("Nouveau tag", systemImage: "plus")
                         }
+                        .accessibilityIdentifier("tag.nouveau")
                     }
                 }
                 // Chargement initial

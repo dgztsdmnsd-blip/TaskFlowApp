@@ -110,10 +110,12 @@ struct BacklogProjetsView: View {
                 BoutonImageView(
                     title: "Ajouter une user story",
                     systemImage: "list.bullet.rectangle",
-                    style: .secondary
-                ) {
-                    showCreateStory = true
-                }
+                    style: .secondary,
+                    action: {
+                        showCreateStory = true
+                    },
+                    accessibilityId: "add.userstory"
+                )
                 .frame(maxWidth: .infinity)
             }
         }
@@ -153,29 +155,4 @@ struct BacklogProjetsView: View {
             }
         }
     }
-
-    // Badges Membres
-    /*private func memberBadge(_ member: ProfileLiteResponse) -> some View {
-        Text(member.firstName)
-            .font(.caption2)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(Color.blue.opacity(0.25))
-            .clipShape(Capsule())
-    }
-
-    private func ownerBadge(_ member: ProfileLiteResponse) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: "crown.fill")
-                .font(.system(size: 10))
-
-            Text(member.firstName)
-                .font(.caption2.bold())
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color.orange.opacity(0.2))
-        .foregroundColor(.orange)
-        .clipShape(Capsule())
-    }*/
 }

@@ -103,6 +103,8 @@ struct BacklogUSView: View {
             width: cardSize.width,
             height: cardSize.height
         )
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("backlog.story.title.\(story.title)")
         // Debug Lifecycle
         .logLifecycle("BacklogUSView")
         // Background Carte
